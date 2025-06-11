@@ -31,7 +31,9 @@
     <div class="min-h-screen flex justify-center items-center">
         <div class="register-container w-full max-w-4xl p-8">
             <img src="/img/logo_bungo.png" alt="Logo Kabupaten Bungo" class="w-20 h-20 mx-auto mb-4">
-            <h1 class="text-2xl font-bold mb-6">Registrasi akun SIPPPHI</h1>
+            <h1 class="text-2xl font-bold mb-3">Registrasi akun SIPPPHI</h1>
+            <h3 class="text-sm font-bold mb-3">Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial Kab.
+                Bungo</h3>
             <h6 class="text-sm text-gray-500 mb-6">Registrasi hanya dapat dilakukan oleh pihak berselisih yang
                 melaporkan perselisihan yang terjadi antara
                 pekerja dan perusahaan.</h6>
@@ -43,8 +45,8 @@
                     <div class="w-full md:w-1/2 px-4">
                         <div class="mb-4">
                             <label for="nama_pelapor" class="block text-sm mb-1">Nama*</label>
-                            <input id="nama_pelapor" type="text" name="name_pelapor"
-                                value="{{ old('nama_pelapor') }}" required class="form-input" />
+                            <input id="nama_pelapor" type="text" name="name" value="{{ old('nama_pelapor') }}"
+                                required class="form-input" />
                             @error('nama_pelapor')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror

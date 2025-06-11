@@ -172,8 +172,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Kelola Mediator</p>
-                                <p class="text-sm text-gray-600">Manajemen tim</p>
+                                <p class="font-medium text-gray-900">Laporan</p>
+                                <p class="text-sm text-gray-600">Semua Laporan</p>
                             </div>
                         </a>
                     </div>

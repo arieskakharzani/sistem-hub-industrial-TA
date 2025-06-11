@@ -32,8 +32,13 @@ class Pelapor extends Model
         ];
     }
 
+    //Relationships
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+    public function pengaduan()
+    {
+        return $this->hasMany(Pengaduan::class, 'pelapor_id', 'pelapor_id');
     }
 }

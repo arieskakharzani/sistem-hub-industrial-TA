@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    {{ __('Disini adalah hasil dari kesepakatan pihak-pihak berselisih. Apakah sepakat dengan Perjanjian Bersama atau Anjuran Tertulis yang dikeluarkan oleh Mediator Disnakertrans. Jika Perjanjian bersama, maka disini termasuk bagian approval surat kesepakatan (Perjanjian Bersama) antara pihak-pihak berselisih secara digital.') }}
+                    {{ __('Disini adalah hasil dari kesepakatan pihak-pihak berselisih. Apakah sepakat dengan Perjanjian Bersama atau Anjuran Tertulis yang dikeluarkan oleh Mediator Disnakertrans. Jika Perjanjian bersama, maka disini termasuk bagian approval surat kesepakatan (Perjanjian Bersama) antara pihak-pihak berselisih secara digital oleh pelapor, terlapor dan mediator. Dan untuk Anjuran tertulus di setujui oleh Kepala Dinas.') }}
                 </div>
             </div>
         </div>

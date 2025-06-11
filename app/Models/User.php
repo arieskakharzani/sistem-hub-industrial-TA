@@ -16,7 +16,6 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        // 'is_active',
     ];
 
     protected $hidden = [
@@ -28,7 +27,6 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            // 'is_active' => 'boolean',
         ];
     }
 
@@ -66,6 +64,7 @@ class User extends Authenticatable
         if ($this->terlapor) return 'terlapor';
         if ($this->mediator) return 'mediator';
         if ($this->kepalaDinas) return 'kepala_dinas';
+
         return null;
     }
 
@@ -78,6 +77,7 @@ class User extends Authenticatable
             case 'terlapor':
                 return $this->terlapor;
             case 'mediator':
+
                 return $this->mediator;
             case 'kepala_dinas':
                 return $this->kepalaDinas;
@@ -86,7 +86,7 @@ class User extends Authenticatable
         }
     }
 
-    // ✅ Helper method untuk mendapatkan nama
+    // Helper method untuk mendapatkan nama
     public function getName()
     {
         $profile = $this->getProfile();
@@ -96,19 +96,19 @@ class User extends Authenticatable
         // Mapping nama dari berbagai tabel
         if (isset($profile->nama_pelapor)) return $profile->nama_pelapor;  // pelapor
         if (isset($profile->nama_mediator)) return $profile->nama_mediator; // mediator
-        if (isset($profile->nama_kepala_dinas)) return $profile->nama_kepala_dinas; // kepala_dinas
+        if (isset($profile->nama_kepala_dinas)) return $profile->nama_kepala_dinas; // kepala_dinas (sesuai migration)
         if (isset($profile->nama_perusahaan)) return $profile->nama_perusahaan; // terlapor
 
         return null;
     }
 
-    // ✅ Load profile untuk mencegah N+1 queries
+    // Load profile untuk mencegah N+1 queries
     public function loadProfile()
     {
         return $this->load(['pelapor', 'terlapor', 'mediator', 'kepalaDinas']);
     }
 
-    // ✅ Role checker methods
+    // Role checker methods
     public function isPelapor()
     {
         return $this->getRole() === 'pelapor';

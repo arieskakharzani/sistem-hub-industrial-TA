@@ -125,7 +125,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <input type="text" name="nama_pekerja"
-                                    value="{{ old('nama_pekerja', $user->name) }}" readonly
+                                    value="{{ old('nama_pekerja', $user->pelapor->nama_pelapor) }}" readonly
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-600">
                                 <p class="text-xs text-gray-500 italic">Nama diambil dari data akun Anda</p>
                             </div>

@@ -35,7 +35,7 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 {{-- Welcome Section --}}
                 <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-8 text-white mb-6">
-                    <h3 class="text-2xl font-bold mb-2">Selamat Datang, {{ $user->name }}</h3>
+                    <h3 class="text-2xl font-bold mb-2">Selamat Datang, {{ $user->mediator->nama_mediator }}</h3>
                     <p class="text-green-100">Dashboard Mediator - Sistem Informasi Pengaduan
                         dan Penyelesaian Perselisihan Hubungan Industrial Kab. Bungo</p>
                     <div class="mt-4">

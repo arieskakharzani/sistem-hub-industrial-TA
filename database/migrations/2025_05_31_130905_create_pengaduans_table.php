@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::dropIfExists('pengaduans');
 
         Schema::create('pengaduans', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->id('pengaduan_id');
+            $table->foreignId('pelapor_id')->constrained('pelapor', 'pelapor_id')->onDelete('cascade');
             $table->date('tanggal_laporan');
             $table->enum('perihal', [
                 'Perselisihan Hak',
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes untuk performa
-            $table->index(['user_id', 'status']);
+            $table->index(['pelapor_id', 'status']);
             $table->index('status');
             $table->index('perihal');
             $table->index('tanggal_laporan');

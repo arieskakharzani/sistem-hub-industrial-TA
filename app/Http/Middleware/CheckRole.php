@@ -16,20 +16,18 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Pastikan user sudah login
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
 
-        // Pastikan user object ada
         if (!$user) {
             return redirect()->route('login');
         }
 
-        // Manual check role instead of using hasRole method
-        $userRole = $user->getRole();
+        // ✅ Simple approach - langsung akses kolom role
+        $userRole = $user->role ?? null;
 
         if (!$userRole) {
             abort(403, 'User role not defined');
@@ -38,7 +36,6 @@ class CheckRole
         // Check if user role matches any of the required roles
         $hasAccess = false;
         foreach ($roles as $role) {
-            // Handle comma-separated roles
             if (strpos($role, ',') !== false) {
                 $roleArray = array_map('trim', explode(',', $role));
                 if (in_array($userRole, $roleArray)) {
@@ -46,7 +43,6 @@ class CheckRole
                     break;
                 }
             } else {
-                // Single role check
                 if ($userRole === $role) {
                     $hasAccess = true;
                     break;

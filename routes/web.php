@@ -66,13 +66,13 @@ Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')
     Route::get('/kelola', [PengaduanController::class, 'kelola'])->name('kelola');
 
     // Show, Edit, Update, Delete - dengan authorization di controller
-    Route::get('/{pengaduan}', [PengaduanController::class, 'show'])->name('show');
-    Route::get('/{pengaduan}/edit', [PengaduanController::class, 'edit'])->name('edit');
-    Route::put('/{pengaduan}', [PengaduanController::class, 'update'])->name('update');
-    Route::delete('/{pengaduan}', [PengaduanController::class, 'destroy'])->name('destroy');
+    Route::get('/{pengaduan:pengaduan_id}', [PengaduanController::class, 'show'])->name('show');
+    Route::get('/{pengaduan:pengaduan_id}/edit', [PengaduanController::class, 'edit'])->name('edit');
+    Route::put('/{pengaduan:pengaduan_id}', [PengaduanController::class, 'update'])->name('update');
+    Route::delete('/{pengaduan:pengaduan_id}', [PengaduanController::class, 'destroy'])->name('destroy');
 
-    // Actions untuk mediator
-    Route::post('/{pengaduan}/update-status', [PengaduanController::class, 'updateStatus'])->name('updateStatus');
+    // Actions untuk mediator - juga menggunakan pengaduan_id
+    Route::post('/{pengaduan:pengaduan_id}/update-status', [PengaduanController::class, 'updateStatus'])->name('updateStatus');
     Route::post('/{pengaduan}/assign', [PengaduanController::class, 'assign'])->name('assign');
 });
 
@@ -88,6 +88,14 @@ Route::middleware(['auth', 'verified'])->prefix('penyelesaian')->name('penyelesa
     Route::get('/', function () {
         return view('penyelesaian.index');
     })->name('index');
+
+    Route::get('/perjanjian-bersama', function () {
+        return view('penyelesaian.perjanjian-bersama');
+    })->name('perjanjian-bersama');
+
+    Route::get('/anjuran-tertulis', function () {
+        return view('penyelesaian.anjuran-tertulis');
+    })->name('anjuran-tertulis');
 });
 
 // Routes untuk laporan mediasi
@@ -95,6 +103,13 @@ Route::middleware(['auth', 'verified'])->prefix('mediasi')->name('mediasi.')->gr
     Route::get('/', function () {
         return view('mediasi.laporan');
     })->name('laporan');
+});
+
+// Routes untuk kelola surat/dokumen
+Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->group(function () {
+    Route::get('/', function () {
+        return view('dokumen.index');
+    })->name('index');
 });
 
 // Profile routes

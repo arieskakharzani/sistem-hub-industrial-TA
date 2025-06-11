@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Log;
 use App\Models\User;
 use App\Models\Pelapor;
 use Illuminate\View\View;
@@ -32,8 +31,26 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'nama_pelapor' => ['required', 'string', 'max:255'],
+        // dd([
+        //     'method' => $request->method(),
+        //     'all_input_detailed' => $request->all(), // Ini akan show semua field
+        //     'input_keys' => array_keys($request->all()), // Nama field yang diterima
+        //     'has_nama_pelapor' => $request->has('nama_pelapor'),
+        //     'nama_pelapor_value' => $request->get('nama_pelapor'),
+        // ]);
+
+        // echo "<pre>";
+        // echo "=== FULL DEBUG ===\n";
+        // echo "Method: " . $request->method() . "\n";
+        // echo "All Input Keys: " . print_r(array_keys($request->all()), true) . "\n";
+        // echo "All Input Values: " . print_r($request->all(), true) . "\n";
+        // echo "Request URL: " . $request->url() . "\n";
+        // echo "Request Path: " . $request->path() . "\n";
+        // echo "</pre>";
+        // die();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:100', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'tempat_lahir' => ['required', 'string', 'max:100'],
@@ -45,50 +62,42 @@ class RegisteredUserController extends Controller
             'npk' => ['required', 'string', 'max:20'],
         ]);
 
-        //✅ Use Database Transaction untuk atomicity
-        // DB::beginTransaction();
+        DB::beginTransaction();
 
-        // try {
-        // ✅ 1. Create User dulu di tabel users
-        $user = User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'pelapor',  // ✅ Set role di tabel users
-        ]);
+        try {
+            $user = User::create([
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'pelapor',
+            ]);
 
-        // ✅ 2. Create Pelapor profile di tabel pelapor
-        $pelapor = Pelapor::create([
-            'user_id' => $user->user_id,                    // ✅ Link ke user
-            'nama_pelapor' => $request->nama_pelapor,       // ✅ Update field name
-            'tempat_lahir' => $request->tempat_lahir,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'alamat' => $request->alamat,
-            'no_hp' => $request->no_hp,
-            'perusahaan' => $request->perusahaan,
-            'npk' => $request->npk,
-            'email' => $request->email,                     // ✅ Email juga di tabel pelapor
-        ]);
+            $pelapor = Pelapor::create([
+                'user_id' => $user->user_id,
+                'nama_pelapor' => $validated['name'],
+                'tempat_lahir' => $validated['tempat_lahir'],
+                'tanggal_lahir' => $validated['tanggal_lahir'],
+                'jenis_kelamin' => $validated['jenis_kelamin'],
+                'alamat' => $validated['alamat'],
+                'no_hp' => $validated['no_hp'],
+                'perusahaan' => $validated['perusahaan'],
+                'npk' => $validated['npk'],
+                'email' => $validated['email'],
+            ]);
 
-        // DB::commit();
+            DB::commit();
 
-        // ✅ Trigger registered event dengan user object
-        event(new Registered($user));
+            event(new Registered($user));
+            Auth::login($user);
 
-        // ✅ Login dengan user object (bukan pelapor object)
-        Auth::login($user);
+            return redirect(route('dashboard.pelapor', absolute: false));
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-        return redirect(route('dashboard.pelapor', absolute: false));
+            error_log('Registration failed: ' . $e->getMessage());
 
-        // } catch (\Exception $e) {
-        // DB::rollBack();
-
-        // Log error untuk debugging
-        //    \Log::error('Registration failed: ' . $e->getMessage());
-
-        // return redirect()->back()
-        //     ->withInput()
-        //     ->withErrors(['email' => 'Registration failed. Please try again.']);
-        // }
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['email' => 'Registration failed: ' . $e->getMessage()]);
+        }
     }
 }
