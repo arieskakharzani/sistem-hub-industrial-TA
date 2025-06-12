@@ -77,7 +77,6 @@ class User extends Authenticatable
             case 'terlapor':
                 return $this->terlapor;
             case 'mediator':
-
                 return $this->mediator;
             case 'kepala_dinas':
                 return $this->kepalaDinas;

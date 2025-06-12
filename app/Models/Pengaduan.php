@@ -47,6 +47,24 @@ class Pengaduan extends Model
         return $this->belongsTo(Pelapor::class, 'pelapor_id', 'pelapor_id');
     }
 
+    public function jadwalMediasi()
+    {
+        return $this->hasMany(JadwalMediasi::class, 'pengaduan_id', 'pengaduan_id');
+    }
+
+    public function mediator()
+    {
+        return $this->belongsTo(Mediator::class, 'mediator_id', 'mediator_id');
+    }
+
+    public function hasActiveJadwal(): bool
+    {
+        return $this->jadwalMediasi()
+            ->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung'])
+            ->exists();
+    }
+
+
     /**
      * Scope untuk filter berdasarkan status
      */

@@ -35,7 +35,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'proses', 'selesai'])->default('pending');
 
             // Fields untuk mediator
-            $table->foreignId('mediator_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('mediator_id')->nullable()->constrained('mediator', 'mediator_id')->onDelete('set null');
             $table->text('catatan_mediator')->nullable();
             $table->timestamp('assigned_at')->nullable();
 

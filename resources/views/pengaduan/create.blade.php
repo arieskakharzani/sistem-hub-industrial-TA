@@ -297,7 +297,7 @@
                     <!-- Button Actions -->
                     <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
                         <button type="submit"
-                            class="px-8 py-3 bg-primary-dark text-white rounded-lg font-medium hover:bg-primary-dark transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
+                            class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-primary-dark transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
                             <span>Kirim Pengaduan</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

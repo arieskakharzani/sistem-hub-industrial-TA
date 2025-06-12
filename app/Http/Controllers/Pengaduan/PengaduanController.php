@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Pengaduan;
 use App\Models\Pelapor;
+use App\Models\Mediator;
 
 class PengaduanController extends Controller
 {
@@ -39,10 +40,10 @@ class PengaduanController extends Controller
             }
         } else {
             // Redirect jika bukan pelapor
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
-        return view('pengaduan.index', compact('pengaduans', 'pelapor'));
+        return view('pengaduan.index', compact('user', 'pengaduans', 'pelapor'));
     }
 
     /**

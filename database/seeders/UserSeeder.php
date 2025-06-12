@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
     {
         // Pelapor Test User
         $user = User::create([
-            'email' => 'test@example.com',
+            'email' => 'pelapor@example.com',
             'password' => Hash::make('password'),
             'role' => 'pelapor',
         ]);

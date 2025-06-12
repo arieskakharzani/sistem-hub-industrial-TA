@@ -34,7 +34,7 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-semibold text-gray-900 mb-2">Login Akun</h2>
                     <p class="text-sm text-gray-600 leading-relaxed">
-                        Sistem Informasi Pengadaan dan<br>
+                        Sistem Informasi Pengaduan dan<br>
                         Penyelesaian Hubungan Industrial<br>
                         Kabupaten Bungo
                     </p>
