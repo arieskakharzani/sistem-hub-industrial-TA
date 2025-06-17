@@ -57,8 +57,8 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-gray-600 text-sm">Total Kasus</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ $stats['total_kasus_saya'] }}</p>
+                                <p class="text-gray-600 text-sm">Total Pengaduan</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ $stats['total_kasus_saya'] ?? 0 }}</p>
                             </div>
                         </div>
                     </div>
@@ -116,7 +116,7 @@
                 <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h4 class="text-lg font-semibold mb-4">Aksi Cepat</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <a href="#"
+                        <a href="{{ route('pengaduan.kelola') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
                             <div class="p-2 bg-blue-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -141,12 +141,12 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Buat Akun Terlapor</p>
-                                <p class="text-sm text-gray-600">Generate akun baru</p>
+                                <p class="font-medium text-gray-900">Manajemen Akun Terlapor</p>
+                                <p class="text-sm text-gray-600">Buat akun baru</p>
                             </div>
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('jadwal.index') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
                             <div class="p-2 bg-purple-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
@@ -161,7 +161,7 @@
                             </div>
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('penyelesaian.index') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
                             <div class="p-2 bg-orange-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">

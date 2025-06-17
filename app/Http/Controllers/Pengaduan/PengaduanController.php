@@ -19,8 +19,7 @@ class PengaduanController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'pelapor') {
-            // Cari pelapor berdasarkan user_id
-            $pelapor = Pelapor::where('user_id', $user->id)->first();
+            $pelapor = Pelapor::where('user_id', $user->user_id)->first();
 
             if (!$pelapor) {
                 // Jika belum ada record pelapor, tampilkan halaman kosong dengan pagination
@@ -63,7 +62,7 @@ class PengaduanController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        // Stats untuk dashboard
+        // Stats untuk dashboard kelola pengaduan
         $stats = [
             'total_kasus_saya' => Pengaduan::count(),
             'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
@@ -86,8 +85,8 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // Cek apakah user sudah punya record pelapor
-        $pelapor = Pelapor::where('user_id', $user->id)->first();
+        // ✅ PERBAIKAN: Gunakan user_id bukan id
+        $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor) {
             return redirect()->route('pengaduan.index')
                 ->with('error', 'Silakan lengkapi profil pelapor Anda terlebih dahulu sebelum membuat pengaduan.');
@@ -95,7 +94,7 @@ class PengaduanController extends Controller
 
         $perihalOptions = Pengaduan::getPerihalOptions();
 
-        return view('pengaduan.create', compact('perihalOptions'));
+        return view('pengaduan.create', compact('perihalOptions', 'pelapor', 'user'));
     }
 
     /**
@@ -109,7 +108,8 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        $pelapor = Pelapor::where('user_id', $user->id)->first();
+        // ✅ PERBAIKAN: Gunakan user_id bukan id
+        $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor) {
             return redirect()->route('pengaduan.index')
                 ->with('error', 'Profil pelapor tidak ditemukan');
@@ -148,7 +148,7 @@ class PengaduanController extends Controller
     }
 
     /**
-     * Display the specified pengaduan
+     * Menampilkan the detail pengaduan
      */
     public function show(Pengaduan $pengaduan)
     {
@@ -156,8 +156,8 @@ class PengaduanController extends Controller
 
         // Authorization berdasarkan role
         if ($user->role === 'pelapor') {
-            // Pelapor hanya bisa lihat pengaduan sendiri
-            $pelapor = Pelapor::where('user_id', $user->id)->first();
+            // ✅ PERBAIKAN: Gunakan user_id bukan id
+            $pelapor = Pelapor::where('user_id', $user->user_id)->first();
             if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
                 abort(403, 'Access denied');
             }
@@ -182,7 +182,8 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        $pelapor = Pelapor::where('user_id', $user->id)->first();
+        // ✅ PERBAIKAN: Gunakan user_id bukan id
+        $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
             abort(403, 'Access denied');
         }
@@ -203,7 +204,8 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        $pelapor = Pelapor::where('user_id', $user->id)->first();
+        // ✅ PERBAIKAN: Gunakan user_id bukan id
+        $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
             abort(403, 'Access denied');
         }
@@ -249,7 +251,8 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        $pelapor = Pelapor::where('user_id', $user->id)->first();
+        // ✅ PERBAIKAN: Gunakan user_id bukan id
+        $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
             abort(403, 'Access denied');
         }

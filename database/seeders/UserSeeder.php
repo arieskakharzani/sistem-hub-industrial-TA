@@ -14,64 +14,157 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Pelapor Test User
-        $user = User::create([
-            'email' => 'pelapor@example.com',
+        // Pelapor 1
+        $user1 = User::create([
+            'email' => 'pelapor1@example.com',
             'password' => Hash::make('password'),
             'role' => 'pelapor',
         ]);
 
         Pelapor::create([
-            'user_id' => $user->user_id,
-            'nama_pelapor' => 'Test User',
+            'user_id' => $user1->user_id,
+            'nama_pelapor' => 'Ahmad Wijaya',
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '1990-01-01',
             'jenis_kelamin' => 'Laki-laki',
-            'alamat' => 'Test Address',
+            'alamat' => 'Jl. Sudirman No. 10, Jakarta',
             'no_hp' => '081234567890',
-            'perusahaan' => 'Test Company',
-            'npk' => 'TEST001',
-            'email' => 'test@example.com',
+            'perusahaan' => 'PT Sejahtera Mandiri',
+            'npk' => 'EMP001',
+            'email' => 'ahmad.wijaya@company.com',
+        ]);
+
+        // Pelapor 2
+        $user2 = User::create([
+            'email' => 'pelapor2@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'pelapor',
+        ]);
+
+        Pelapor::create([
+            'user_id' => $user2->user_id,
+            'nama_pelapor' => 'Siti Nurhaliza',
+            'tempat_lahir' => 'Bandung',
+            'tanggal_lahir' => '1988-05-15',
+            'jenis_kelamin' => 'Perempuan',
+            'alamat' => 'Jl. Asia Afrika No. 25, Bandung',
+            'no_hp' => '081987654321',
+            'perusahaan' => 'CV Maju Bersama',
+            'npk' => 'EMP002',
+            'email' => 'siti.nurhaliza@company.com',
+        ]);
+
+        // Pelapor 3
+        $user3 = User::create([
+            'email' => 'pelapor3@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'pelapor',
+        ]);
+
+        Pelapor::create([
+            'user_id' => $user3->user_id,
+            'nama_pelapor' => 'Budi Santoso',
+            'tempat_lahir' => 'Surabaya',
+            'tanggal_lahir' => '1985-12-20',
+            'jenis_kelamin' => 'Laki-laki',
+            'alamat' => 'Jl. Pemuda No. 45, Surabaya',
+            'no_hp' => '082123456789',
+            'perusahaan' => 'PT Teknologi Nusantara',
+            'npk' => 'EMP003',
+            'email' => 'budi.santoso@company.com',
+        ]);
+
+        // Pelapor 4
+        $user4 = User::create([
+            'email' => 'pelapor4@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'pelapor',
+        ]);
+
+        Pelapor::create([
+            'user_id' => $user4->user_id,
+            'nama_pelapor' => 'Rina Marlina',
+            'tempat_lahir' => 'Medan',
+            'tanggal_lahir' => '1992-03-08',
+            'jenis_kelamin' => 'Perempuan',
+            'alamat' => 'Jl. Gatot Subroto No. 12, Medan',
+            'no_hp' => '083456789012',
+            'perusahaan' => 'PT Global Industries',
+            'npk' => 'EMP004',
+            'email' => 'rina.marlina@company.com',
+        ]);
+
+        // Pelapor 5
+        $user5 = User::create([
+            'email' => 'pelapor5@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'pelapor',
+        ]);
+
+        Pelapor::create([
+            'user_id' => $user5->user_id,
+            'nama_pelapor' => 'Dedi Setiawan',
+            'tempat_lahir' => 'Yogyakarta',
+            'tanggal_lahir' => '1987-09-12',
+            'jenis_kelamin' => 'Laki-laki',
+            'alamat' => 'Jl. Malioboro No. 88, Yogyakarta',
+            'no_hp' => '084567890123',
+            'perusahaan' => 'PT Mitra Sejati',
+            'npk' => 'EMP005',
+            'email' => 'dedi.setiawan@company.com',
         ]);
 
         // Terlapor
-        $user1 = User::create([
+        $userTerlapor = User::create([
             'email' => 'terlapor@example.com',
             'password' => Hash::make('password'),
             'role' => 'terlapor',
         ]);
 
         Terlapor::create([
-            'user_id' => $user1->user_id,
+            'user_id' => $userTerlapor->user_id,
             'nama_perusahaan' => 'Terlapor Company',
             'alamat_kantor_cabang' => 'Terlapor Address',
             'email' => 'terlapor@example.com',
         ]);
 
-        // Mediator
-        $user2 = User::create([
-            'email' => 'mediator@example.com',
+        // Mediator 1
+        $userMediator1 = User::create([
+            'email' => 'mediator1@example.com',
             'password' => Hash::make('password'),
             'role' => 'mediator',
         ]);
 
         Mediator::create([
-            'user_id' => $user2->user_id,
-            'nama_mediator' => 'Mediator User',
-            'nip' => '1982xxxxxxxxx',
+            'user_id' => $userMediator1->user_id,
+            'nama_mediator' => 'Mochammad Effendi',
+            'nip' => '19821015001',
+        ]);
+
+        // Mediator 2
+        $userMediator2 = User::create([
+            'email' => 'mediator2@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'mediator',
+        ]);
+
+        Mediator::create([
+            'user_id' => $userMediator2->user_id,
+            'nama_mediator' => 'Dra. Sri Rahayu',
+            'nip' => '19751208002',
         ]);
 
         // Kepala Dinas
-        $user3 = User::create([
+        $userKepala = User::create([
             'email' => 'kepaladinas@example.com',
             'password' => Hash::make('password'),
             'role' => 'kepala_dinas',
         ]);
 
         KepalaDinas::create([
-            'user_id' => $user3->user_id,
-            'nama_kepala_dinas' => 'Kepala Dinas User',
-            'nip' => '1970xxxxxxxx',
+            'user_id' => $userKepala->user_id,
+            'nama_kepala_dinas' => 'Drs. Bambang Sutrisno, M.Si',
+            'nip' => '1970010112345',
         ]);
     }
 }

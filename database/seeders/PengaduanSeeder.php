@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Pengaduan;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PengaduanSeeder extends Seeder
 {
@@ -14,112 +14,123 @@ class PengaduanSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create test users if they don't exist
-        // $user1 = User::firstOrCreate(
-        //     ['email' => 'john.doe@company.com'],
-        //     [
-        //         'name' => 'John Doe',
-        //         'npk' => 'EMP001',
-        //         'phone' => '081234567890',
-        //         'department' => 'IT Department',
-        //         'position' => 'Software Developer',
-        //         'hire_date' => '2020-01-15',
-        //         'password' => Hash::make('password'),
-        //         'email_verified_at' => now(),
-        //     ]
-        // );
+        $pengaduans = [
+            [
+                'pelapor_id' => 1,
+                'tanggal_laporan' => '2024-01-15',
+                'perihal' => 'Perselisihan Hak',
+                'masa_kerja' => '3 Tahun 6 Bulan',
+                'kontak_pekerja' => '081234567890',
+                'nama_perusahaan' => 'PT Sejahtera Mandiri',
+                'kontak_perusahaan' => '021-8765432',
+                'alamat_kantor_cabang' => 'Jl. Sudirman No. 123, Jakarta Pusat',
+                'narasi_kasus' => 'Saya tidak menerima upah lembur yang seharusnya dibayarkan sesuai dengan jam kerja tambahan yang telah saya lakukan selama 6 bulan terakhir. Perusahaan menolak memberikan kompensasi dengan alasan tidak ada pencatatan resmi.',
+                'catatan_tambahan' => 'Saya memiliki bukti absensi dan foto jam kerja',
+                'lampiran' => json_encode(['absensi.pdf', 'foto_jam_kerja.jpg']),
+                'status' => 'pending',
+                'mediator_id' => 1,
+                'catatan_mediator' => 'Kasus sedang dalam tahap mediasi dengan perusahaan',
+                'assigned_at' => Carbon::parse('2024-01-22 09:00:00'),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'pelapor_id' => 2,
+                'tanggal_laporan' => '2024-01-20',
+                'perihal' => 'Perselisihan PHK',
+                'masa_kerja' => '5 Tahun 2 Bulan',
+                'kontak_pekerja' => '081987654321',
+                'nama_perusahaan' => 'CV Maju Bersama',
+                'kontak_perusahaan' => '021-5551234',
+                'alamat_kantor_cabang' => 'Jl. Gatot Subroto No. 45, Jakarta Selatan',
+                'narasi_kasus' => 'Saya di-PHK secara sepihak tanpa prosedur yang benar dan tanpa diberikan pesangon sesuai ketentuan undang-undang ketenagakerjaan. Alasan PHK tidak jelas dan tidak ada surat peringatan sebelumnya.',
+                'catatan_tambahan' => 'Memiliki kontrak kerja dan surat pengangkatan',
+                'lampiran' => json_encode(['kontrak_kerja.pdf', 'surat_pengangkatan.pdf']),
+                'status' => 'proses',
+                'mediator_id' => 2,
+                'catatan_mediator' => 'Mediasi berhasil, perusahaan setuju memberikan kenaikan gaji sesuai PKB',
+                'assigned_at' => Carbon::parse('2024-02-03 10:30:00'),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'pelapor_id' => 3,
+                'tanggal_laporan' => '2024-02-01',
+                'perihal' => 'Perselisihan Kepentingan',
+                'masa_kerja' => '2 Tahun 8 Bulan',
+                'kontak_pekerja' => '082123456789',
+                'nama_perusahaan' => 'PT Teknologi Nusantara',
+                'kontak_perusahaan' => '021-7778889',
+                'alamat_kantor_cabang' => 'Jl. HR Rasuna Said No. 78, Jakarta Selatan',
+                'narasi_kasus' => 'Perusahaan menolak memberikan kenaikan gaji yang telah disepakati dalam perjanjian kerja bersama (PKB) untuk tahun 2024. Padahal kontribusi karyawan sudah optimal dan target tercapai.',
+                'catatan_tambahan' => null,
+                'lampiran' => json_encode(['pkb_2024.pdf', 'laporan_kinerja.pdf']),
+                'status' => 'selesai',
+                'mediator_id' => 1,
+                'catatan_mediator' => 'Sedang mengkaji kebijakan cuti perusahaan',
+                'assigned_at' => Carbon::parse('2024-02-17 14:00:00'),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'pelapor_id' => 4,
+                'tanggal_laporan' => '2024-02-10',
+                'perihal' => 'Perselisihan antar SP/SB',
+                'masa_kerja' => '1 Tahun 4 Bulan',
+                'kontak_pekerja' => '083456789012',
+                'nama_perusahaan' => 'PT Global Industries',
+                'kontak_perusahaan' => '021-4443333',
+                'alamat_kantor_cabang' => 'Jl. Thamrin No. 90, Jakarta Pusat',
+                'narasi_kasus' => 'Terjadi perselisihan antara serikat pekerja terkait pembagian dana kesejahteraan karyawan dan representasi dalam komite perusahaan. Kedua serikat saling klaim sebagai yang sah.',
+                'catatan_tambahan' => 'Melibatkan SP Sejahtera dan SB Mandiri',
+                'lampiran' => json_encode(['surat_sp_sejahtera.pdf', 'surat_sb_mandiri.pdf']),
+                'status' => 'pending',
+                'mediator_id' => null,
+                'catatan_mediator' => null,
+                'assigned_at' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'pelapor_id' => 5,
+                'tanggal_laporan' => '2024-02-15',
+                'perihal' => 'Perselisihan Hak',
+                'masa_kerja' => '4 Tahun 1 Bulan',
+                'kontak_pekerja' => '084567890123',
+                'nama_perusahaan' => 'PT Mitra Sejati',
+                'kontak_perusahaan' => '021-2221111',
+                'alamat_kantor_cabang' => 'Jl. Casablanca No. 15, Jakarta Selatan',
+                'narasi_kasus' => 'Hak cuti tahunan tidak diberikan dengan alasan beban kerja tinggi. Sudah 2 tahun tidak mengambil cuti dan permintaan cuti selalu ditolak oleh atasan langsung.',
+                'catatan_tambahan' => 'Memiliki bukti email penolakan cuti',
+                'lampiran' => json_encode(['email_penolakan_cuti.pdf']),
+                'status' => 'proses',
+                'mediator_id' => null,
+                'catatan_mediator' => null,
+                'assigned_at' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            // [
+            //     'pelapor_id' => 1,
+            //     'tanggal_laporan' => '2024-02-20',
+            //     'perihal' => 'Perselisihan Kepentingan',
+            //     'masa_kerja' => '3 Tahun 6 Bulan',
+            //     'kontak_pekerja' => '081234567890',
+            //     'nama_perusahaan' => 'PT Digital Future',
+            //     'kontak_perusahaan' => '021-9998887',
+            //     'alamat_kantor_cabang' => 'Jl. Kuningan No. 25, Jakarta Selatan',
+            //     'narasi_kasus' => 'Perusahaan mengubah sistem shift kerja tanpa konsultasi dengan karyawan. Perubahan ini berdampak pada kehidupan pribadi dan tidak ada kompensasi tambahan.',
+            //     'catatan_tambahan' => 'Perubahan berlaku sejak Januari 2024',
+            //     'lampiran' => null,
+            //     'status' => 'pending',
+            //     'mediator_id' => null,
+            //     'catatan_mediator' => null,
+            //     'assigned_at' => null,
+            //     'created_at' => Carbon::now(),
+            //     'updated_at' => Carbon::now()
+            // ]
+        ];
 
-        // $user2 = User::firstOrCreate(
-        //     ['email' => 'jane.smith@company.com'],
-        //     [
-        //         'name' => 'Jane Smith',
-        //         'npk' => 'EMP002',
-        //         'phone' => '081234567891',
-        //         'department' => 'HR Department',
-        //         'position' => 'HR Specialist',
-        //         'hire_date' => '2019-05-20',
-        //         'password' => Hash::make('password'),
-        //         'email_verified_at' => now(),
-        //     ]
-        // );
-
-        // $user3 = User::firstOrCreate(
-        //     ['email' => 'admin@company.com'],
-        //     [
-        //         'name' => 'Admin User',
-        //         'npk' => 'ADM001',
-        //         'phone' => '081234567892',
-        //         'department' => 'Management',
-        //         'position' => 'System Administrator',
-        //         'hire_date' => '2018-03-10',
-        //         'password' => Hash::make('password'),
-        //         'email_verified_at' => now(),
-        //     ]
-        // );
-
-        // Create sample pengaduan data
-        //     $pengaduanData = [
-        //         [
-        //             'user_id' => $user1->id,
-        //             'tanggal_laporan' => '2024-01-15',
-        //             'perihal' => 'Perselisihan Hak',
-        //             'masa_kerja' => '4 tahun 2 bulan',
-        //             'kontak_pekerja' => 'john.doe@company.com',
-        //             'nama_perusahaan' => 'PT. Teknologi Maju',
-        //             'kontak_perusahaan' => 'hr@teknologimaju.com',
-        //             'alamat_kantor' => 'Jl. Sudirman No. 123, Jakarta Pusat, DKI Jakarta 10220',
-        //             'narasi_kasus' => 'Saya mengalami keterlambatan pembayaran gaji selama 3 bulan berturut-turut tanpa penjelasan yang jelas dari perusahaan. Hal ini sangat mempengaruhi kondisi keuangan keluarga saya. Saya telah mencoba berkomunikasi dengan bagian HRD namun tidak mendapat tanggapan yang memuaskan.',
-        //             'catatan_tambahan' => 'Terlampir slip gaji bulan terakhir yang dibayarkan dan email komunikasi dengan HRD.',
-        //             'status' => 'pending',
-        //         ],
-        //         [
-        //             'user_id' => $user2->id,
-        //             'tanggal_laporan' => '2024-01-20',
-        //             'perihal' => 'Perselisihan PHK',
-        //             'masa_kerja' => '5 tahun 8 bulan',
-        //             'kontak_pekerja' => 'jane.smith@company.com',
-        //             'nama_perusahaan' => 'PT. Sejahtera Bersama',
-        //             'kontak_perusahaan' => 'contact@sejahterabersama.com',
-        //             'alamat_kantor' => 'Jl. HR Rasuna Said Kav. 45, Jakarta Selatan, DKI Jakarta 12940',
-        //             'narasi_kasus' => 'Saya di-PHK secara sepihak tanpa mengikuti prosedur yang semestinya. Tidak ada surat peringatan sebelumnya dan alasan PHK tidak jelas. Perusahaan hanya memberikan kompensasi yang tidak sesuai dengan ketentuan perundang-undangan.',
-        //             'catatan_tambahan' => 'Saya memiliki kontrak kerja dan tidak pernah mendapat teguran tertulis.',
-        //             'status' => 'diproses',
-        //             'processed_at' => now(),
-        //             'processed_by' => $user3->id,
-        //         ],
-        //         [
-        //             'user_id' => $user1->id,
-        //             'tanggal_laporan' => '2024-02-01',
-        //             'perihal' => 'Perselisihan Kepentingan',
-        //             'masa_kerja' => '4 tahun 3 bulan',
-        //             'kontak_pekerja' => 'john.doe@company.com',
-        //             'nama_perusahaan' => 'PT. Teknologi Maju',
-        //             'kontak_perusahaan' => 'hr@teknologimaju.com',
-        //             'alamat_kantor' => 'Jl. Sudirman No. 123, Jakarta Pusat, DKI Jakarta 10220',
-        //             'narasi_kasus' => 'Terjadi perubahan jam kerja tanpa kesepakatan bersama dengan pekerja. Manajemen secara sepihak mengubah jam kerja dari 8 jam menjadi 10 jam per hari tanpa kompensasi tambahan yang sesuai.',
-        //             'catatan_tambahan' => 'Kebijakan ini berlaku untuk seluruh karyawan di departemen IT.',
-        //             'status' => 'selesai',
-        //             'processed_at' => now()->subDays(5),
-        //             'processed_by' => $user3->id,
-        //             'keterangan_admin' => 'Kasus telah diselesaikan melalui mediasi. Perusahaan setuju untuk memberikan kompensasi lembur sesuai ketentuan.',
-        //         ],
-        //     ];
-
-        //     foreach ($pengaduanData as $data) {
-        //         Pengaduan::firstOrCreate(
-        //             [
-        //                 'user_id' => $data['user_id'],
-        //                 'tanggal_laporan' => $data['tanggal_laporan'],
-        //                 'perihal' => $data['perihal']
-        //             ],
-        //             $data
-        //         );
-        //     }
-
-        //     $this->command->info('Sample pengaduan data created successfully!');
-        //     $this->command->info('Test users created:');
-        //     $this->command->info('- john.doe@company.com (password: password)');
-        //     $this->command->info('- jane.smith@company.com (password: password)');
-        //     $this->command->info('- admin@company.com (password: password)');
+        DB::table('pengaduans')->insert($pengaduans);
     }
 }

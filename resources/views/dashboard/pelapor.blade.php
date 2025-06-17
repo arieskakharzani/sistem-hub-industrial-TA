@@ -24,132 +24,6 @@
 </head>
 
 <body>
-    {{-- <x-app-layout>
-        <x-slot name="header">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Dashboard Pelapor
-            </h2>
-        </x-slot>
-
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-8 text-white mb-6">
-                    <h3 class="text-2xl font-bold mb-2">Selamat Datang, {{ $user->name }}</h3>
-                    <p class="text-blue-100">Dashboard Pelapor - Sistem Mediasi Hubungan Industrial</p>
-                    <div class="mt-4">
-                        <span class="bg-blue-400 px-3 py-1 rounded-full text-sm font-medium">
-                            Role: {{ ucfirst($user->role) }}
-                        </span>
-                    </div>
-                </div>
-
-            
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-blue-100 rounded-lg">
-                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                                    <path fill-rule="evenodd"
-                                        d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-gray-600 text-sm">Total Pengaduan</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ $stats['total_pengaduan'] }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-yellow-100 rounded-lg">
-                                <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-gray-600 text-sm">Dalam Proses</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ $stats['pengaduan_proses'] }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-green-100 rounded-lg">
-                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-gray-600 text-sm">Selesai</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ $stats['pengaduan_selesai'] }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-       
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h4 class="text-lg font-semibold mb-4">Aksi Cepat</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <a href="{{ route('pengaduan.create') }}"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Buat Pengaduan</p>
-                                <p class="text-sm text-gray-600">Ajukan pengaduan baru</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
-                            <div class="p-2 bg-green-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Pengaduan Saya</p>
-                                <p class="text-sm text-gray-600">Lihat status pengaduan</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
-                            <div class="p-2 bg-purple-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Jadwal Mediasi</p>
-                                <p class="text-sm text-gray-600">Lihat jadwal saya</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </x-app-layout> --}}
-
     <x-app-layout>
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -182,75 +56,260 @@
 
             <!-- Main Content Grid -->
             <div class="grid lg:grid-cols-3 gap-8">
-                <!-- Empty State Section - Takes 2 columns -->
+                <!-- Main Content Section - Takes 2 columns -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                        <!-- Empty State Illustration -->
-                        <div class="text-center py-16 px-8 bg-gradient-to-br from-blue-50 to-indigo-50">
-                            <div class="text-8xl mb-6 opacity-70">📋</div>
-                            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Belum Ada Pengaduan</h3>
-                            <p class="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-                                Anda belum memiliki pengaduan yang aktif. Mulai dengan membuat pengaduan pertama Anda
-                                untuk menyelesaikan perselisihan hubungan industrial.
-                            </p>
-                            <a href="{{ route('pengaduan.index') }}"
-                                class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
-                                <span>➕</span>
-                                <span>Buat Pengaduan</span>
-                            </a>
-                        </div>
 
-                        <!-- Process Steps Preview -->
-                        <div class="p-8">
-                            <h4 class="text-xl font-semibold text-gray-800 mb-6">Proses Mediasi - 3 Langkah Mudah</h4>
+                    @if ($pengaduans->count() == 0)
+                        <!-- Empty State - Belum Ada Pengaduan -->
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                            <!-- Empty State Illustration -->
+                            <div class="text-center py-16 px-8 bg-gradient-to-br from-blue-50 to-indigo-50">
+                                <div class="text-8xl mb-6 opacity-70">📋</div>
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Belum Ada Pengaduan</h3>
+                                <p class="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                                    Anda belum memiliki pengaduan yang aktif. Mulai dengan membuat pengaduan pertama
+                                    Anda untuk menyelesaikan perselisihan hubungan industrial.
+                                </p>
+                                <a href="{{ route('pengaduan.create') }}"
+                                    class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
+                                    <span>➕</span>
+                                    <span>Buat Pengaduan</span>
+                                </a>
+                            </div>
 
-                            <div class="space-y-6">
-                                <!-- Step 1 -->
-                                <div
-                                    class="flex items-start gap-5 p-6 bg-gradient-to-r from-primary to-primary-light rounded-xl text-white">
+                            <!-- Process Steps Preview -->
+                            <div class="p-8">
+                                <h4 class="text-xl font-semibold text-gray-800 mb-6">Proses Mediasi - 3 Langkah Mudah
+                                </h4>
+
+                                <div class="space-y-6">
+                                    <!-- Step 1 -->
                                     <div
-                                        class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0">
-                                        1
+                                        class="flex items-start gap-5 p-6 bg-gradient-to-r from-primary to-primary-light rounded-xl text-white">
+                                        <div
+                                            class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0">
+                                            1</div>
+                                        <div>
+                                            <h5 class="text-lg font-semibold mb-2">Isi Form Pengaduan</h5>
+                                            <p class="text-white text-opacity-90 text-sm">
+                                                Lengkapi formulir dengan data diri, informasi perusahaan, dan detail
+                                                perselisihan
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h5 class="text-lg font-semibold mb-2">Isi Form Pengaduan</h5>
-                                        <p class="text-white text-opacity-90 text-sm">
-                                            Lengkapi formulir dengan data diri, informasi perusahaan, dan detail
-                                            perselisihan
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <!-- Step 2 -->
-                                <div class="flex items-start gap-5 p-6 border-2 border-gray-200 rounded-xl">
-                                    <div
-                                        class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-500 flex-shrink-0">
-                                        2
+                                    <!-- Step 2 -->
+                                    <div class="flex items-start gap-5 p-6 border-2 border-gray-200 rounded-xl">
+                                        <div
+                                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-500 flex-shrink-0">
+                                            2</div>
+                                        <div>
+                                            <h5 class="text-lg font-semibold text-gray-800 mb-2">Proses Mediasi</h5>
+                                            <p class="text-gray-600 text-sm">
+                                                Tim mediator akan meninjau dan menjadwalkan sesi mediasi secara
+                                                profesional
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h5 class="text-lg font-semibold text-gray-800 mb-2">Proses Mediasi</h5>
-                                        <p class="text-gray-600 text-sm">
-                                            Tim mediator akan meninjau dan menjadwalkan sesi mediasi secara profesional
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <!-- Step 3 -->
-                                <div class="flex items-start gap-5 p-6 border-2 border-gray-200 rounded-xl">
-                                    <div
-                                        class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-500 flex-shrink-0">
-                                        3
-                                    </div>
-                                    <div>
-                                        <h5 class="text-lg font-semibold text-gray-800 mb-2">Penyelesaian</h5>
-                                        <p class="text-gray-600 text-sm">
-                                            Hasil berupa Perjanjian Bersama atau Anjuran Tertulis sesuai kesepakatan
-                                        </p>
+                                    <!-- Step 3 -->
+                                    <div class="flex items-start gap-5 p-6 border-2 border-gray-200 rounded-xl">
+                                        <div
+                                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-500 flex-shrink-0">
+                                            3</div>
+                                        <div>
+                                            <h5 class="text-lg font-semibold text-gray-800 mb-2">Penyelesaian</h5>
+                                            <p class="text-gray-600 text-sm">
+                                                Hasil berupa Perjanjian Bersama atau Anjuran Tertulis sesuai kesepakatan
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <!-- Status Pengaduan Aktif -->
+                        @php
+                            $latestPengaduan = $pengaduans->first();
+                        @endphp
+
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                            <!-- Header Status -->
+                            <div class="text-center py-12 px-8 bg-gradient-to-br from-green-50 to-emerald-50">
+                                <div class="text-8xl mb-6 opacity-70">✅</div>
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Pengaduan Sudah Terkirim</h3>
+                                <p class="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+                                    Pengaduan Anda sudah berhasil dikirim dan sedang dalam proses peninjauan oleh
+                                    mediator.
+                                </p>
+
+                                <!-- Status Badge -->
+                                @if ($latestPengaduan->status == 'pending')
+                                    <div
+                                        class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-medium mb-6">
+                                        <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                                        <span>Menunggu Review</span>
+                                    </div>
+                                @elseif($latestPengaduan->status == 'proses')
+                                    <div
+                                        class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium mb-6">
+                                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                        <span>Sedang Diproses</span>
+                                    </div>
+                                @elseif($latestPengaduan->status == 'selesai')
+                                    <div
+                                        class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium mb-6">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span>Selesai</span>
+                                    </div>
+                                @endif
+
+                                <!-- Action Button -->
+                                <a href="#"
+                                    class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
+                                    <span>📄</span>
+                                    <span>Lihat Detail Pengaduan</span>
+                                </a>
+                            </div>
+
+                            <!-- Pengaduan Details -->
+                            <div class="p-8">
+                                <h4 class="text-xl font-semibold text-gray-800 mb-6">Detail Pengaduan Terakhir</h4>
+
+                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p class="text-sm text-gray-600 mb-1">Tanggal Laporan</p>
+                                            <p class="font-semibold text-gray-800">
+                                                {{ $latestPengaduan->tanggal_laporan->format('d F Y') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 mb-1">Perihal</p>
+                                            <p class="font-semibold text-gray-800">{{ $latestPengaduan->perihal }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 mb-1">Perusahaan</p>
+                                            <p class="font-semibold text-gray-800">
+                                                {{ $latestPengaduan->nama_perusahaan }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 mb-1">Status</p>
+                                            <span
+                                                class="inline-flex items-center gap-1 {{ $latestPengaduan->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : ($latestPengaduan->status == 'proses' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800') }} px-3 py-1 rounded-full text-sm font-medium">
+                                                {{ ucfirst($latestPengaduan->status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Next Steps -->
+                                <div class="space-y-4">
+                                    <h5 class="text-lg font-semibold text-gray-800">Langkah Selanjutnya</h5>
+
+                                    @if ($latestPengaduan->status == 'pending')
+                                        <div
+                                            class="flex items-start gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                                            <div
+                                                class="w-8 h-8 bg-yellow-200 rounded-full flex items-center justify-center text-yellow-700 font-bold text-sm flex-shrink-0">
+                                                1</div>
+                                            <div>
+                                                <h6 class="font-semibold text-yellow-800 mb-1">Menunggu Review Mediator
+                                                </h6>
+                                                <p class="text-yellow-700 text-sm">Tim mediator sedang meninjau
+                                                    pengaduan Anda. Proses ini biasanya memakan waktu 1-3 hari kerja.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl">
+                                            <div
+                                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">
+                                                2</div>
+                                            <div>
+                                                <h6 class="font-semibold text-gray-600 mb-1">Penjadwalan Mediasi</h6>
+                                                <p class="text-gray-600 text-sm">Setelah review, mediator akan
+                                                    menghubungi Anda untuk penjadwalan sesi mediasi.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl">
+                                            <div
+                                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">
+                                                3</div>
+                                            <div>
+                                                <h6 class="font-semibold text-gray-600 mb-1">Pelaksanaan Mediasi</h6>
+                                                <p class="text-gray-600 text-sm">Mediasi akan dilaksanakan sesuai jadwal
+                                                    yang telah disepakati.</p>
+                                            </div>
+                                        </div>
+                                    @elseif($latestPengaduan->status == 'proses')
+                                        <div
+                                            class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                            <div
+                                                class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
+                                                ✓</div>
+                                            <div>
+                                                <h6 class="font-semibold text-green-800 mb-1">Review Selesai</h6>
+                                                <p class="text-green-700 text-sm">Pengaduan Anda sudah direview dan
+                                                    disetujui untuk proses mediasi.</p>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="flex items-start gap-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                            <div
+                                                class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">
+                                                📅</div>
+                                            <div>
+                                                <h6 class="font-semibold text-blue-800 mb-1">Proses Mediasi Berlangsung
+                                                </h6>
+                                                <p class="text-blue-700 text-sm">Mediasi sedang berlangsung. Harap
+                                                    menunggu hasil dari sesi mediasi.</p>
+                                            </div>
+                                        </div>
+                                    @elseif($latestPengaduan->status == 'selesai')
+                                        <div
+                                            class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                            <div
+                                                class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
+                                                🎉</div>
+                                            <div>
+                                                <h6 class="font-semibold text-green-800 mb-1">Mediasi Selesai</h6>
+                                                <p class="text-green-700 text-sm">Proses mediasi telah selesai. Lihat
+                                                    detail pengaduan untuk hasil mediasi.</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Contact Info untuk Follow Up -->
+                                <div class="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <h6 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                        <span>📞</span>
+                                        <span>Butuh Bantuan?</span>
+                                    </h6>
+                                    <p class="text-blue-700 text-sm mb-3">
+                                        Jika Anda memiliki pertanyaan atau memerlukan informasi lebih lanjut tentang
+                                        status pengaduan, silakan hubungi:
+                                    </p>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-center gap-2 text-blue-700">
+                                            <span>📧</span>
+                                            <span>Email: mediasi@disnaker.bungo.go.id</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-blue-700">
+                                            <span>📱</span>
+                                            <span>Telepon: (0746) 21234</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-blue-700">
+                                            <span>🕒</span>
+                                            <span>Jam Layanan: Senin - Jumat, 08:00 - 16:00 WIB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Sidebar -->
@@ -295,7 +354,7 @@
                             <h3 class="text-lg font-semibold text-gray-800">Bantuan & Dukungan</h3>
                         </div>
                         <div class="p-6 space-y-3">
-                            <a href="#"
+                            <a href="tel:074621234"
                                 class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
                                 <div
                                     class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
@@ -303,11 +362,11 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-sm font-medium text-gray-800">Hubungi Call Center</div>
-                                    <div class="text-xs text-gray-600">(021) 1500-123</div>
+                                    <div class="text-xs text-gray-600">(0746) 21234</div>
                                 </div>
                             </a>
 
-                            <a href="#"
+                            <a href="mailto:mediasi@disnaker.bungo.go.id"
                                 class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
                                 <div
                                     class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
@@ -315,7 +374,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-sm font-medium text-gray-800">Email Support</div>
-                                    <div class="text-xs text-gray-600">mediasi@disnaker.go.id</div>
+                                    <div class="text-xs text-gray-600">mediasi@disnaker.bungo.go.id</div>
                                 </div>
                             </a>
 
@@ -384,13 +443,7 @@
                     e.preventDefault();
                     const text = this.textContent.trim();
 
-                    if (text.includes('Buat Pengaduan')) {
-                        alert('Mengalihkan ke halaman form pengaduan...');
-                    } else if (text.includes('Call Center')) {
-                        window.open('tel:02115000123');
-                    } else if (text.includes('Email')) {
-                        window.open('mailto:mediasi@disnaker.go.id');
-                    } else if (text.includes('FAQ')) {
+                    if (text.includes('FAQ')) {
                         alert('Halaman FAQ akan segera tersedia.');
                     }
                 });
@@ -410,8 +463,18 @@
                     }, 100);
                 }
             });
-        </script>
 
+            // Status animation
+            const statusBadges = document.querySelectorAll('.animate-pulse');
+            statusBadges.forEach(badge => {
+                badge.addEventListener('mouseenter', function() {
+                    this.classList.remove('animate-pulse');
+                });
+                badge.addEventListener('mouseleave', function() {
+                    this.classList.add('animate-pulse');
+                });
+            });
+        </script>
 
     </x-app-layout>
 

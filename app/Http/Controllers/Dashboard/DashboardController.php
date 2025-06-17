@@ -3,8 +3,10 @@
 // app/Http/Controllers/Dashboard/DashboardController.php
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
+use App\Models\Pelapor;
+use App\Models\Pengaduan;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -25,14 +27,35 @@ class DashboardController extends Controller
             abort(403, 'Access denied');
         }
 
-        // Data khusus untuk pelapor
+        // Ambil data pelapor berdasarkan user_id
+        $pelapor = Pelapor::where('user_id', $user->user_id)->first();
+
+        // Inisialisasi pengaduans sebagai collection kosong
+        $pengaduans = collect();
+
+        // Stats default
         $stats = [
-            'total_pengaduan' => 0, // Query pengaduan milik user
+            'total_pengaduan' => 0,
             'pengaduan_proses' => 0,
             'pengaduan_selesai' => 0,
         ];
 
-        return view('dashboard.pelapor', compact('user', 'stats'));
+        // Jika pelapor ada, ambil pengaduan dan hitung stats
+        if ($pelapor) {
+            // Ambil semua pengaduan milik pelapor ini
+            $pengaduans = Pengaduan::where('pelapor_id', $pelapor->pelapor_id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Hitung stats berdasarkan pengaduan real
+            $stats = [
+                'total_pengaduan' => $pengaduans->count(),
+                'pengaduan_proses' => $pengaduans->whereIn('status', ['pending', 'proses'])->count(),
+                'pengaduan_selesai' => $pengaduans->where('status', 'selesai')->count(),
+            ];
+        }
+
+        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor'));
     }
 
     public function terlapor()
@@ -71,11 +94,12 @@ class DashboardController extends Controller
 
         // Data khusus untuk mediator
         $stats = [
-            'total_kasus_saya' => 0,
-            'kasus_aktif' => 0,
-            'kasus_selesai' => 0,
-            'jadwal_hari_ini' => 0,
+            'total_kasus_saya' => Pengaduan::count(),
+            'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
+            'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
+            'jadwal_hari_ini' => Pengaduan::whereDate('tanggal_laporan', today())->count(),
         ];
+
 
         return view('dashboard.mediator', compact('user', 'stats'));
     }

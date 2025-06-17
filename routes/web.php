@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController; // Import controller pengaduan
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -56,10 +57,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')->group(function () {
 
     // Index - untuk pelapor lihat pengaduan sendiri, untuk mediator lihat semua
-    Route::get('/', [PengaduanController::class, 'index'])->name('index');
+    Route::get('/', [PengaduanController::class, 'index'])->middleware('check.role:pelapor')->name('index');
 
     // Create & Store - HANYA UNTUK PELAPOR
-    Route::get('/create', [PengaduanController::class, 'create'])->name('create');
+    Route::get('/create', [PengaduanController::class, 'create'])->middleware('check.role:pelapor')->name('create');
     Route::post('/store', [PengaduanController::class, 'store'])->name('store');
 
     // Kelola - KHUSUS UNTUK MEDIATOR
@@ -79,40 +80,40 @@ Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')
 // Routes untuk jadwal
 Route::middleware(['auth', 'verified'])->prefix('jadwal')->name('jadwal.')->group(function () {
     // Index - bisa diakses mediator
-    Route::get('/', [App\Http\Controllers\Jadwal\JadwalController::class, 'index'])
+    Route::get('/', [JadwalController::class, 'index'])
         ->middleware('check.role:mediator')
         ->name('index');
 
     // Create & Store - hanya mediator
-    Route::get('/create', [App\Http\Controllers\Jadwal\JadwalController::class, 'create'])
+    Route::get('/create', [JadwalController::class, 'create'])
         ->middleware('check.role:mediator')
         ->name('create');
 
-    Route::post('/store', [App\Http\Controllers\Jadwal\JadwalController::class, 'store'])
+    Route::post('/store', [JadwalController::class, 'store'])
         ->middleware('check.role:mediator')
         ->name('store');
 
     // Show - mediator
-    Route::get('/{jadwal}', [App\Http\Controllers\Jadwal\JadwalController::class, 'show'])
+    Route::get('/{jadwal}', [JadwalController::class, 'show'])
         ->middleware('check.role:mediator')
         ->name('show');
 
     // Edit & Update - hanya mediator yang memiliki jadwal
-    Route::get('/{jadwal}/edit', [App\Http\Controllers\Jadwal\JadwalController::class, 'edit'])
+    Route::get('/{jadwal}/edit', [JadwalController::class, 'edit'])
         ->middleware('check.role:mediator')
         ->name('edit');
 
-    Route::put('/{jadwal}', [App\Http\Controllers\Jadwal\JadwalController::class, 'update'])
+    Route::put('/{jadwal}', [JadwalController::class, 'update'])
         ->middleware('check.role:mediator')
         ->name('update');
 
     // Delete - hanya mediator yang memiliki jadwal
-    Route::delete('/{jadwal}', [App\Http\Controllers\Jadwal\JadwalController::class, 'destroy'])
+    Route::delete('/{jadwal}', [JadwalController::class, 'destroy'])
         ->middleware('check.role:mediator')
         ->name('destroy');
 
     // Update Status via AJAX - hanya mediator yang memiliki jadwal
-    Route::patch('/{jadwal}/update-status', [App\Http\Controllers\Jadwal\JadwalController::class, 'updateStatus'])
+    Route::patch('/{jadwal}/update-status', [JadwalController::class, 'updateStatus'])
         ->middleware('check.role:mediator')
         ->name('updateStatus');
 });
