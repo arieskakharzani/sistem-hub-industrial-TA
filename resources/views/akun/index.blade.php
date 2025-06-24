@@ -565,6 +565,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg font-medium text-gray-900">Daftar Terlapor</h3>
+                            <p class="text-sm text-gray-500 mt-1">Menampilkan semua akun terlapor di sistem</p>
                         </div>
 
                         @if (safeCount($terlapors) > 0)
@@ -581,6 +582,9 @@
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 No. HP</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Dibuat oleh</th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status</th>
@@ -610,6 +614,21 @@
                                                     {{ $terlapor->email_terlapor ?? 'N/A' }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     {{ $terlapor->no_hp_terlapor ?: '-' }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-900">
+                                                        @if (isset($terlapor->mediator))
+                                                            {{ $terlapor->mediator->nama_mediator }}
+                                                            @if ($terlapor->created_by_mediator_id === Auth::user()->mediator->mediator_id)
+                                                                <span
+                                                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 ml-1">
+                                                                    Anda
+                                                                </span>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-gray-400">Unknown</span>
+                                                        @endif
+                                                    </div>
+                                                </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     @if (isset($terlapor->user) && ($terlapor->status ?? '') === 'active' && $terlapor->user->is_active)
                                                         <span

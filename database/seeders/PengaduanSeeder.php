@@ -37,7 +37,7 @@ class PengaduanSeeder extends Seeder
             ],
             [
                 'pelapor_id' => 2,
-                'terlapor_id' => 1,
+                'terlapor_id' => null,
                 'tanggal_laporan' => '2024-01-20',
                 'perihal' => 'Perselisihan PHK',
                 'masa_kerja' => '5 Tahun 2 Bulan',
@@ -50,7 +50,7 @@ class PengaduanSeeder extends Seeder
                 'catatan_tambahan' => 'Memiliki kontrak kerja dan surat pengangkatan',
                 'lampiran' => json_encode(['kontrak_kerja.pdf', 'surat_pengangkatan.pdf']),
                 'status' => 'proses',
-                'mediator_id' => 2,
+                'mediator_id' => 1,
                 'catatan_mediator' => 'Mediasi berhasil, perusahaan setuju memberikan kenaikan gaji sesuai PKB',
                 'assigned_at' => Carbon::parse('2024-02-03 10:30:00'),
                 'created_at' => Carbon::now(),

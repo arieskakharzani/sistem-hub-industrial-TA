@@ -59,8 +59,10 @@ class TerlaporController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $mediatorId = Auth::user()->mediator->mediator_id;
-            $terlapors = $this->terlaporService->getTerlaporByMediator($mediatorId);
+            // Ambil semua data terlapor 
+            $terlapors = Terlapor::with(['user'])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             return response()->json([
                 'success' => true,
@@ -73,9 +75,17 @@ class TerlaporController extends Controller
                         'no_hp_terlapor' => $terlapor->no_hp_terlapor,
                         'status' => $terlapor->status,
                         'user_status' => $terlapor->user->is_active,
-                        'created_at' => $terlapor->created_at->format('Y-m-d H:i:s')
+                        'created_by_mediator_id' => $terlapor->created_by_mediator_id,
+                        'created_at' => $terlapor->created_at->format('Y-m-d H:i:s'),
+                        'updated_at' => $terlapor->updated_at->format('Y-m-d H:i:s')
                     ];
-                })
+                }),
+                'total_count' => $terlapors->count(),
+                'meta' => [
+                    'total_active' => $terlapors->where('status', 'active')->count(),
+                    'total_inactive' => $terlapors->where('status', 'inactive')->count(),
+                    'current_mediator_id' => Auth::user()->mediator->mediator_id
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

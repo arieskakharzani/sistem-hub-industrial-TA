@@ -149,7 +149,7 @@
                             <div class="md:col-span-1">
                                 <x-input-label for="no_hp_terlapor" value="Nomor HP/Telepon" />
                                 <x-text-input id="no_hp_terlapor" name="no_hp_terlapor" type="text"
-                                    class="mt-1 block w-full @error('no_hp_terlapor') border-red-500 @enderror @if (isset($pengaduan) && $pengaduan->no_hp_terlapor) bg-green-50 border-green-300 @endif"
+                                    class="mt-1 block w-full @error('no_hp_terlapor') @enderror @if (isset($pengaduan) && $pengaduan->no_hp_terlapor) bg-green-50 border-green-300 @endif"
                                     value="{{ old('no_hp_terlapor', $pengaduan->no_hp_terlapor ?? '') }}"
                                     placeholder="08xxxxxxxxxx" />
                                 @if (isset($pengaduan) && $pengaduan->no_hp_terlapor)
@@ -189,7 +189,7 @@
                         <div class="mt-6">
                             <x-input-label for="alamat_kantor_cabang" value="Alamat Kantor/Cabang" />
                             <textarea id="alamat_kantor_cabang" name="alamat_kantor_cabang" rows="3"
-                                class="mt-1 block w-full focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm @error('alamat_kantor_cabang') border-red-500 @enderror @if (isset($pengaduan)) bg-green-50 border-green-300 @endif"
+                                class="mt-1 block w-full focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm @error('alamat_kantor_cabang')  @enderror @if (isset($pengaduan)) bg-green-50 border-green-300 @endif"
                                 placeholder="Masukkan alamat lengkap kantor/cabang" required>{{ old('alamat_kantor_cabang', $pengaduan->alamat_kantor_cabang ?? '') }}</textarea>
                             @if (isset($pengaduan))
                                 <p class="mt-1 text-xs text-green-600">✓ Data diambil dari pengaduan</p>

@@ -129,28 +129,25 @@ class AkunController extends Controller
                 $thisMonthTerlapor = 0;
 
                 try {
-                    $totalTerlapor = Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)->count();
+                    $totalTerlapor = Terlapor::count();
                 } catch (\Exception $e) {
                     Log::error('Error counting total terlapor: ' . $e->getMessage());
                 }
 
                 try {
-                    $activeTerlapor = Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)
-                        ->where('status', 'active')->count();
+                    $activeTerlapor = Terlapor::where('status', 'active')->count();
                 } catch (\Exception $e) {
                     Log::error('Error counting active terlapor: ' . $e->getMessage());
                 }
 
                 try {
-                    $inactiveTerlapor = Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)
-                        ->where('status', 'inactive')->count();
+                    $inactiveTerlapor = Terlapor::where('status', 'inactive')->count();
                 } catch (\Exception $e) {
                     Log::error('Error counting inactive terlapor: ' . $e->getMessage());
                 }
 
                 try {
-                    $thisMonthTerlapor = Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)
-                        ->where('created_at', '>=', now()->startOfMonth())->count();
+                    $thisMonthTerlapor = Terlapor::where('created_at', '>=', now()->startOfMonth())->count();
                 } catch (\Exception $e) {
                     Log::error('Error counting this month terlapor: ' . $e->getMessage());
                 }
@@ -300,9 +297,8 @@ class AkunController extends Controller
                 return redirect()->route('mediator.akun.index')->with('error', 'Akses ditolak');
             }
 
-            $terlapor = Terlapor::with('user')
+            $terlapor = Terlapor::with('user', 'mediator')
                 ->where('terlapor_id', $id)
-                ->where('created_by_mediator_id', $user->mediator->mediator_id)
                 ->first();
 
             if (!$terlapor) {
@@ -310,7 +306,9 @@ class AkunController extends Controller
                     ->with('error', 'Data terlapor tidak ditemukan');
             }
 
-            return view('akun.show', compact('terlapor'));
+            $canManage = $terlapor->created_by_mediator_id === $user->mediator->mediator_id;
+
+            return view('akun.show', compact('terlapor', 'canManage'));
         } catch (\Exception $e) {
             Log::error('Error in AkunController@show: ' . $e->getMessage());
             return redirect()->route('mediator.akun.index')->with('error', 'Terjadi kesalahan');
@@ -355,13 +353,33 @@ class AkunController extends Controller
                 return response()->json(['message' => 'Akses ditolak'], 403);
             }
 
-            $success = $this->terlaporService->deactivateTerlapor($id, $user->mediator->mediator_id);
+            // Cari terlapor tanpa filter mediator
+            $terlapor = Terlapor::with('user')->where('terlapor_id', $id)->first();
 
-            if ($success) {
-                return response()->json(['message' => 'Akun terlapor berhasil dinonaktifkan'], 200);
-            } else {
-                return response()->json(['message' => 'Gagal menonaktifkan akun terlapor'], 400);
+            if (!$terlapor) {
+                return response()->json(['message' => 'Terlapor tidak ditemukan'], 404);
             }
+
+            DB::beginTransaction();
+
+            // Update status terlapor
+            $terlapor->update(['status' => 'inactive']);
+
+            // Update status user jika ada
+            if ($terlapor->user) {
+                $terlapor->user->update(['is_active' => false]);
+            }
+
+            DB::commit();
+
+            // Log aktivitas dengan informasi siapa yang menonaktifkan
+            Log::info("Terlapor #{$id} deactivated by mediator #" . $user->mediator->mediator_id, [
+                'terlapor_id' => $id,
+                'original_creator' => $terlapor->created_by_mediator_id,
+                'deactivated_by' => $user->mediator->mediator_id
+            ]);
+
+            return response()->json(['message' => 'Akun terlapor berhasil dinonaktifkan'], 200);
         } catch (\Exception $e) {
             Log::error('Error in AkunController@deactivate: ' . $e->getMessage());
             return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
@@ -379,13 +397,33 @@ class AkunController extends Controller
                 return response()->json(['message' => 'Akses ditolak'], 403);
             }
 
-            $success = $this->terlaporService->activateTerlapor($id, $user->mediator->mediator_id);
+            // Cari terlapor tanpa filter mediator
+            $terlapor = Terlapor::with('user')->where('terlapor_id', $id)->first();
 
-            if ($success) {
-                return response()->json(['message' => 'Akun terlapor berhasil diaktifkan'], 200);
-            } else {
-                return response()->json(['message' => 'Gagal mengaktifkan akun terlapor'], 400);
+            if (!$terlapor) {
+                return response()->json(['message' => 'Terlapor tidak ditemukan'], 404);
             }
+
+            DB::beginTransaction();
+
+            // Update status terlapor
+            $terlapor->update(['status' => 'active']);
+
+            // Update status user jika ada
+            if ($terlapor->user) {
+                $terlapor->user->update(['is_active' => true]);
+            }
+
+            DB::commit();
+
+            // Log aktivitas dengan informasi siapa yang mengaktifkan
+            Log::info("Terlapor #{$id} activated by mediator #" . $user->mediator->mediator_id, [
+                'terlapor_id' => $id,
+                'original_creator' => $terlapor->created_by_mediator_id,
+                'activated_by' => $user->mediator->mediator_id
+            ]);
+
+            return response()->json(['message' => 'Akun terlapor berhasil diaktifkan'], 200);
         } catch (\Exception $e) {
             Log::error('Error in AkunController@activate: ' . $e->getMessage());
             return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
@@ -462,15 +500,13 @@ class AkunController extends Controller
             }
 
             $stats = [
-                'total_terlapor' => Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)->count(),
+                'total_terlapor' => Terlapor::count(),
                 'total_pelapor' => Pelapor::count(),
-                'active_terlapor' => Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)
-                    ->where('status', 'active')->count(),
+                'active_terlapor' => Terlapor::where('status', 'active')->count(),
                 'active_pelapor' => Pelapor::whereHas('user', function ($q) {
                     $q->where('is_active', true);
                 })->count(),
-                'terlapor_this_month' => Terlapor::where('created_by_mediator_id', $user->mediator->mediator_id)
-                    ->where('created_at', '>=', now()->startOfMonth())->count(),
+                'terlapor_this_month' => Terlapor::where('created_at', '>=', now()->startOfMonth())->count(),
                 'pelapor_this_month' => Pelapor::where('created_at', '>=', now()->startOfMonth())->count()
             ];
 

@@ -1,3 +1,4 @@
+{{-- DETAIL AKUN TERLAPOR --}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -298,7 +299,7 @@
                                                 <div>
                                                     <span class="text-gray-500">Mediator:</span>
                                                     <span
-                                                        class="text-gray-900 ml-1">{{ $pengaduan->mediator->name }}</span>
+                                                        class="text-gray-900 ml-1">{{ $pengaduan->mediator->nama_mediator }}</span>
                                                 </div>
                                             @endif
                                         </div>
