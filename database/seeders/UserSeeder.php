@@ -123,10 +123,25 @@ class UserSeeder extends Seeder
 
         Terlapor::create([
             'user_id' => $userTerlapor->user_id,
-            'nama_perusahaan' => 'Terlapor Company',
+            'nama_terlapor' => 'Terlapor User',
             'alamat_kantor_cabang' => 'Terlapor Address',
-            'email' => 'terlapor@example.com',
+            'email_terlapor' => 'terlapor@example.com',
+            'no_hp_terlapor' => '085678901234',
         ]);
+
+        // $userTerlapor1 = User::create([
+        //     'email' => 'arieskaeca@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'role' => 'terlapor',
+        // ]);
+
+        // Terlapor::create([
+        //     'user_id' => $userTerlapor1->user_id,
+        //     'nama_terlapor' => 'Arieska Eca',
+        //     'alamat_kantor_cabang' => 'Terlapor Address',
+        //     'email_terlapor' => 'arieskaeca@gmail.com',
+        //     'no_hp_terlapor' => '085678901234',
+        // ]);
 
         // Mediator 1
         $userMediator1 = User::create([

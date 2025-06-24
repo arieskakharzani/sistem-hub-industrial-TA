@@ -116,7 +116,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Perusahaan</label>
-                                    <p class="text-sm text-gray-900">{{ $jadwal->pengaduan->nama_perusahaan }}</p>
+                                    <p class="text-sm text-gray-900">{{ $jadwal->pengaduan->nama_terlapor }}</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Narasi Kasus</label>

@@ -15,12 +15,14 @@ class Pengaduan extends Model
 
     protected $fillable = [
         'pelapor_id',
+        'terlapor_id', // Updated to match terlapor table
+        'mediator_id',
         'tanggal_laporan',
         'perihal',
         'masa_kerja',
-        'kontak_pekerja',
-        'nama_perusahaan',
-        'kontak_perusahaan',
+        'nama_terlapor', // Updated to match terlapor table
+        'email_terlapor', // Updated to match terlapor table
+        'no_hp_terlapor', // Updated to match terlapor table
         'alamat_kantor_cabang',
         'narasi_kasus',
         'catatan_tambahan',
@@ -47,14 +49,22 @@ class Pengaduan extends Model
         return $this->belongsTo(Pelapor::class, 'pelapor_id', 'pelapor_id');
     }
 
+    /**
+     * Get the terlapor that owns the pengaduan.
+     */
+    public function terlapor(): BelongsTo
+    {
+        return $this->belongsTo(Terlapor::class, 'terlapor_id', 'terlapor_id');
+    }
+
+    public function mediator(): BelongsTo
+    {
+        return $this->belongsTo(Mediator::class, 'mediator_id', 'mediator_id');
+    }
+
     public function jadwalMediasi()
     {
         return $this->hasMany(JadwalMediasi::class, 'pengaduan_id', 'pengaduan_id');
-    }
-
-    public function mediator()
-    {
-        return $this->belongsTo(Mediator::class, 'mediator_id', 'mediator_id');
     }
 
     public function hasActiveJadwal(): bool
@@ -87,6 +97,38 @@ class Pengaduan extends Model
     public function scopeByPerihal($query, $perihal)
     {
         return $query->where('perihal', $perihal);
+    }
+
+    /**
+     * Scope untuk pengaduan yang belum di-assign
+     */
+    public function scopeUnassigned($query)
+    {
+        return $query->whereNull('mediator_id');
+    }
+
+    /**
+     * Scope untuk pengaduan yang sudah di-assign ke mediator tertentu
+     */
+    public function scopeAssignedTo($query, $mediatorId)
+    {
+        return $query->where('mediator_id', $mediatorId);
+    }
+
+    /**
+     * Check if pengaduan is assigned to specific mediator
+     */
+    public function isAssignedTo($mediatorId): bool
+    {
+        return $this->mediator_id === $mediatorId;
+    }
+
+    /**
+     * Check if pengaduan is unassigned
+     */
+    public function isUnassigned(): bool
+    {
+        return is_null($this->mediator_id);
     }
 
     /**

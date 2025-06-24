@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_active', // Tambahkan kolom is_active
     ];
 
     protected $hidden = [
@@ -27,6 +28,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'is_active' => 'boolean', // Tambahkan cast untuk is_active
         ];
     }
 
@@ -96,7 +98,7 @@ class User extends Authenticatable
         if (isset($profile->nama_pelapor)) return $profile->nama_pelapor;  // pelapor
         if (isset($profile->nama_mediator)) return $profile->nama_mediator; // mediator
         if (isset($profile->nama_kepala_dinas)) return $profile->nama_kepala_dinas; // kepala_dinas (sesuai migration)
-        if (isset($profile->nama_perusahaan)) return $profile->nama_perusahaan; // terlapor
+        if (isset($profile->nama_terlapor)) return $profile->nama_terlapor; // terlapor
 
         return null;
     }
@@ -126,5 +128,21 @@ class User extends Authenticatable
     public function isKepalaDinas()
     {
         return $this->getRole() === 'kepala_dinas';
+    }
+
+    /**
+     * Scope untuk user aktif
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope untuk user berdasarkan role
+     */
+    public function scopeByRole($query, $role)
+    {
+        return $query->where('role', $role);
     }
 }

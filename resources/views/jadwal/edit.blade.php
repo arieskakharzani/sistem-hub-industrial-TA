@@ -49,7 +49,7 @@
                             </div>
                             <div>
                                 <span class="text-gray-500">Perusahaan:</span>
-                                <span class="ml-2 text-gray-900">{{ $jadwal->pengaduan->nama_perusahaan }}</span>
+                                <span class="ml-2 text-gray-900">{{ $jadwal->pengaduan->nama_terlapor }}</span>
                             </div>
                         </div>
                     </div>

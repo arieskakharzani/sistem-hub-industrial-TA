@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+            {{ __('Perbarui informasi halaman profil Anda.') }}
         </p>
     </header>
 
@@ -120,14 +120,14 @@
         @elseif($user->role === 'terlapor')
             {{-- Form untuk Terlapor --}}
             <div>
-                <x-input-label for="nama_perusahaan" :value="__('Nama Perusahaan')" />
-                <x-text-input id="nama_perusahaan" name="nama_perusahaan" type="text" class="mt-1 block w-full"
-                    :value="old('nama_perusahaan', $profileData->nama_perusahaan ?? ($profileName ?? ''))" required autofocus autocomplete="name" />
-                <x-input-error class="mt-2" :messages="$errors->get('nama_perusahaan')" />
+                <x-input-label for="nama_terlapor" :value="__('Nama Terlapor')" />
+                <x-text-input id="nama_terlapor" name="nama_terlapor" type="text" class="mt-1 block w-full"
+                    :value="old('nama_terlapor', $profileData->nama_terlapor ?? ($profileName ?? ''))" required autofocus autocomplete="name" />
+                <x-input-error class="mt-2" :messages="$errors->get('nama_terlapor')" />
             </div>
 
             <div>
-                <x-input-label for="alamat_kantor_cabang" :value="__('Alamat Kantor/Cabang')" />
+                <x-input-label for="alamat_kantor_cabang" :value="__('Alamat Kantor Cabang')" />
                 <textarea id="alamat_kantor_cabang" name="alamat_kantor_cabang" rows="3"
                     class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('alamat_kantor_cabang', $profileData->alamat_kantor_cabang ?? '') }}</textarea>
                 <x-input-error class="mt-2" :messages="$errors->get('alamat_kantor_cabang')" />

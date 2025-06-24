@@ -131,7 +131,7 @@
                             </div>
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('mediator.akun.index') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
                             <div class="p-2 bg-green-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">

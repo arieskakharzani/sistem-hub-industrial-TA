@@ -12,10 +12,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'primary': '#0000AB',
-                        'primary-light': '#3333CC',
-                        'primary-lighter': '#6666DD',
-                        'primary-dark': '#000088'
+                        'primary': '#3B82F6',
+                        'primary-light': '#60A5FA',
+                        'primary-lighter': '#93C5FD',
+                        'primary-dark': '#2563EB',
+                        'accent': '#10B981',
+                        'accent-light': '#34D399'
                     }
                 }
             }
@@ -23,163 +25,121 @@
     </script>
 </head>
 
-<body>
-    <x-guest-layout>
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+<body class="min-h-screen bg-gradient-to-br from-primary via-primary-light to-accent relative overflow-hidden">
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            <div class="flex items-start justify-between mb-8">
-                <div class="flex-1">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-2">Login Akun</h2>
-                    <p class="text-sm text-gray-600 leading-relaxed">
-                        Sistem Informasi Pengaduan dan<br>
-                        Penyelesaian Hubungan Industrial<br>
-                        Kabupaten Bungo
-                    </p>
-                </div>
-                <div class="ml-4">
-                    <!-- Logo Placeholder - You can replace this with actual logo -->
-                    <div class="w-16 h-16 bg-white-600 rounded-lg flex items-center justify-center">
-                        <img src="img/logo_bungo.png" alt="logo-kab-bungo">
+    <!-- Background Decorations -->
+    <div class="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-32 -translate-x-32"></div>
+    <div class="absolute top-1/4 right-1/4 w-32 h-32 bg-white/5 rounded-full"></div>
+    <div class="absolute bottom-1/4 left-1/4 w-24 h-24 bg-white/5 rounded-full"></div>
+
+    <!-- Main Content Container -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+
+            <!-- Login Card -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 p-8">
+
+                <!-- Session Status -->
+                <x-auth-session-status class="mb-4" :status="session('status')" />
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <!-- Header -->
+                    <div class="flex items-start justify-between mb-8">
+                        <div class="flex-1">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Masuk Akun</h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                Sistem Informasi Pengaduan dan<br>
+                                Penyelesaian Hubungan Industrial<br>
+                                Kabupaten Bungo
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            <div
+                                class="w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-xl flex items-center justify-center p-2 shadow-lg">
+                                <img src="/img/logo_bungo.png" alt="Logo Kabupaten Bungo"
+                                    class="w-full h-full object-contain">
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Email Address -->
+                    <div class="mb-6">
+                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                </svg>
+                            </div>
+                            <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                                autofocus autocomplete="username"
+                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 bg-white/90"
+                                placeholder="Masukkan email Anda">
+                        </div>
+                        @if ($errors->get('email'))
+                            <p class="mt-2 text-sm text-red-600">{{ $errors->first('email') }}</p>
+                        @endif
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <input id="password" type="password" name="password" required
+                                autocomplete="current-password"
+                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 bg-white/90"
+                                placeholder="Masukkan password Anda">
+                        </div>
+                        @if ($errors->get('password'))
+                            <p class="mt-2 text-sm text-red-600">{{ $errors->first('password') }}</p>
+                        @endif
+                    </div>
+
+                    <!-- Links -->
+                    <div class="block mb-6">
+                        <label for="remember_me" class="inline-flex items-center">
+                            <a class="text-primary hover:text-primary-dark font-medium transition-colors underline"
+                                href="{{ route('register') }}">
+                                {{ __('Belum punya akun?') }}
+                            </a>
+                        </label>
+                    </div>
+
+                    <!-- Submit and Forgot Password -->
+                    <div class="flex items-center justify-between">
+                        @if (Route::has('password.request'))
+                            <a class="text-gray-600 hover:text-gray-800 transition-colors underline text-sm"
+                                href="{{ route('password.request') }}">
+                                {{ __('Lupa Password?') }}
+                            </a>
+                        @endif
+
+                        <button type="submit"
+                            class="bg-gradient-to-r from-primary to-primary-dark text-white py-3 px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2">
+                            {{-- <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            </svg> --}}
+                            {{ __('Login') }}
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <!-- Email Address -->
-            <div>
-                <x-input-label for="email" :value="__('Email')" />
-                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
-                    required autofocus autocomplete="username" />
-                <x-input-error :messages="$errors->get('email')" class="mt-2" />
-            </div>
-
-            <!-- Password -->
-            <div class="mt-4">
-                <x-input-label for="password" :value="__('Password')" />
-
-                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                    autocomplete="current-password" />
-
-                <x-input-error :messages="$errors->get('password')" class="mt-2" />
-            </div>
-
-            <!-- Remember Me -->
-            <div class="block mt-4">
-                <label for="remember_me" class="inline-flex items-center">
-                    {{-- <input id="remember_me" type="checkbox"
-                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span> --}}
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        href="{{ route('register') }}">
-                        {{ __('Belum punya akun?') }}
-                    </a>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        href="{{ route('password.request') }}">
-                        {{ __('Lupa Password?') }}
-                    </a>
-                @endif
-
-                <x-primary-button class="ms-3">
-                    {{ __('Login') }}
-                </x-primary-button>
-            </div>
-        </form>
-    </x-guest-layout>
+        </div>
+    </div>
 </body>
 
 </html>
-
-{{-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Login SIPPPHI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#0000AB',
-                        'primary-light': '#3333CC',
-                        'primary-lighter': '#6666DD',
-                        'primary-dark': '#000088'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-
-<body class="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-
-    <div class="max-w-md w-full">
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            <!-- Header Section -->
-            <div class="flex items-start justify-between mb-8">
-                <div class="flex-1">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-2">Login Akun</h2>
-                    <p class="text-sm text-gray-600 leading-relaxed">
-                        Sistem Informasi Pengadaan dan<br>
-                        Penyelesaian Hubungan Industrial<br>
-                        Kabupaten Bungo
-                    </p>
-                </div>
-                <div class="ml-4">
-                    <!-- Logo Placeholder - You can replace this with actual logo -->
-                    <div class="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-10 h-10 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z" />
-                            <circle cx="12" cy="12" r="3" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Form -->
-            <form method="POST" action="#">
-                <!-- Email Field -->
-                <div class="mb-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                        Email
-                    </label>
-                    <input id="email" name="email" type="email" required autofocus autocomplete="username"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
-                </div>
-
-                <!-- Password Field -->
-                <div class="mb-6">
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                        Password
-                    </label>
-                    <input id="password" name="password" type="password" required autocomplete="current-password"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
-                </div>
-
-                <!-- Bottom Section -->
-                <div class="flex items-center justify-between">
-                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 underline">
-                        Lupa Password?
-                    </a>
-                    <button type="submit"
-                        class="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-8 rounded-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        LOGIN
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-</body>
-
-</html> --}}

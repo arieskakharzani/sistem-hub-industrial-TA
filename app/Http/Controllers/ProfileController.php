@@ -47,7 +47,7 @@ class ProfileController extends Controller
 
             case 'terlapor':
                 $profileData = Terlapor::where('user_id', $user->user_id)->first();
-                $profileName = $profileData->nama_perusahaan ?? null;
+                $profileName = $profileData->nama_terlapor ?? null;
                 break;
 
             default:
@@ -194,7 +194,7 @@ class ProfileController extends Controller
         $profile = Terlapor::where('user_id', $user->user_id)->first();
 
         if ($profile) {
-            $terlaporFields = $request->only(['nama_perusahaan', 'alamat_kantor_cabang', 'email']);
+            $terlaporFields = $request->only(['nama_terlapor', 'alamat_kantor_cabang', 'email']);
 
             $terlaporFields = array_filter($terlaporFields, function ($value) {
                 return $value !== null && $value !== '';

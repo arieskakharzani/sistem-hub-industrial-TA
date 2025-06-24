@@ -27,9 +27,24 @@
 <body>
     <x-app-layout>
         <x-slot name="header">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Kelola Pengaduan') }}
-            </h2>
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    {{ __('Kelola Pengaduan') }}
+                </h2>
+                <!-- ✅ NEW: Mode indicator untuk mediator -->
+                @if (auth()->user()->role === 'mediator')
+                    <div class="text-sm text-gray-600">
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Semua Pengaduan Dapat Dilihat
+                        </span>
+                    </div>
+                @endif
+            </div>
         </x-slot>
 
         <div class="py-12">
@@ -40,9 +55,31 @@
                         <div class="flex justify-between items-center">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">Daftar Pengaduan</h3>
-                                <p class="text-sm text-gray-600">Kelola dan pantau semua pengaduan yang masuk</p>
+                                <p class="text-sm text-gray-600">
+                                    @if (auth()->user()->role === 'mediator')
+                                        Kelola pengaduan Anda dan pantau perkembangan tim
+                                    @else
+                                        Kelola dan pantau semua pengaduan yang masuk
+                                    @endif
+                                </p>
                             </div>
                             <div class="flex space-x-4">
+                                <!-- ✅ NEW: Filter mediator untuk kepala dinas -->
+                                @if (auth()->user()->role === 'kepala_dinas')
+                                    <select id="mediatorFilter"
+                                        class="border border-gray-300 rounded-lg px-4 py-2 text-sm">
+                                        <option value="">Semua Mediator</option>
+                                        <option value="unassigned">Belum Ditugaskan</option>
+                                        @php
+                                            $mediators = \App\Models\Mediator::with('user')->get();
+                                        @endphp
+                                        @foreach ($mediators as $mediator)
+                                            <option value="{{ $mediator->mediator_id }}">{{ $mediator->nama_mediator }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @endif
+
                                 <select id="statusFilter" class="border border-gray-300 rounded-lg px-8 py-2 text-sm">
                                     <option value="">Semua Status</option>
                                     <option value="pending">Pending</option>
@@ -61,10 +98,172 @@
                     </div>
                 </div>
 
+                <!-- ✅ UPDATED: Statistics Cards with different data for mediator vs kepala dinas -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+                    @if (auth()->user()->role === 'mediator')
+                        <!-- Stats untuk Mediator -->
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-blue-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                            <path fill-rule="evenodd"
+                                                d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Total Semua Pengaduan</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['total_semua_pengaduan'] ?? ($stats['total_kasus_saya'] ?? 0) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-green-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Tanggung Jawab Saya</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['total_kasus_saya'] ?? 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-yellow-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Kasus Aktif Saya</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['kasus_aktif_saya'] ?? 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-purple-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Tersedia Diambil</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['pengaduan_tersedia'] ?? 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Stats untuk Kepala Dinas (tidak berubah) -->
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-blue-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                            <path fill-rule="evenodd"
+                                                d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Total Pengaduan</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['total_kasus_saya'] ?? 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-yellow-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Kasus Aktif</p>
+                                        <p class="text-2xl font-bold text-gray-900">{{ $stats['kasus_aktif'] ?? 0 }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-green-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Kasus Selesai</p>
+                                        <p class="text-2xl font-bold text-gray-900">{{ $stats['kasus_selesai'] ?? 0 }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-purple-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Mediator Aktif</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['mediator_aktif'] ?? ($stats['jadwal_hari_ini'] ?? 0) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                <br>
+
                 <!-- Main Content -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     @if (isset($pengaduans) && $pengaduans->count() > 0)
-                        <!-- Table with Data -->
+                        <!-- ✅ UPDATED: Table with new Mediator column and conditional actions -->
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -83,7 +282,12 @@
                                         </th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Perusahaan
+                                            Pihak Terlapor
+                                        </th>
+                                        <!-- ✅ NEW: Kolom Mediator -->
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Mediator
                                         </th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -101,17 +305,30 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($pengaduans as $index => $pengaduan)
+                                        @php
+                                            $currentUser = auth()->user();
+                                            $currentMediator =
+                                                $currentUser->role === 'mediator' ? $currentUser->mediator : null;
+                                            $isAssignedToCurrentUser =
+                                                $currentMediator &&
+                                                $pengaduan->mediator_id === $currentMediator->mediator_id;
+                                            $isUnassigned = !$pengaduan->mediator_id;
+                                            $canTakeAction =
+                                                $isAssignedToCurrentUser || $currentUser->role === 'kepala_dinas';
+                                        @endphp
+
                                         <tr class="hover:bg-gray-50" data-status="{{ $pengaduan->status }}"
-                                            data-perihal="{{ $pengaduan->perihal }}">
+                                            data-perihal="{{ $pengaduan->perihal }}"
+                                            data-mediator="{{ $pengaduan->mediator_id ?? 'unassigned' }}">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ ($pengaduans->currentPage() - 1) * $pengaduans->perPage() + $index + 1 }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $pengaduan->pelapor->nama_lengkap ?? 'N/A' }}
+                                                    {{ $pengaduan->pelapor->nama_pelapor ?? 'N/A' }}
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ $pengaduan->pelapor->email ?? ($pengaduan->kontak_pekerja ?? 'N/A') }}
+                                                    {{ $pengaduan->pelapor->email ?? 'N/A' }}
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
@@ -124,11 +341,41 @@
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm text-gray-900 max-w-xs">
-                                                    {{ $pengaduan->nama_perusahaan }}
+                                                    {{ $pengaduan->nama_terlapor ?? 'N/A' }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">
-                                                    {{ $pengaduan->kontak_perusahaan }}
+                                                    {{ $pengaduan->email_terlapor ?? 'N/A' }}
                                                 </div>
+                                            </td>
+                                            <!-- ✅ NEW: Kolom Mediator dengan indicators -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @if ($pengaduan->mediator)
+                                                    <div class="flex items-center">
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ $pengaduan->mediator->nama_mediator }}
+                                                        </div>
+                                                        @if ($isAssignedToCurrentUser)
+                                                            <span
+                                                                class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                                Anda
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-xs text-gray-500">
+                                                        {{ $pengaduan->assigned_at ? $pengaduan->assigned_at->format('d/m/Y') : '' }}
+                                                    </div>
+                                                @else
+                                                    <div class="flex items-center">
+                                                        <span class="text-sm text-gray-500 italic">Belum
+                                                            ditugaskan</span>
+                                                        @if ($currentUser->role === 'mediator')
+                                                            <span
+                                                                class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                Dapat Diambil
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @php
@@ -149,7 +396,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div class="flex space-x-2">
-                                                    <!-- ✅ BENAR: Gunakan parameter pengaduan_id -->
+                                                    <!-- Detail button - semua bisa lihat -->
                                                     <a href="{{ route('pengaduan.show', $pengaduan->pengaduan_id) }}"
                                                         class="text-primary hover:text-primary-dark transition-colors">
                                                         <svg class="w-4 h-4 inline mr-1" fill="none"
@@ -162,35 +409,64 @@
                                                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
                                                             </path>
                                                         </svg>
-                                                        Detail
+                                                        {{ $canTakeAction ? 'Kelola' : 'Lihat' }}
                                                     </a>
 
-                                                    @if ($pengaduan->status === 'pending')
-                                                        <button
-                                                            onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'proses')"
-                                                            class="text-blue-600 hover:text-blue-900 transition-colors">
-                                                            <svg class="w-4 h-4 inline mr-1" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                                </path>
-                                                            </svg>
-                                                            Proses
-                                                        </button>
+                                                    <!-- ✅ NEW: Ambil button untuk pengaduan yang belum diambil -->
+                                                    @if ($isUnassigned && $currentUser->role === 'mediator')
+                                                        <form method="POST"
+                                                            action="{{ route('pengaduan.assign', $pengaduan->pengaduan_id) }}"
+                                                            class="inline">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                class="text-green-600 hover:text-green-900 transition-colors"
+                                                                onclick="return confirm('Ambil pengaduan ini untuk ditangani?')">
+                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                                </svg>
+                                                                Ambil
+                                                            </button>
+                                                        </form>
                                                     @endif
 
-                                                    @if ($pengaduan->status === 'proses')
-                                                        <button
-                                                            onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'selesai')"
-                                                            class="text-green-600 hover:text-green-900 transition-colors">
-                                                            <svg class="w-4 h-4 inline mr-1" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                            Selesai
-                                                        </button>
+                                                    <!-- ✅ UPDATED: Quick status buttons hanya untuk yang authorized -->
+                                                    @if ($canTakeAction)
+                                                        @if ($pengaduan->status === 'pending')
+                                                            <button
+                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'proses')"
+                                                                class="text-blue-600 hover:text-blue-900 transition-colors">
+                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                    </path>
+                                                                </svg>
+                                                                Proses
+                                                            </button>
+                                                        @endif
+
+                                                        @if ($pengaduan->status === 'proses')
+                                                            <button
+                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'selesai')"
+                                                                class="text-green-600 hover:text-green-900 transition-colors">
+                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M5 13l4 4L19 7"></path>
+                                                                </svg>
+                                                                Selesai
+                                                            </button>
+                                                        @endif
+                                                    @elseif ($currentUser->role === 'mediator' && !$isUnassigned)
+                                                        <!-- Show disabled message for mediator non-assigned -->
+                                                        <span class="text-gray-400 text-xs italic">
+                                                            Lihat saja
+                                                        </span>
                                                     @endif
                                                 </div>
                                             </td>
@@ -231,88 +507,10 @@
                         </div>
                     @endif
                 </div>
-
-                <!-- Statistics Cards -->
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-blue-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                                        <path fill-rule="evenodd"
-                                            d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-gray-600 text-sm">Total Pengaduan</p>
-                                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total_kasus_saya'] ?? 0 }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-yellow-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-gray-600 text-sm">Kasus Aktif</p>
-                                    <p class="text-2xl font-bold text-gray-900">{{ $stats['kasus_aktif'] ?? 0 }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-green-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-gray-600 text-sm">Kasus Selesai</p>
-                                    <p class="text-2xl font-bold text-gray-900">{{ $stats['kasus_selesai'] ?? 0 }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-purple-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-gray-600 text-sm">Laporan Hari Ini</p>
-                                    <p class="text-2xl font-bold text-gray-900">{{ $stats['jadwal_hari_ini'] ?? 0 }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- JavaScript for actions and filtering -->
+        <!-- ✅ UPDATED: JavaScript for actions and filtering -->
         <script>
             function updateStatus(pengaduanId, newStatus) {
                 const statusText = {
@@ -348,20 +546,23 @@
                 }
             }
 
-            // Client-side filtering
+            // ✅ UPDATED: Enhanced filtering with mediator filter
             function filterTable() {
                 const statusFilter = document.getElementById('statusFilter').value;
                 const perihalFilter = document.getElementById('perihalFilter').value;
+                const mediatorFilter = document.getElementById('mediatorFilter')?.value || '';
                 const rows = document.querySelectorAll('tbody tr[data-status]');
 
                 rows.forEach(row => {
                     const rowStatus = row.getAttribute('data-status');
                     const rowPerihal = row.getAttribute('data-perihal');
+                    const rowMediator = row.getAttribute('data-mediator');
 
                     const statusMatch = !statusFilter || rowStatus === statusFilter;
                     const perihalMatch = !perihalFilter || rowPerihal === perihalFilter;
+                    const mediatorMatch = !mediatorFilter || rowMediator === mediatorFilter;
 
-                    if (statusMatch && perihalMatch) {
+                    if (statusMatch && perihalMatch && mediatorMatch) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
@@ -372,6 +573,12 @@
             // Attach event listeners
             document.getElementById('statusFilter').addEventListener('change', filterTable);
             document.getElementById('perihalFilter').addEventListener('change', filterTable);
+
+            // ✅ NEW: Add mediator filter listener for kepala dinas
+            const mediatorFilter = document.getElementById('mediatorFilter');
+            if (mediatorFilter) {
+                mediatorFilter.addEventListener('change', filterTable);
+            }
         </script>
     </x-app-layout>
 </body>

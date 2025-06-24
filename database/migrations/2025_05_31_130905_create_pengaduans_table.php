@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('pengaduans', function (Blueprint $table) {
             $table->id('pengaduan_id');
             $table->foreignId('pelapor_id')->constrained('pelapor', 'pelapor_id')->onDelete('cascade');
+            $table->foreignId('terlapor_id')->nullable()->constrained('terlapor', 'terlapor_id')->onDelete('set null');
             $table->date('tanggal_laporan');
             $table->enum('perihal', [
                 'Perselisihan Hak',
@@ -25,9 +26,10 @@ return new class extends Migration
                 'Perselisihan antar SP/SB'
             ]);
             $table->string('masa_kerja', 100);
-            $table->string('kontak_pekerja', 100);
-            $table->string('nama_perusahaan', 255);
-            $table->string('kontak_perusahaan', 100);
+            $table->string('nama_terlapor', 255);
+            $table->string('email_terlapor', 100);
+            $table->string('no_hp_terlapor', 15)->nullable();
+            // $table->string('kontak_perusahaan', 100);
             $table->text('alamat_kantor_cabang')->nullable();
             $table->text('narasi_kasus');
             $table->text('catatan_tambahan')->nullable();

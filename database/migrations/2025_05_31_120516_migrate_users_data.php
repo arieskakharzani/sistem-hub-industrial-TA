@@ -57,10 +57,10 @@ return new class extends Migration
                 case 'terlapor':
                     DB::table('terlapor')->insert([
                         'user_id' => $user_id,
-                        'nama_perusahaan' => $old_user->perusahaan, // mapping field
+                        'nama_terlapor' => $old_user->nama_terlapor, // mapping field
                         'alamat_kantor_cabang' => $old_user->alamat,
-                        'email' => $old_user->email,
-                        // 'no_hp' => $old_user->no_hp,
+                        'email_terlapor' => $old_user->email,
+                        'no_hp_terlapor' => $old_user->no_hp,
                         'created_at' => $old_user->created_at,
                         'updated_at' => $old_user->updated_at,
                     ]);

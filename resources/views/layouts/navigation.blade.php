@@ -105,6 +105,12 @@
                             {{ __('Kelola Dokumen HI') }}
                         </x-nav-link>
                     </div>
+
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('mediator.akun.index')" :active="request()->routeIs('mediasi.laporan')">
+                            {{ __('Manajemen Akun') }}
+                        </x-nav-link>
+                    </div>
                 @elseif(Auth::user()->role === 'kepala_dinas')
                     {{-- Menu untuk Kepala Dinas --}}
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">

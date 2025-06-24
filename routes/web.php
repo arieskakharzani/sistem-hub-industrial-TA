@@ -3,9 +3,11 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Akun\AkunController;
 use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Pengaduan\PengaduanController; // Import controller pengaduan
+use App\Http\Controllers\Pengaduan\PengaduanController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -74,7 +76,7 @@ Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')
 
     // Actions untuk mediator - juga menggunakan pengaduan_id
     Route::post('/{pengaduan:pengaduan_id}/update-status', [PengaduanController::class, 'updateStatus'])->name('updateStatus');
-    Route::post('/{pengaduan}/assign', [PengaduanController::class, 'assign'])->name('assign');
+    Route::post('/{pengaduan:pengaduan_id}/assign', [PengaduanController::class, 'assign'])->name('assign');
 });
 
 // Routes untuk jadwal
@@ -145,6 +147,37 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     Route::get('/', function () {
         return view('dokumen.index');
     })->name('index');
+});
+
+// Route untuk mediator mengelola akun terlapor dan pelapor
+Route::middleware(['auth', 'role:mediator'])->prefix('mediator')->name('mediator.')->group(function () {
+    Route::prefix('akun')->name('akun.')->group(function () {
+        // Route utama untuk halaman kelola akun (terlapor & pelapor)
+        Route::get('/', [AkunController::class, 'index'])->name('index');
+
+        // Route untuk terlapor 
+        Route::get('/create/{pengaduan_id?}', [AkunController::class, 'create'])->name('create');
+        Route::get('/{id}', [AkunController::class, 'show'])->name('show');
+        Route::post('/store', [AkunController::class, 'store'])->name('store');
+        Route::patch('{id}/deactivate', [AkunController::class, 'deactivate'])->name('deactivate');
+        Route::patch('{id}/activate', [AkunController::class, 'activate'])->name('activate');
+
+        // Route untuk pelapor
+        Route::prefix('pelapor')->name('pelapor.')->group(function () {
+            Route::get('/{id}', [AkunController::class, 'showPelapor'])->name('show');
+            Route::patch('/{id}/activate', [AkunController::class, 'activatePelapor'])->name('activate');
+            Route::patch('/{id}/deactivate', [AkunController::class, 'deactivatePelapor'])->name('deactivate');
+        });
+
+        // Route untuk AJAX calls (sesuai dengan JavaScript di view)
+        // Terlapor AJAX routes
+        Route::post('/{id}/activate', [AkunController::class, 'activate'])->name('ajax.activate');
+        Route::post('/{id}/deactivate', [AkunController::class, 'deactivate'])->name('ajax.deactivate');
+
+        // Pelapor AJAX routes
+        Route::post('/pelapor/{id}/activate', [AkunController::class, 'activatePelapor'])->name('pelapor.ajax.activate');
+        Route::post('/pelapor/{id}/deactivate', [AkunController::class, 'deactivatePelapor'])->name('pelapor.ajax.deactivate');
+    });
 });
 
 // Profile routes

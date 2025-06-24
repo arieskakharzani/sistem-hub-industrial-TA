@@ -114,20 +114,21 @@
                         </div>
                     </div>
 
-                    <!-- Data Pekerja -->
+                    <!-- Data Pelapor -->
                     <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Data Pekerja
+                        <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Data Pelapor
                         </h3>
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="flex items-center text-sm font-medium text-gray-700">
-                                    Nama Pekerja
+                                    Nama Pelapor
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="nama_pekerja"
-                                    value="{{ old('nama_pekerja', $user->pelapor->nama_pelapor) }}" readonly
+                                <input type="text" name="nama_pelapor"
+                                    value="{{ old('nama_pelapor', $pelapor->nama_pelapor) }}" readonly
+                                    {{-- placeholder="Masukkan nama pelapor" required --}}
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-600">
-                                <p class="text-xs text-gray-500 italic">Nama diambil dari data akun Anda</p>
+                                {{-- <p class="text-xs text-gray-500 italic">Nama diambil dari data akun Anda</p> --}}
                             </div>
 
                             <div class="space-y-2 md:col-span-1">
@@ -140,41 +141,42 @@
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                                 <p class="text-xs text-gray-500 italic">Format: tahun dan bulan</p>
                             </div>
-
-                            <div class="space-y-2">
-                                <label class="text-sm font-medium text-gray-700">
-                                    Kontak Pekerja
-                                    <span class="text-red-500 ml-1">*</span>
-                                </label>
-                                <input type="text" name="kontak_pekerja" value="{{ old('kontak_pekerja') }}"
-                                    placeholder="Nomor telepon/email aktif pekerja" required
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Data Perusahaan -->
+                    <!-- Data Terlapor -->
                     <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Data Perusahaan
+                        <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Data Terlapor
                         </h3>
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="flex items-center text-sm font-medium text-gray-700">
-                                    Nama Perusahaan
+                                    Nama Terlapor
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}"
-                                    placeholder="Masukkan nama perusahaan" required
+                                <input type="text" name="nama_terlapor" value="{{ old('nama_terlapor') }}"
+                                    placeholder="Masukkan nama terlapor" required
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                                <p class="text-xs text-gray-500 italic">Nama perusahaan atau pihak yang dilaporkan</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium text-gray-700">
+                                    Email Terlapor
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="text" name="email_terlapor" value="{{ old('email_terlapor') }}"
+                                    placeholder="Email aktif resmi pihak yang dilaporkan" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
 
                             <div class="space-y-2">
                                 <label class="text-sm font-medium text-gray-700">
-                                    Kontak Perusahaan
+                                    Nomor Telepon Terlapor
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="kontak_perusahaan" value="{{ old('kontak_perusahaan') }}"
-                                    placeholder="Nomor telepon/email aktif perusahaan" required
+                                <input type="text" name="no_hp_terlapor" value="{{ old('no_hp_terlapor') }}"
+                                    placeholder="Nomor telepon aktif pihak yang dilaporkan" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
 

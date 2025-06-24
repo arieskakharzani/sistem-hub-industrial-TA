@@ -168,7 +168,7 @@
                                         <div>
                                             <p class="text-sm text-gray-600 mb-1">Perusahaan</p>
                                             <p class="font-semibold text-gray-800">
-                                                {{ $latestPengaduan->nama_perusahaan }}</p>
+                                                {{ $latestPengaduan->nama_terlapor }}</p>
                                         </div>
                                         <div>
                                             <p class="text-sm text-gray-600 mb-1">Status</p>

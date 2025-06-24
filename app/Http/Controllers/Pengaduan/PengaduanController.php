@@ -33,7 +33,7 @@ class PengaduanController extends Controller
             } else {
                 // Pelapor hanya bisa lihat pengaduan sendiri
                 $pengaduans = Pengaduan::where('pelapor_id', $pelapor->pelapor_id)
-                    ->with('pelapor')
+                    ->with(['pelapor', 'mediator.user'])
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
             }
@@ -46,7 +46,8 @@ class PengaduanController extends Controller
     }
 
     /**
-     * Display pengaduan management page for mediator
+     * ✅ UPDATED: Display pengaduan management page for mediator
+     * Semua mediator bisa melihat semua pengaduan
      */
     public function kelola()
     {
@@ -57,18 +58,41 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // Ambil semua pengaduan untuk kelola
-        $pengaduans = Pengaduan::with('pelapor') // Eager load pelapor relationship
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        // ✅ PERUBAHAN: Semua mediator bisa melihat semua pengaduan
+        if ($user->role === 'mediator') {
+            $mediator = $user->mediator;
 
-        // Stats untuk dashboard kelola pengaduan
-        $stats = [
-            'total_kasus_saya' => Pengaduan::count(),
-            'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
-            'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
-            'jadwal_hari_ini' => Pengaduan::whereDate('tanggal_laporan', today())->count(),
-        ];
+            if (!$mediator) {
+                return redirect()->route('dashboard')->with('error', 'Profil mediator tidak ditemukan.');
+            }
+
+            // ✅ PERUBAHAN: Tampilkan SEMUA pengaduan, bukan hanya yang assigned atau unassigned
+            $pengaduans = Pengaduan::with(['pelapor', 'mediator.user'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
+
+            // Stats untuk mediator - hanya yang dia tangani
+            $stats = [
+                'total_semua_pengaduan' => Pengaduan::count(), // ✅ NEW: Total semua pengaduan
+                'total_kasus_saya' => $mediator->pengaduans()->count(), // Yang dia tangani
+                'kasus_aktif_saya' => $mediator->pengaduans()->whereIn('status', ['pending', 'proses'])->count(),
+                'kasus_selesai_saya' => $mediator->pengaduans()->where('status', 'selesai')->count(),
+                'pengaduan_tersedia' => Pengaduan::whereNull('mediator_id')->count(), // Yang belum diambil
+            ];
+        } else {
+            // Kepala dinas bisa lihat semua (tidak berubah)
+            $pengaduans = Pengaduan::with(['pelapor', 'mediator.user'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
+
+            // Stats untuk kepala dinas
+            $stats = [
+                'total_kasus_saya' => Pengaduan::count(),
+                'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
+                'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
+                'mediator_aktif' => Mediator::count(),
+            ];
+        }
 
         return view('pengaduan.kelola', compact('pengaduans', 'stats'));
     }
@@ -85,7 +109,6 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // ✅ PERBAIKAN: Gunakan user_id bukan id
         $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor) {
             return redirect()->route('pengaduan.index')
@@ -108,7 +131,6 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // ✅ PERBAIKAN: Gunakan user_id bukan id
         $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor) {
             return redirect()->route('pengaduan.index')
@@ -119,9 +141,9 @@ class PengaduanController extends Controller
             'tanggal_laporan' => 'required|date',
             'perihal' => 'required|in:' . implode(',', Pengaduan::getPerihalOptions()),
             'masa_kerja' => 'required|string|max:100',
-            'kontak_pekerja' => 'required|string|max:100',
-            'nama_perusahaan' => 'required|string|max:255',
-            'kontak_perusahaan' => 'required|string|max:100',
+            'nama_terlapor' => 'required|string|max:255',
+            'email_terlapor' => 'required|string|max:100',
+            'no_hp_terlapor' => 'required|string|max:15',
             'alamat_kantor_cabang' => 'nullable|string',
             'narasi_kasus' => 'required|string',
             'catatan_tambahan' => 'nullable|string',
@@ -148,24 +170,33 @@ class PengaduanController extends Controller
     }
 
     /**
-     * Menampilkan the detail pengaduan
+     * ✅ UPDATED: Menampilkan detail pengaduan
+     * Semua mediator bisa melihat detail semua pengaduan
      */
     public function show(Pengaduan $pengaduan)
     {
         $user = Auth::user();
 
-        // Authorization berdasarkan role
+        // ✅ PERUBAHAN: Authorization berdasarkan role - semua mediator bisa lihat
         if ($user->role === 'pelapor') {
-            // ✅ PERBAIKAN: Gunakan user_id bukan id
             $pelapor = Pelapor::where('user_id', $user->user_id)->first();
             if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
                 abort(403, 'Access denied');
             }
-        } elseif (!in_array($user->role, ['mediator', 'kepala_dinas'])) {
+        } elseif ($user->role === 'mediator') {
+            // ✅ PERUBAHAN: Semua mediator bisa melihat semua pengaduan
+            // Tidak ada restriction lagi berdasarkan assignment
+            $mediator = $user->mediator;
+            if (!$mediator) {
+                return redirect()->route('dashboard')->with('error', 'Profil mediator tidak ditemukan.');
+            }
+            // Authorization check dihapus - semua mediator bisa lihat
+        } elseif (!in_array($user->role, ['kepala_dinas'])) {
             abort(403, 'Access denied');
         }
 
-        $pengaduan->load('pelapor');
+        // Load dengan relationship yang benar
+        $pengaduan->load(['pelapor', 'mediator.user', 'terlapor']);
 
         return view('pengaduan.show', compact('pengaduan'));
     }
@@ -182,7 +213,6 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // ✅ PERBAIKAN: Gunakan user_id bukan id
         $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
             abort(403, 'Access denied');
@@ -204,7 +234,6 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // ✅ PERBAIKAN: Gunakan user_id bukan id
         $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
             abort(403, 'Access denied');
@@ -214,7 +243,6 @@ class PengaduanController extends Controller
             'tanggal_laporan' => 'required|date',
             'perihal' => 'required|in:' . implode(',', Pengaduan::getPerihalOptions()),
             'masa_kerja' => 'required|string|max:100',
-            'kontak_pekerja' => 'required|string|max:100',
             'nama_perusahaan' => 'required|string|max:255',
             'kontak_perusahaan' => 'required|string|max:100',
             'alamat_kantor_cabang' => 'nullable|string',
@@ -251,7 +279,6 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // ✅ PERBAIKAN: Gunakan user_id bukan id
         $pelapor = Pelapor::where('user_id', $user->user_id)->first();
         if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
             abort(403, 'Access denied');
@@ -264,25 +291,140 @@ class PengaduanController extends Controller
     }
 
     /**
-     * Update status pengaduan (untuk mediator)
+     * Assign pengaduan ke mediator saat ini
+     */
+    public function assign(Pengaduan $pengaduan)
+    {
+        $user = Auth::user();
+
+        // Hanya mediator yang bisa mengambil pengaduan
+        if ($user->role !== 'mediator') {
+            abort(403, 'Access denied');
+        }
+
+        $mediator = $user->mediator;
+        if (!$mediator) {
+            return redirect()->back()
+                ->with('error', 'Profil mediator tidak ditemukan. Silakan hubungi administrator.');
+        }
+
+        // Cek apakah pengaduan sudah diambil oleh mediator lain
+        if ($pengaduan->mediator_id && $pengaduan->mediator_id !== $mediator->mediator_id) {
+            return redirect()->back()
+                ->with('error', 'Pengaduan ini sudah diambil oleh mediator lain.');
+        }
+
+        // Assign pengaduan ke mediator_id
+        $pengaduan->update([
+            'mediator_id' => $mediator->mediator_id,
+            'assigned_at' => now(),
+            'status' => 'proses' // Otomatis ubah status ke proses ketika diambil
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Pengaduan berhasil diambil. Anda sekarang bertanggung jawab atas kasus ini.');
+    }
+
+    /**
+     * ✅ UPDATED: Update status pengaduan
+     * Hanya mediator yang assigned atau kepala dinas yang bisa update
      */
     public function updateStatus(Request $request, Pengaduan $pengaduan)
     {
         $user = Auth::user();
 
+        // Hanya mediator atau kepala dinas yang bisa update status
         if (!in_array($user->role, ['mediator', 'kepala_dinas'])) {
             abort(403, 'Access denied');
         }
 
+        // ✅ PERUBAHAN: Untuk mediator, WAJIB yang assigned yang bisa update
+        if ($user->role === 'mediator') {
+            $mediator = $user->mediator;
+            if (!$mediator || $pengaduan->mediator_id !== $mediator->mediator_id) {
+                return redirect()->back()
+                    ->with('error', 'Anda tidak dapat mengelola pengaduan ini karena bukan mediator yang bertanggung jawab atas kasus ini.');
+            }
+        }
+
         $validated = $request->validate([
-            'status' => 'required|in:pending,proses,selesai'
+            'status' => 'required|in:pending,proses,selesai',
+            'catatan_mediator' => 'nullable|string'
         ]);
 
-        $pengaduan->update([
-            'status' => $validated['status']
-        ]);
+        $pengaduan->update($validated);
 
         return redirect()->back()
             ->with('success', 'Status pengaduan berhasil diperbarui');
+    }
+
+    /**
+     * Auto assign pengaduan ke mediator dengan beban kerja teringan (untuk kepala dinas)
+     */
+    public function autoAssign(Pengaduan $pengaduan)
+    {
+        $user = Auth::user();
+
+        // Hanya kepala dinas yang bisa auto assign
+        if ($user->role !== 'kepala_dinas') {
+            abort(403, 'Access denied');
+        }
+
+        // Cek apakah pengaduan sudah diambil
+        if ($pengaduan->mediator_id) {
+            return redirect()->back()
+                ->with('error', 'Pengaduan ini sudah ditangani oleh mediator.');
+        }
+
+        // Cari mediator dengan beban kerja teringan
+        $mediator = Mediator::withCount(['pengaduans as active_cases' => function ($query) {
+            $query->whereIn('status', ['pending', 'proses']);
+        }])
+            ->orderBy('active_cases', 'asc')
+            ->first();
+
+        if (!$mediator) {
+            return redirect()->back()
+                ->with('error', 'Tidak ada mediator yang tersedia saat ini.');
+        }
+
+        // Assign ke mediator
+        $pengaduan->update([
+            'mediator_id' => $mediator->mediator_id,
+            'assigned_at' => now(),
+            'status' => 'proses'
+        ]);
+
+        return redirect()->back()
+            ->with('success', "Pengaduan berhasil ditugaskan ke {$mediator->nama_mediator}.");
+    }
+
+    /**
+     * Release pengaduan dari mediator (untuk kepala dinas)
+     */
+    public function releasePengaduan(Pengaduan $pengaduan)
+    {
+        $user = Auth::user();
+
+        // Hanya kepala dinas yang bisa release
+        if ($user->role !== 'kepala_dinas') {
+            abort(403, 'Access denied');
+        }
+
+        if (!$pengaduan->mediator_id) {
+            return redirect()->back()
+                ->with('error', 'Pengaduan ini belum ditugaskan ke mediator manapun.');
+        }
+
+        $mediatorLama = $pengaduan->mediator->nama_mediator ?? 'Unknown';
+
+        $pengaduan->update([
+            'mediator_id' => null,
+            'assigned_at' => null,
+            'status' => 'pending'
+        ]);
+
+        return redirect()->back()
+            ->with('success', "Pengaduan berhasil dilepas dari {$mediatorLama} dan kembali ke status pending.");
     }
 }
