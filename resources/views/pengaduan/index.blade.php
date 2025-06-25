@@ -143,7 +143,7 @@
                                 @endif
 
                                 <!-- Action Button -->
-                                <a href="#"
+                                <a href="{{ route('pengaduan.show', $latestPengaduan->pengaduan_id) }}"
                                     class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
                                     <span>📄</span>
                                     <span>Lihat Detail Pengaduan</span>

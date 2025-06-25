@@ -244,14 +244,19 @@ class PengaduanController extends Controller
     {
         $user = Auth::user();
 
-        // ✅ PERUBAHAN: Authorization berdasarkan role - semua mediator bisa lihat
+        //Authorization berdasarkan role - semua mediator bisa lihat
         if ($user->role === 'pelapor') {
             $pelapor = Pelapor::where('user_id', $user->user_id)->first();
             if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
                 abort(403, 'Access denied');
             }
+
+            // Load relasi yang diperlukan untuk pelapor
+            $pengaduan->load(['pelapor', 'mediator.user', 'terlapor']);
+
+            // Return view khusus untuk pelapor
+            return view('pengaduan.show-pelapor', compact('pengaduan', 'pelapor'));
         } elseif ($user->role === 'mediator') {
-            // ✅ PERUBAHAN: Semua mediator bisa melihat semua pengaduan
             // Tidak ada restriction lagi berdasarkan assignment
             $mediator = $user->mediator;
             if (!$mediator) {
@@ -393,7 +398,6 @@ class PengaduanController extends Controller
     }
 
     /**
-     * ✅ UPDATED: Update status pengaduan
      * Hanya mediator yang assigned atau kepala dinas yang bisa update
      */
     public function updateStatus(Request $request, Pengaduan $pengaduan)
