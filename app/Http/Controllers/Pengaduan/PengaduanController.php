@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Pengaduan;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Pengaduan;
 use App\Models\Pelapor;
 use App\Models\Mediator;
+use App\Models\Terlapor;
+use App\Models\Pengaduan;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class PengaduanController extends Controller
 {
@@ -46,7 +47,74 @@ class PengaduanController extends Controller
     }
 
     /**
-     * ✅ UPDATED: Display pengaduan management page for mediator
+     * Display a listing of pengaduan for terlapor
+     */
+    public function indexTerlapor()
+    {
+        $user = Auth::user();
+
+        // Pastikan user adalah terlapor
+        if ($user->role !== 'terlapor') {
+            abort(403, 'Access denied');
+        }
+
+        // Ambil data terlapor berdasarkan user_id
+        $terlapor = Terlapor::where('user_id', $user->user_id)->first();
+
+        if (!$terlapor) {
+            return redirect()->route('dashboard.terlapor')
+                ->with('error', 'Profil terlapor tidak ditemukan. Silakan hubungi administrator.');
+        }
+
+        // Ambil semua pengaduan yang melibatkan terlapor ini
+        $pengaduans = Pengaduan::where('terlapor_id', $terlapor->terlapor_id)
+            ->with(['pelapor', 'mediator.user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Statistik untuk terlapor
+        $stats = [
+            'total_pengaduan' => $pengaduans->total(),
+            'pending' => Pengaduan::where('terlapor_id', $terlapor->terlapor_id)->where('status', 'pending')->count(),
+            'proses' => Pengaduan::where('terlapor_id', $terlapor->terlapor_id)->where('status', 'proses')->count(),
+            'selesai' => Pengaduan::where('terlapor_id', $terlapor->terlapor_id)->where('status', 'selesai')->count(),
+        ];
+
+        return view('pengaduan.index-terlapor', compact('pengaduans', 'stats', 'terlapor'));
+    }
+
+    /**
+     * Show specific pengaduan for terlapor
+     */
+    public function showTerlapor(Pengaduan $pengaduan)
+    {
+        $user = Auth::user();
+
+        // Pastikan user adalah terlapor
+        if ($user->role !== 'terlapor') {
+            abort(403, 'Access denied');
+        }
+
+        // Ambil data terlapor berdasarkan user_id
+        $terlapor = Terlapor::where('user_id', $user->user_id)->first();
+
+        if (!$terlapor) {
+            return redirect()->route('dashboard.terlapor')
+                ->with('error', 'Profil terlapor tidak ditemukan. Silakan hubungi administrator.');
+        }
+
+        // Pastikan pengaduan ini terkait dengan terlapor yang sedang login
+        if ($pengaduan->terlapor_id !== $terlapor->terlapor_id) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat pengaduan ini.');
+        }
+
+        // Load relasi yang diperlukan
+        $pengaduan->load(['pelapor', 'mediator.user', 'terlapor', 'jadwalMediasi']);
+
+        return view('pengaduan.show-terlapor', compact('pengaduan', 'terlapor'));
+    }
+
+    /**
      * Semua mediator bisa melihat semua pengaduan
      */
     public function kelola()
@@ -58,7 +126,7 @@ class PengaduanController extends Controller
             abort(403, 'Access denied');
         }
 
-        // ✅ PERUBAHAN: Semua mediator bisa melihat semua pengaduan
+        // Semua mediator bisa melihat semua pengaduan
         if ($user->role === 'mediator') {
             $mediator = $user->mediator;
 
@@ -66,7 +134,7 @@ class PengaduanController extends Controller
                 return redirect()->route('dashboard')->with('error', 'Profil mediator tidak ditemukan.');
             }
 
-            // ✅ PERUBAHAN: Tampilkan SEMUA pengaduan, bukan hanya yang assigned atau unassigned
+            // Tampilkan SEMUA pengaduan, bukan hanya yang assigned atau unassigned
             $pengaduans = Pengaduan::with(['pelapor', 'mediator.user'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
@@ -170,7 +238,6 @@ class PengaduanController extends Controller
     }
 
     /**
-     * ✅ UPDATED: Menampilkan detail pengaduan
      * Semua mediator bisa melihat detail semua pengaduan
      */
     public function show(Pengaduan $pengaduan)

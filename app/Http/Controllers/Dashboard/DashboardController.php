@@ -76,6 +76,20 @@ class DashboardController extends Controller
             'menunggu_respons' => 0,
             'dalam_mediasi' => 0,
         ];
+        // Ambil data pengaduan yang melibatkan terlapor ini
+        if ($terlapor = $user->terlapor) {
+            // Ambil semua pengaduan milik pelapor ini
+            $pengaduans = Pengaduan::where('terlapor_id', $terlapor->terlapor_id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Hitung stats berdasarkan pengaduan real
+            $stats = [
+                'total_aduan_terhadap_saya' => $pengaduans->count() ?? 0,
+                'menunggu_respons' => 0,
+                'dalam_mediasi' => 0,
+            ];
+        }
 
         return view('dashboard.terlapor', compact('user', 'stats'));
     }

@@ -101,7 +101,7 @@
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <h4 class="text-lg font-semibold mb-4">Aksi Cepat</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="#"
+                        <a href="{{ route('pengaduan.index-terlapor') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-yellow-50 hover:border-yellow-300 transition-colors">
                             <div class="p-2 bg-orange-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
@@ -112,8 +112,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Lihat Aduan</p>
-                                <p class="text-sm text-gray-600">Aduan yang ditujukan kepada saya</p>
+                                <p class="font-medium text-gray-900">Lihat Pengaduan Terhadap Saya</p>
+                                <p class="text-sm text-gray-600">Pengaduan yang melibatkan perusahaan/instansi Anda</p>
                             </div>
                         </a>
 

@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Akun\AkunController;
+use App\Http\Controllers\Api\TerlaporController;
 use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController;
+
 
 
 Route::get('/', function () {
@@ -60,6 +62,15 @@ Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')
 
     // Index - untuk pelapor lihat pengaduan sendiri, untuk mediator lihat semua
     Route::get('/', [PengaduanController::class, 'index'])->middleware('check.role:pelapor')->name('index');
+
+    //Index untuk terlapor - melihat pengaduan yang melibatkan mereka
+    Route::get('/pengaduan-saya', [PengaduanController::class, 'indexTerlapor'])
+        ->middleware('check.role:terlapor')
+        ->name('index-terlapor');
+    // Detail pengaduan untuk terlapor (read-only)
+    Route::get('/pengaduan-saya/{pengaduan:pengaduan_id}', [PengaduanController::class, 'showTerlapor'])
+        ->middleware('check.role:terlapor')
+        ->name('show-terlapor');
 
     // Create & Store - HANYA UNTUK PELAPOR
     Route::get('/create', [PengaduanController::class, 'create'])->middleware('check.role:pelapor')->name('create');
