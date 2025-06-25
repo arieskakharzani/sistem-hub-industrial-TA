@@ -282,6 +282,10 @@ class PengaduanController extends Controller
 
         // Hanya pelapor yang bisa edit pengaduan sendiri, dan hanya jika status masih pending
         if ($user->role !== 'pelapor' || $pengaduan->status !== 'pending') {
+            if ($user->role === 'pelapor' && $pengaduan->status !== 'pending') {
+                return redirect()->route('pengaduan.show', $pengaduan->pengaduan_id)
+                    ->with('error', 'Pengaduan tidak dapat diubah karena sudah direview oleh mediator.');
+            }
             abort(403, 'Access denied');
         }
 
@@ -292,7 +296,7 @@ class PengaduanController extends Controller
 
         $perihalOptions = Pengaduan::getPerihalOptions();
 
-        return view('pengaduan.edit', compact('pengaduan', 'perihalOptions'));
+        return view('pengaduan.edit', compact('pengaduan', 'perihalOptions', 'pelapor'));
     }
 
     /**
@@ -315,8 +319,9 @@ class PengaduanController extends Controller
             'tanggal_laporan' => 'required|date',
             'perihal' => 'required|in:' . implode(',', Pengaduan::getPerihalOptions()),
             'masa_kerja' => 'required|string|max:100',
-            'nama_perusahaan' => 'required|string|max:255',
-            'kontak_perusahaan' => 'required|string|max:100',
+            'nama_terlapor' => 'required|string|max:255',
+            'email_terlapor' => 'required|string|max:100',
+            'no_hp_terlapor' => 'required|string|max:15',
             'alamat_kantor_cabang' => 'nullable|string',
             'narasi_kasus' => 'required|string',
             'catatan_tambahan' => 'nullable|string',
