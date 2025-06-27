@@ -7,6 +7,7 @@ use App\Models\Mediator;
 use App\Models\Terlapor;
 use App\Models\Pengaduan;
 use Illuminate\Http\Request;
+use App\Events\PengaduanCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -232,6 +233,21 @@ class PengaduanController extends Controller
         $pengaduan->lampiran = $lampiranPaths;
         $pengaduan->status = 'pending';
         $pengaduan->save();
+
+        // Load relasi yang diperlukan untuk notifikasi
+        $pengaduan->load('pelapor');
+
+        // Debug log
+        \Log::info('Triggering PengaduanCreated event', [
+            'pengaduan_id' => $pengaduan->pengaduan_id,
+            'pelapor' => $pengaduan->pelapor->nama_pelapor
+        ]);
+
+        // Dispatch event untuk notifikasi
+        event(new PengaduanCreated($pengaduan));
+
+        \Log::info('PengaduanCreated event triggered successfully');
+
 
         return redirect()->route('pengaduan.index')
             ->with('success', 'Pengaduan berhasil dibuat');

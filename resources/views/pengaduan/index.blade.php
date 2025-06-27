@@ -128,26 +128,37 @@
                                         <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                                         <span>Menunggu Review</span>
                                     </div>
+                                    <!-- Action Button -->
+                                    <a href="{{ route('pengaduan.show', $latestPengaduan->pengaduan_id) }}"
+                                        class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
+                                        <span>📄</span>
+                                        <span>Lihat Detail Pengaduan</span>
+                                    </a>
                                 @elseif($latestPengaduan->status == 'proses')
                                     <div
                                         class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium mb-6">
                                         <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                         <span>Sedang Diproses</span>
                                     </div>
+                                    <!-- Action Button -->
+                                    <a href="{{ route('pengaduan.show', $latestPengaduan->pengaduan_id) }}"
+                                        class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
+                                        <span>📄</span>
+                                        <span>Lihat Detail Pengaduan</span>
+                                    </a>
                                 @elseif($latestPengaduan->status == 'selesai')
                                     <div
                                         class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium mb-6">
                                         <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                                         <span>Selesai</span>
                                     </div>
+                                    <!-- Action Button -->
+                                    <a href="{{ route('penyelesaian.index') }}"
+                                        class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
+                                        <span>📄</span>
+                                        <span>Lihat Hasil Kesepakatan</span>
+                                    </a>
                                 @endif
-
-                                <!-- Action Button -->
-                                <a href="{{ route('pengaduan.show', $latestPengaduan->pengaduan_id) }}"
-                                    class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
-                                    <span>📄</span>
-                                    <span>Lihat Detail Pengaduan</span>
-                                </a>
                             </div>
 
                             <!-- Pengaduan Details -->

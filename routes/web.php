@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Akun\AkunController;
 use App\Http\Controllers\Api\TerlaporController;
+use App\Http\Controllers\Pengaduan\NotificationController;
 use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController;
@@ -189,6 +190,22 @@ Route::middleware(['auth', 'role:mediator'])->prefix('mediator')->name('mediator
         Route::post('/pelapor/{id}/activate', [AkunController::class, 'activatePelapor'])->name('pelapor.ajax.activate');
         Route::post('/pelapor/{id}/deactivate', [AkunController::class, 'deactivatePelapor'])->name('pelapor.ajax.deactivate');
     });
+});
+
+// Routes untuk notifikasi (khusus mediator)
+Route::middleware(['auth', 'verified', 'check.role:mediator'])->prefix('notifications')->name('notifications.')->group(function () {
+    // Halaman index notifikasi
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+
+    // AJAX routes untuk dropdown
+    Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+    Route::get('/recent', [NotificationController::class, 'getRecent'])->name('recent');
+
+    // Actions
+    Route::post('/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{notificationId}', [NotificationController::class, 'delete'])->name('delete');
+    Route::post('/clear-all', [NotificationController::class, 'clearAll'])->name('clear-all');
 });
 
 // Profile routes

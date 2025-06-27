@@ -501,7 +501,7 @@
                                             </p>
                                         @endif
 
-                                        <!-- ✅ UPDATED: Button untuk kepala dinas only -->
+                                        <!-- Button untuk kepala dinas only -->
                                         @if ($isKepalaDinas && $pengaduan->mediator_id)
                                             <form method="POST"
                                                 action="{{ route('pengaduan.release', $pengaduan->pengaduan_id) }}"
@@ -519,7 +519,7 @@
                                     <div class="text-center">
                                         <p class="text-gray-500 italic mb-3">Belum ditugaskan ke mediator</p>
 
-                                        <!-- ✅ UPDATED: Auto assign untuk kepala dinas only -->
+                                        <!-- Auto assign untuk kepala dinas only -->
                                         @if ($isKepalaDinas)
                                             <form method="POST"
                                                 action="{{ route('pengaduan.autoAssign', $pengaduan->pengaduan_id) }}">

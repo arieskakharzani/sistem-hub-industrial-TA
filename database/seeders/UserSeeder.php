@@ -145,7 +145,7 @@ class UserSeeder extends Seeder
 
         // Mediator 1
         $userMediator1 = User::create([
-            'email' => 'mediator1@example.com',
+            'email' => 'daarsyaaa@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'mediator',
         ]);
@@ -158,7 +158,7 @@ class UserSeeder extends Seeder
 
         // Mediator 2
         $userMediator2 = User::create([
-            'email' => 'mediator2@example.com',
+            'email' => 'semuabisa.co@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'mediator',
         ]);

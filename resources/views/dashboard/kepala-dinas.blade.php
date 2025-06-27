@@ -35,7 +35,8 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 {{-- Welcome Section --}}
                 <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-8 text-white mb-6">
-                    <h3 class="text-2xl font-bold mb-2">Selamat Datang, {{ $user->name }}</h3>
+                    <h3 class="text-2xl font-bold mb-2">Selamat Datang, {{ $user->email }}
+                    </h3>
                     <p class="text-purple-100">Dashboard Kepala Dinas - Sistem Informasi Pengaduan dan Penyelesaian
                         Perselisihan Hubungan Industrial Kab. Bungo</p>
                     <div class="mt-4">
