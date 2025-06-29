@@ -4,10 +4,14 @@ namespace App\Providers;
 
 use App\Events\PengaduanCreated;
 use App\Listeners\NotifyMediators;
+use App\Events\JadwalMediasiCreated;
+use App\Events\JadwalMediasiUpdated;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
+use App\Events\JadwalMediasiStatusUpdated;
+use App\Listeners\SendJadwalMediasiNotification;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -21,9 +25,22 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
 
-        // 🔥 TAMBAHAN: Event untuk pengaduan baru
+        // Event untuk pengaduan baru
         PengaduanCreated::class => [
             NotifyMediators::class,
+        ],
+
+        //Event untuk pemberitahuan jadwam mediasi ke pelapor dan terlapor
+        JadwalMediasiCreated::class => [
+            SendJadwalMediasiNotification::class,
+        ],
+
+        JadwalMediasiUpdated::class => [
+            SendJadwalMediasiNotification::class,
+        ],
+
+        JadwalMediasiStatusUpdated::class => [
+            SendJadwalMediasiNotification::class,
         ],
     ];
 

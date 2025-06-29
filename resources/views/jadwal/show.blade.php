@@ -163,40 +163,102 @@
                         <div class="p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
 
-                            <div class="space-y-3">
-                                <form id="statusForm">
-                                    @csrf
+                            @if ($jadwal->status_jadwal === 'selesai')
+                                {{-- Tampilan ketika status sudah selesai --}}
+                                <div class="bg-green-50 border border-green-200 rounded-md p-4">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-sm font-medium text-green-800">
+                                            Jadwal Mediasi Selesai
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-green-700 mt-2">
+                                        Status tidak dapat diubah lagi karena mediasi telah selesai dilaksanakan.
+                                    </p>
+                                </div>
 
+                                {{-- Form disabled untuk display saja --}}
+                                <div class="mt-4 opacity-50">
                                     <div class="mb-3">
-                                        <label for="status_jadwal" class="block text-sm font-medium text-gray-700 mb-1">
-                                            Ubah Status
+                                        <label for="status_jadwal_disabled"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            Status Saat Ini
                                         </label>
-                                        <select name="status_jadwal" id="status_jadwal"
-                                            class="w-full rounded-md border-gray-300">
-                                            @foreach (\App\Models\JadwalMediasi::getStatusOptions() as $key => $label)
-                                                <option value="{{ $key }}"
-                                                    {{ $jadwal->status_jadwal == $key ? 'selected' : '' }}>
-                                                    {{ $label }}
-                                                </option>
-                                            @endforeach
+                                        <select id="status_jadwal_disabled"
+                                            class="w-full rounded-md border-gray-300 bg-gray-100" disabled>
+                                            <option value="selesai" selected>Selesai</option>
                                         </select>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="catatan_jadwal"
-                                            class="block text-sm font-medium text-gray-700 mb-1">
-                                            Catatan
-                                        </label>
-                                        <textarea name="catatan_jadwal" id="catatan_jadwal" rows="3" class="w-full rounded-md border-gray-300"
-                                            placeholder="Tambahkan catatan...">{{ $jadwal->catatan_jadwal }}</textarea>
-                                    </div>
+                                    @if ($jadwal->catatan_jadwal)
+                                        <div class="mb-3">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                Catatan Terakhir
+                                            </label>
+                                            <textarea rows="3" class="w-full rounded-md border-gray-300 bg-gray-100" disabled readonly>{{ $jadwal->catatan_jadwal }}</textarea>
+                                        </div>
+                                    @endif
 
-                                    <button type="submit"
-                                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
-                                        Update Status
+                                    <button type="button"
+                                        class="w-full bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded-lg cursor-not-allowed"
+                                        disabled>
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                            </path>
+                                        </svg>
+                                        Status Terkunci
                                     </button>
-                                </form>
-                            </div>
+                                </div>
+                            @else
+                                {{-- Form normal untuk status selain 'selesai' --}}
+                                <div class="space-y-3">
+                                    <form id="statusForm">
+                                        @csrf
+
+                                        <div class="mb-3">
+                                            <label for="status_jadwal"
+                                                class="block text-sm font-medium text-gray-700 mb-1">
+                                                Ubah Status
+                                            </label>
+                                            <select name="status_jadwal" id="status_jadwal"
+                                                class="w-full rounded-md border-gray-300">
+                                                @foreach (\App\Models\JadwalMediasi::getStatusOptions() as $key => $label)
+                                                    <option value="{{ $key }}"
+                                                        {{ $jadwal->status_jadwal == $key ? 'selected' : '' }}>
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="catatan_jadwal"
+                                                class="block text-sm font-medium text-gray-700 mb-1">
+                                                Catatan
+                                            </label>
+                                            <textarea name="catatan_jadwal" id="catatan_jadwal" rows="3" class="w-full rounded-md border-gray-300"
+                                                placeholder="Tambahkan catatan...">{{ $jadwal->catatan_jadwal }}</textarea>
+                                        </div>
+
+                                        <button type="submit"
+                                            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                                            {{-- <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12">
+                                                </path>
+                                            </svg> --}}
+                                            Update Status
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -205,32 +267,60 @@
     </div>
 
     <script>
-        document.getElementById('statusForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Script hanya dijalankan jika status bukan 'selesai'
+        @if ($jadwal->status_jadwal !== 'selesai')
+            document.getElementById('statusForm').addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            const formData = new FormData(this);
-            formData.append('_token', '{{ csrf_token() }}');
+                const formData = new FormData(this);
+                formData.append('_token', '{{ csrf_token() }}');
 
-            fetch('{{ route('jadwal.updateStatus', $jadwal) }}', {
-                    method: 'PATCH',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                // Disable button sementara
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML =
+                    '<svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Memproses...';
+
+                fetch('{{ route('jadwal.updateStatus', $jadwal) }}', {
+                        method: 'PATCH',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Status berhasil diperbarui!');
+                            location.reload();
+                        } else {
+                            alert('Terjadi kesalahan: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat memperbarui status');
+                    })
+                    .finally(() => {
+                        // Restore button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
+            });
+
+            // Warning saat akan mengubah status ke 'selesai'
+            document.getElementById('status_jadwal').addEventListener('change', function() {
+                if (this.value === 'selesai') {
+                    const confirmed = confirm(
+                        'Apakah Anda yakin ingin mengubah status ke "Selesai"?\n\nSetelah diubah ke status selesai, Anda tidak akan dapat mengubah status lagi.'
+                    );
+                    if (!confirmed) {
+                        // Reset ke status sebelumnya
+                        this.value = '{{ $jadwal->status_jadwal }}';
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Status berhasil diperbarui!');
-                        location.reload();
-                    } else {
-                        alert('Terjadi kesalahan: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memperbarui status');
-                });
-        });
+                }
+            });
+        @endif
     </script>
 </x-app-layout>

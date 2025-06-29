@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Jadwal;
 
-use App\Http\Controllers\Controller;
-use App\Models\JadwalMediasi;
 use App\Models\Pengaduan;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use App\Models\JadwalMediasi;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use App\Events\JadwalMediasiCreated;
+use App\Events\JadwalMediasiUpdated;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use App\Events\JadwalMediasiStatusUpdated;
 
 class JadwalController extends Controller
 {
@@ -28,16 +32,16 @@ class JadwalController extends Controller
             abort(403, 'Data mediator tidak ditemukan');
         }
 
-        // Ambil jadwal dengan filter jika ada
+        // Ambil jadwal dengan filter 
         $query = JadwalMediasi::with(['pengaduan.pelapor'])
             ->byMediator($mediator->mediator_id);
 
-        // Filter berdasarkan status jika ada
+        // Filter berdasarkan status 
         if (request('status')) {
             $query->byStatus(request('status'));
         }
 
-        // Filter berdasarkan bulan jika ada
+        // Filter berdasarkan bulan 
         if (request('bulan')) {
             $query->whereMonth('tanggal_mediasi', request('bulan'));
         }
@@ -137,6 +141,17 @@ class JadwalController extends Controller
             'catatan_jadwal' => $request->catatan_jadwal
         ]);
 
+        // DEBUG: Log sebelum trigger event
+        Log::info('🚀 Jadwal created, triggering JadwalMediasiCreated event', [
+            'jadwal_id' => $jadwal->jadwal_id,
+            'pengaduan_id' => $jadwal->pengaduan_id,
+            'mediator_id' => $jadwal->mediator_id
+        ]);
+
+        event(new JadwalMediasiCreated($jadwal));
+
+        Log::info('JadwalMediasiCreated event triggered successfully');
+
         return redirect()->route('jadwal.show', $jadwal)
             ->with('success', 'Jadwal mediasi berhasil dibuat');
     }
@@ -212,7 +227,33 @@ class JadwalController extends Controller
             'hasil_mediasi' => 'nullable|string|max:2000'
         ]);
 
+        // SIMPAN DATA LAMA UNTUK COMPARISON
+        $oldData = [
+            'tanggal_mediasi' => $jadwal->tanggal_mediasi,
+            'waktu_mediasi' => $jadwal->waktu_mediasi,
+            'tempat_mediasi' => $jadwal->tempat_mediasi,
+            'status_jadwal' => $jadwal->status_jadwal,
+            'catatan_jadwal' => $jadwal->catatan_jadwal,
+        ];
+
+        // 🚀 DEBUG LOG: Sebelum update
+        Log::info('🚀 [JADWAL UPDATE] Before update', [
+            'jadwal_id' => $jadwal->jadwal_id,
+            'old_data' => $oldData,
+            'new_data' => $request->only(['tanggal_mediasi', 'waktu_mediasi', 'tempat_mediasi', 'status_jadwal', 'catatan_jadwal'])
+        ]);
+
         $jadwal->update($request->all());
+
+        // 🚀 DEBUG LOG: Event UPDATE
+        Log::info('🚀 [JADWAL UPDATE] Triggering JadwalMediasiUpdated event', [
+            'jadwal_id' => $jadwal->jadwal_id,
+            'has_changes' => $oldData !== $request->only(['tanggal_mediasi', 'waktu_mediasi', 'tempat_mediasi', 'status_jadwal', 'catatan_jadwal'])
+        ]);
+
+        event(new JadwalMediasiUpdated($jadwal, $oldData));
+
+        Log::info('JadwalMediasiUpdated event triggered successfully');
 
         return redirect()->route('jadwal.show', $jadwal)
             ->with('success', 'Jadwal mediasi berhasil diperbarui');
@@ -239,10 +280,31 @@ class JadwalController extends Controller
             'catatan_jadwal' => 'nullable|string|max:1000'
         ]);
 
+        // SIMPAN STATUS LAMA
+        $oldStatus = $jadwal->status_jadwal;
+
         $jadwal->update([
             'status_jadwal' => $request->status_jadwal,
             'catatan_jadwal' => $request->catatan_jadwal
         ]);
+
+        // TRIGGER EVENT - STATUS UPDATED (hanya jika status berubah)
+        if ($oldStatus !== $request->status_jadwal) {
+            Log::info('🚀 Status changed, triggering JadwalMediasiStatusUpdated event', [
+                'jadwal_id' => $jadwal->jadwal_id,
+                'old_status' => $oldStatus,
+                'new_status' => $request->status_jadwal
+            ]);
+
+            event(new JadwalMediasiStatusUpdated($jadwal, $oldStatus));
+
+            Log::info('✅ JadwalMediasiStatusUpdated event triggered successfully');
+        } else {
+            Log::info('ℹ️  Status unchanged, no event triggered', [
+                'jadwal_id' => $jadwal->jadwal_id,
+                'status' => $request->status_jadwal
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -272,7 +334,7 @@ class JadwalController extends Controller
                 ->with('error', 'Jadwal yang sedang berlangsung atau sudah selesai tidak dapat dihapus');
         }
 
-        $jadwal->delete();
+        // $jadwal->delete();
 
         return redirect()->route('jadwal.index')
             ->with('success', 'Jadwal mediasi berhasil dihapus');

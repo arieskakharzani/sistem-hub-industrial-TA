@@ -215,4 +215,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Tambah di bagian akhir file routes/web.php
+Route::get('/debug/email-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEmail']);
+Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEventOnly']);
+Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);
+
 require __DIR__ . '/auth.php';

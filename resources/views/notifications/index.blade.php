@@ -38,7 +38,7 @@
                     </button>
                     <button onclick="clearAllNotifications()"
                         class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors duration-200 shadow-md hover:shadow-lg">
-                        🗑️ Hapus Semua
+                        Hapus Semua
                     </button>
                 </div>
             </div>
@@ -162,7 +162,6 @@
                                                             <a href="{{ $notification->data['action_url'] }}"
                                                                 onclick="markAsRead('{{ $notification->id }}')"
                                                                 class="inline-flex items-center text-sm text-primary hover:text-primary-dark font-semibold transition-colors duration-200 bg-primary/10 hover:bg-primary/20 px-3 py-2 rounded-lg">
-                                                                <span class="mr-1">👁️</span>
                                                                 {{ $notification->data['action_text'] ?? 'Lihat Detail' }}
                                                             </a>
                                                         @endif
