@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Akun\AkunController;
-use App\Http\Controllers\Api\TerlaporController;
-use App\Http\Controllers\Pengaduan\NotificationController;
 use App\Http\Controllers\Jadwal\JadwalController;
+use App\Http\Controllers\Debug\EmailTestController;
+use App\Http\Controllers\Jadwal\KonfirmasiController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController;
+use App\Http\Controllers\Notifikasi\NotificationController;
 
 
 
@@ -132,6 +133,22 @@ Route::middleware(['auth', 'verified'])->prefix('jadwal')->name('jadwal.')->grou
         ->name('updateStatus');
 });
 
+// Routes untuk Konfirmasi Kehadiran Jadwal Mediasi
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Routes khusus untuk Pelapor dan Terlapor
+    Route::middleware(['role:pelapor,terlapor'])->group(function () {
+
+        // Konfirmasi Jadwal Mediasi - menggunakan view di folder Jadwal/
+        Route::prefix('konfirmasi')->name('konfirmasi.')->group(function () {
+            Route::get('/', [KonfirmasiController::class, 'index'])->name('index'); // View: Jadwal/konfirmasi-index.blade.php
+            Route::get('/{jadwal}', [KonfirmasiController::class, 'show'])->name('show'); // View: Jadwal/konfirmasi-show.blade.php
+            Route::post('/{jadwal}/konfirmasi', [KonfirmasiController::class, 'konfirmasi'])->name('konfirmasi');
+            Route::delete('/{jadwal}/cancel', [KonfirmasiController::class, 'cancel'])->name('cancel');
+        });
+    });
+});
+
 // Routes untuk penyelesaian
 Route::middleware(['auth', 'verified'])->prefix('penyelesaian')->name('penyelesaian.')->group(function () {
     Route::get('/', function () {
@@ -215,7 +232,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Tambah di bagian akhir file routes/web.php
+// Debug email tests
 Route::get('/debug/email-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEmail']);
 Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEventOnly']);
 Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);

@@ -67,7 +67,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Sistem Informasi Penyelesaian Hubungan Industrial</h1>
+            <h1>Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial</h1>
             <p>Pemberitahuan Akun & Kredensial Login</p>
         </div>
 
@@ -142,7 +142,7 @@
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
             <p style="margin-bottom: 0;"><strong>Tim Mediator</strong><br>
-                Sistem Informasi Penyelesaian Hubungan Industrial</p>
+                Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial</p>
         </div>
 
         <div class="footer">

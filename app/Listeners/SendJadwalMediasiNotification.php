@@ -29,6 +29,10 @@ class SendJadwalMediasiNotification implements ShouldQueue
     public function handle($event)
     {
         try {
+            Log::info('🔔 Processing jadwal mediasi notification', [
+                'jadwal_id' => $event->jadwal->jadwal_id,
+                'event_type' => $event->eventType
+            ]);
             // Get recipients (pelapor and terlapor)
             $recipients = $this->notificationService->getRecipients($event->jadwal);
 
@@ -40,7 +44,7 @@ class SendJadwalMediasiNotification implements ShouldQueue
                 return;
             }
 
-            // Send emails to all recipients
+            // Send emails to all recipients (pelapor dan terlapor)
             foreach ($recipients as $recipient) {
                 Log::info('📤 Sending email', [
                     'to' => $recipient['email'],
@@ -61,6 +65,14 @@ class SendJadwalMediasiNotification implements ShouldQueue
                     'recipient_email' => $recipient['email'],
                     'recipient_role' => $recipient['role'],
                     'event_type' => $event->eventType
+                ]);
+                // Log summary
+                Log::info('📊 Jadwal notification summary', [
+                    'jadwal_id' => $event->jadwal->jadwal_id,
+                    'event_type' => $event->eventType,
+                    'emails_sent' => count($recipients),
+                    'in_app_notifications' => 0, // No in-app for this event
+                    'recipients' => array_column($recipients, 'role')
                 ]);
             }
         } catch (\Exception $e) {

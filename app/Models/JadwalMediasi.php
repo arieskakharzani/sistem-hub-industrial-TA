@@ -19,12 +19,21 @@ class JadwalMediasi extends Model
         'tempat_mediasi',
         'status_jadwal',
         'catatan_jadwal',
-        'hasil_mediasi'
+        'hasil_mediasi',
+        // Konfirmasi kehadiran
+        'konfirmasi_pelapor',
+        'konfirmasi_terlapor',
+        'tanggal_konfirmasi_pelapor',
+        'tanggal_konfirmasi_terlapor',
+        'catatan_konfirmasi_pelapor',
+        'catatan_konfirmasi_terlapor'
     ];
 
     protected $casts = [
         'tanggal_mediasi' => 'date',
         'waktu_mediasi' => 'datetime:H:i',
+        'tanggal_konfirmasi_pelapor' => 'datetime',
+        'tanggal_konfirmasi_terlapor' => 'datetime'
     ];
 
     // Hubungan dengan tabel pengaduan
@@ -57,6 +66,30 @@ class JadwalMediasi extends Model
         return $query->whereDate('tanggal_mediasi', today());
     }
 
+    // Scope untuk jadwal yang membutuhkan konfirmasi
+    public function scopeMenungguKonfirmasi($query)
+    {
+        return $query->where('status_jadwal', 'dijadwalkan')
+            ->where(function ($q) {
+                $q->where('konfirmasi_pelapor', 'pending')
+                    ->orWhere('konfirmasi_terlapor', 'pending');
+            });
+    }
+
+    // Method untuk mengecek apakah kedua pihak sudah konfirmasi
+    public function sudahDikonfirmasiSemua(): bool
+    {
+        return $this->konfirmasi_pelapor !== 'pending' &&
+            $this->konfirmasi_terlapor !== 'pending';
+    }
+
+    // Method untuk mengecek apakah ada yang tidak hadir
+    public function adaYangTidakHadir(): bool
+    {
+        return $this->konfirmasi_pelapor === 'tidak_hadir' ||
+            $this->konfirmasi_terlapor === 'tidak_hadir';
+    }
+
     // Method untuk mendapatkan warna badge status
     public function getStatusBadgeClass(): string
     {
@@ -66,6 +99,19 @@ class JadwalMediasi extends Model
             'selesai' => 'bg-green-100 text-green-800',
             'ditunda' => 'bg-orange-100 text-orange-800',
             'dibatalkan' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
+    }
+
+    // Method untuk mendapatkan warna badge konfirmasi
+    public function getKonfirmasiBadgeClass($jenis): string
+    {
+        $konfirmasi = $jenis === 'pelapor' ? $this->konfirmasi_pelapor : $this->konfirmasi_terlapor;
+
+        return match ($konfirmasi) {
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'hadir' => 'bg-green-100 text-green-800',
+            'tidak_hadir' => 'bg-red-100 text-red-800',
             default => 'bg-gray-100 text-gray-800'
         };
     }
@@ -90,6 +136,16 @@ class JadwalMediasi extends Model
             'selesai' => 'Selesai',
             'ditunda' => 'Ditunda',
             'dibatalkan' => 'Dibatalkan'
+        ];
+    }
+
+    // Method untuk mendapatkan pilihan konfirmasi
+    public static function getKonfirmasiOptions(): array
+    {
+        return [
+            'pending' => 'Menunggu Konfirmasi',
+            'hadir' => 'Akan Hadir',
+            'tidak_hadir' => 'Tidak Dapat Hadir'
         ];
     }
 }

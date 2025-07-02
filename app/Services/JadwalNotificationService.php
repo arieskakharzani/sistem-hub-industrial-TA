@@ -23,7 +23,7 @@ class JadwalNotificationService
             // Load necessary relationships dengan eager loading yang lengkap
             $jadwal->load([
                 'pengaduan.pelapor.user',
-                'pengaduan.terlapor', // ✅ FIXED: Load terlapor relationship
+                'pengaduan.terlapor',
                 'mediator'
             ]);
 
@@ -42,6 +42,7 @@ class JadwalNotificationService
                     'name' => $pelapor->nama_pelapor,
                     'email' => $pelapor->email,
                     'role' => 'pelapor',
+                    'user' => $pelapor->user ?? null,
                     'type' => 'Pelapor'
                 ];
 
@@ -63,6 +64,7 @@ class JadwalNotificationService
                     'name' => $terlaporData['name'],
                     'email' => $terlaporData['email'],
                     'role' => 'terlapor',
+                    'user' => null,
                     'type' => 'Terlapor'
                 ];
 
@@ -226,6 +228,70 @@ class JadwalNotificationService
         }
 
         return null;
+    }
+
+    /**
+     * Get mediator for konfirmasi notifications
+     * DIPERLUKAN untuk SendKonfirmasiNotification
+     */
+    public function getMediator(JadwalMediasi $jadwal): ?array
+    {
+        try {
+            $jadwal->load(['mediator.user']);
+
+            $mediator = $jadwal->mediator;
+
+            if (!$mediator || !$mediator->user || !$mediator->user->email) {
+                Log::warning('❌ Mediator not found or has no email for jadwal', [
+                    'jadwal_id' => $jadwal->jadwal_id,
+                    'mediator_id' => $jadwal->mediator_id
+                ]);
+                return null;
+            }
+
+            Log::info('✅ Mediator found for notification', [
+                'mediator_id' => $mediator->mediator_id,
+                'mediator_name' => $mediator->nama_mediator,
+                'email' => $mediator->user->email
+            ]);
+
+            return [
+                'email' => $mediator->user->email,
+                'name' => $mediator->nama_mediator,
+                'role' => 'mediator',
+                'user' => $mediator->user,
+                'profile' => $mediator
+            ];
+        } catch (\Exception $e) {
+            Log::error('❌ Error getting mediator for notification', [
+                'jadwal_id' => $jadwal->jadwal_id,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Check if notification should include in-app notification
+     * DIPERLUKAN untuk conditional notification channels
+     */
+    public function shouldSendInAppNotification(string $userRole): bool
+    {
+        // Only mediator gets in-app notifications
+        return $userRole === 'mediator';
+    }
+
+    /**
+     * Get notification channels based on user role
+     * DIPERLUKAN untuk determine channels
+     */
+    public function getNotificationChannels(string $userRole): array
+    {
+        if ($userRole === 'mediator') {
+            return ['mail', 'database']; // Email + In-app
+        }
+
+        return ['mail']; // Only email for pelapor/terlapor
     }
 
     /**

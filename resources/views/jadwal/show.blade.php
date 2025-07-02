@@ -115,7 +115,8 @@
                                         {{ $jadwal->pengaduan->tanggal_laporan->format('d F Y') }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Perusahaan</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Pihak yang
+                                        Dilaporkan</label>
                                     <p class="text-sm text-gray-900">{{ $jadwal->pengaduan->nama_terlapor }}</p>
                                 </div>
                                 <div>

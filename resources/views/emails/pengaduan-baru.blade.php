@@ -223,27 +223,27 @@
             <!-- Detail Pengaduan -->
             <div class="detail-grid">
                 <div class="detail-item">
-                    <div class="detail-label">📂 Perihal:</div>
+                    <div class="detail-label">📂 Perihal: </div>
                     <div class="detail-value"><strong>{{ $pengaduan->perihal }}</strong></div>
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">👤 Pelapor:</div>
+                    <div class="detail-label">👤 Pelapor: </div>
                     <div class="detail-value">{{ $pengaduan->pelapor->nama_pelapor }}</div>
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">👨‍💼 Terlapor:</div>
+                    <div class="detail-label">👨‍💼 Terlapor: </div>
                     <div class="detail-value">{{ $pengaduan->nama_terlapor }}</div>
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">📅 Tanggal Laporan:</div>
+                    <div class="detail-label">📅 Tanggal Laporan: </div>
                     <div class="detail-value">{{ $pengaduan->tanggal_laporan->format('d F Y') }}</div>
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">⚡ Status:</div>
+                    <div class="detail-label">⚡ Status: </div>
                     <div class="detail-value">
                         <span class="status-badge">{{ strtoupper($pengaduan->status) }}</span>
                     </div>
@@ -291,36 +291,4 @@
     </div>
 </body>
 
-</html>📋 ID Pengaduan:</div>
-<div class="detail-value"><strong>#{{ $pengaduan->pengaduan_id }}</strong></div>
-</div>
-
-<div class="detail-item">
-    <div class="detail-label">📂 Perihal:</div>
-    <div class="detail-value"><strong>{{ $pengaduan->perihal }}</strong></div>
-</div>
-
-<div class="detail-item">
-    <div class="detail-label">👤 Pelapor:</div>
-    <div class="detail-value">{{ $pengaduan->pelapor->nama_pelapor }}</div>
-</div>
-
-<div class="detail-item">
-    <div class="detail-label">🏢 Perusahaan:</div>
-    <div class="detail-value">{{ $pengaduan->pelapor->perusahaan ?? 'Tidak disebutkan' }}</div>
-</div>
-
-<div class="detail-item">
-    <div class="detail-label">📅 Tanggal Laporan:</div>
-    <div class="detail-value">{{ $pengaduan->tanggal_laporan->format('d F Y') }}</div>
-</div>
-
-<div class="detail-item">
-    <div class="detail-label">⚡ Status:</div>
-    <div class="detail-value">
-        <span class="status-badge">{{ strtoupper($pengaduan->status) }}</span>
-    </div>
-</div>
-
-<div class="detail-item">
-    <div class="detail-label">
+</html>

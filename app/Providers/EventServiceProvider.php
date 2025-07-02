@@ -4,11 +4,15 @@ namespace App\Providers;
 
 use App\Events\PengaduanCreated;
 use App\Listeners\NotifyMediators;
+use App\Events\KonfirmasiKehadiran;
 use App\Events\JadwalMediasiCreated;
 use App\Events\JadwalMediasiUpdated;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use App\Events\JadwalMediasiStatusUpdated;
+use App\Events\JadwalMediasiRescheduleNeeded;
+use App\Listeners\SendKonfirmasiNotification;
+use App\Listeners\HandleRescheduleNotification;
 use App\Listeners\SendJadwalMediasiNotification;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -30,7 +34,7 @@ class EventServiceProvider extends ServiceProvider
             NotifyMediators::class,
         ],
 
-        //Event untuk pemberitahuan jadwam mediasi ke pelapor dan terlapor
+        //Event untuk pemberitahuan jadwal mediasi ke pelapor dan terlapor
         JadwalMediasiCreated::class => [
             SendJadwalMediasiNotification::class,
         ],
@@ -41,6 +45,16 @@ class EventServiceProvider extends ServiceProvider
 
         JadwalMediasiStatusUpdated::class => [
             SendJadwalMediasiNotification::class,
+        ],
+
+        // Event untuk konfirmasi kehadiran (EMAIL + IN-APP untuk mediator)
+        KonfirmasiKehadiran::class => [
+            SendKonfirmasiNotification::class,
+        ],
+
+        // Event untuk situasi reschedule diperlukan (SPECIAL HANDLING)
+        JadwalMediasiRescheduleNeeded::class => [
+            HandleRescheduleNotification::class,
         ],
     ];
 

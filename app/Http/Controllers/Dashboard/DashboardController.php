@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Models\Pelapor;
 use App\Models\Pengaduan;
+use App\Models\JadwalMediasi;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -32,12 +33,14 @@ class DashboardController extends Controller
 
         // Inisialisasi pengaduans sebagai collection kosong
         $pengaduans = collect();
+        $jadwalMediasi = collect();
 
         // Stats default
         $stats = [
             'total_pengaduan' => 0,
             'pengaduan_proses' => 0,
             'pengaduan_selesai' => 0,
+            'jadwal_menunggu_konfirmasi' => 0,
         ];
 
         // Jika pelapor ada, ambil pengaduan dan hitung stats
@@ -47,15 +50,25 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            // Ambil jadwal mediasi yang perlu dikonfirmasi
+            $jadwalMediasi = JadwalMediasi::with(['pengaduan', 'mediator'])
+                ->whereHas('pengaduan', function ($query) use ($pelapor) {
+                    $query->where('pelapor_id', $pelapor->pelapor_id);
+                })
+                ->where('status_jadwal', 'dijadwalkan')
+                ->orderBy('tanggal_mediasi', 'asc')
+                ->get();
+
             // Hitung stats berdasarkan pengaduan real
             $stats = [
                 'total_pengaduan' => $pengaduans->count(),
                 'pengaduan_proses' => $pengaduans->whereIn('status', ['pending', 'proses'])->count(),
                 'pengaduan_selesai' => $pengaduans->where('status', 'selesai')->count(),
+                'jadwal_menunggu_konfirmasi' => $jadwalMediasi->where('konfirmasi_pelapor', 'pending')->count(),
             ];
         }
 
-        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor'));
+        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor', 'jadwalMediasi'));
     }
 
     public function terlapor()
@@ -70,28 +83,43 @@ class DashboardController extends Controller
             abort(403, 'Access denied');
         }
 
+        // Inisialisasi
+        $jadwalMediasi = collect();
+
         // Data khusus untuk terlapor
         $stats = [
             'total_aduan_terhadap_saya' => 0,
             'menunggu_respons' => 0,
             'dalam_mediasi' => 0,
+            'jadwal_menunggu_konfirmasi' => 0,
         ];
+
         // Ambil data pengaduan yang melibatkan terlapor ini
         if ($terlapor = $user->terlapor) {
-            // Ambil semua pengaduan milik pelapor ini
+            // Ambil semua pengaduan yang melibatkan terlapor ini
             $pengaduans = Pengaduan::where('terlapor_id', $terlapor->terlapor_id)
                 ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Ambil jadwal mediasi yang perlu dikonfirmasi
+            $jadwalMediasi = JadwalMediasi::with(['pengaduan', 'mediator'])
+                ->whereHas('pengaduan', function ($query) use ($terlapor) {
+                    $query->where('terlapor_id', $terlapor->terlapor_id);
+                })
+                ->where('status_jadwal', 'dijadwalkan')
+                ->orderBy('tanggal_mediasi', 'asc')
                 ->get();
 
             // Hitung stats berdasarkan pengaduan real
             $stats = [
                 'total_aduan_terhadap_saya' => $pengaduans->count() ?? 0,
-                'menunggu_respons' => 0,
-                'dalam_mediasi' => 0,
+                'menunggu_respons' => $pengaduans->where('status', 'pending')->count() ?? 0,
+                'dalam_mediasi' => $pengaduans->where('status', 'proses')->count() ?? 0,
+                'jadwal_menunggu_konfirmasi' => $jadwalMediasi->where('konfirmasi_terlapor', 'pending')->count(),
             ];
         }
 
-        return view('dashboard.terlapor', compact('user', 'stats'));
+        return view('dashboard.terlapor', compact('user', 'stats', 'jadwalMediasi'));
     }
 
     public function mediator()
@@ -111,9 +139,9 @@ class DashboardController extends Controller
             'total_kasus_saya' => Pengaduan::count(),
             'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
             'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
-            'jadwal_hari_ini' => Pengaduan::whereDate('tanggal_laporan', today())->count(),
+            'jadwal_hari_ini' => JadwalMediasi::whereDate('tanggal_mediasi', today())->count(),
+            'menunggu_konfirmasi' => JadwalMediasi::menungguKonfirmasi()->count(),
         ];
-
 
         return view('dashboard.mediator', compact('user', 'stats'));
     }
@@ -132,10 +160,13 @@ class DashboardController extends Controller
 
         // Data khusus untuk kepala dinas
         $stats = [
-            'total_pengaduan' => 0,
-            'menunggu_approval' => 0,
-            'dalam_proses' => 0,
-            'selesai_bulan_ini' => 0,
+            'total_pengaduan' => Pengaduan::count(),
+            'menunggu_approval' => Pengaduan::where('status', 'pending')->count(),
+            'dalam_proses' => Pengaduan::where('status', 'proses')->count(),
+            'selesai_bulan_ini' => Pengaduan::where('status', 'selesai')
+                ->whereMonth('updated_at', now()->month)
+                ->whereYear('updated_at', now()->year)
+                ->count(),
         ];
 
         return view('dashboard.kepala-dinas', compact('user', 'stats'));

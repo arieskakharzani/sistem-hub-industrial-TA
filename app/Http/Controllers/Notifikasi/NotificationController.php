@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Pengaduan;
+namespace App\Http\Controllers\Notifikasi;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
