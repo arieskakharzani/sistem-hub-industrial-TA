@@ -150,7 +150,7 @@
         <div class="urgent-icon">⚠️</div>
         <h1>Penjadwalan Ulang Mediasi Diperlukan</h1>
         <p>Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial</p>
-        <p>Dinas Tenaga Kerja Kabupaten Bungo</p>
+        <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo</p>
     </div>
 
     <div class="content">
@@ -315,7 +315,7 @@
 
     <div class="footer">
         <p>Email ini dikirim secara otomatis oleh sistem dan memerlukan tindakan segera.</p>
-        <p>&copy; {{ date('Y') }} Dinas Tenaga Kerja Kabupaten Bungo. Semua hak dilindungi.</p>
+        <p>&copy; {{ date('Y') }} Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo. Semua hak dilindungi.</p>
         <p>
             <small>
                 Email dikirim pada: {{ now()->format('d F Y, H:i') }} WIB<br>

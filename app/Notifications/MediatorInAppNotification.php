@@ -193,7 +193,7 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
             'reschedule_required' => 'Jadwalkan Ulang',
             'absence_reported' => 'Lihat Detail & Reschedule',
             'all_confirmed_present' => 'Lihat Jadwal',
-            'ready_to_proceed' => 'Siapkan Mediasi',
+            'ready_to_proceed' => 'Lihat Persiapan Mediasi',
             default => 'Lihat Detail'
         };
     }

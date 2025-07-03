@@ -33,6 +33,7 @@ return new class extends Migration
             $table->text('alamat_kantor_cabang')->nullable();
             $table->text('narasi_kasus');
             $table->text('catatan_tambahan')->nullable();
+            $table->string('risalah_bipartit', 500)->comment('Path file PDF risalah bipartit - WAJIB');
             $table->json('lampiran')->nullable(); // untuk menyimpan array file paths
             $table->enum('status', ['pending', 'proses', 'selesai'])->default('pending');
 

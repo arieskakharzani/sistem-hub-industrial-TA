@@ -274,6 +274,51 @@
                             </div>
                         </div>
 
+                        <!-- Risalah Bipartit -->
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">
+                                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Risalah Bipartit
+                                </h4>
+                                @if ($pengaduan->risalah_bipartit)
+                                    <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                                        <svg class="w-8 h-8 text-green-600 mr-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-green-900">
+                                                {{ basename($pengaduan->risalah_bipartit) }}</p>
+                                            <p class="text-xs text-green-700">Dokumen risalah perundingan bipartit</p>
+                                        </div>
+                                        <a href="{{ asset('storage/' . $pengaduan->risalah_bipartit) }}"
+                                            target="_blank" class="text-green-600 hover:text-green-700 ml-4">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                                        <p class="text-sm text-gray-600">Tidak ada risalah bipartit yang diupload.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
                         <!-- Lampiran -->
                         @if ($pengaduan->lampiran && count($pengaduan->lampiran) > 0)
                             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

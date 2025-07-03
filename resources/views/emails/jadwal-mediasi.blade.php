@@ -172,7 +172,7 @@
     <div class="container">
         <div class="header">
             <h1>{{ $data['event_label'] }}</h1>
-            <p style="margin: 5px 0 0 0;">Sistem Infromasi Pengaduan dan Penyelesaian Hubungan Industrial Kab. Bungo</p>
+            <p style="margin: 5px 0 0 0;">Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial Kab. Bungo</p>
         </div>
 
         {{-- Greeting --}}
@@ -324,13 +324,23 @@
             </div>
         @endif
 
+        <div style="text-align: center; margin: 30px 0;">
+            <p style="margin-top: 30px; color: #555;">
+                Terima kasih atas perhatian dan kerja sama Anda dalam menangani pengaduan ini.
+                Silakan login ke sistem untuk melakukan konfirmasi terhadap kehadiran Anda di Panggilan Mediasi berikut.
+            </p>
+            <a href="{{ url('/dashboard') }}" class="button">
+                Konfirmasi Sekarang
+            </a>
+        </div>
+
         {{-- Footer --}}
         <div class="footer">
             <p>Email ini dikirim secara otomatis oleh sistem.<br>
                 Jika ada pertanyaan, silakan hubungi mediator yang menangani kasus Anda.</p>
             <p style="margin-top: 15px;">
-                <strong>Dinas Tenaga Kerja dan Transmigrasi</strong><br>
-                Sistem Penanganan Pengaduan Ketenagakerjaan
+                <strong>Dinas Tenaga Kerja dan Transmigrasi Kab. Bungo</strong><br>
+                Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial Kab. bungo
             </p>
         </div>
     </div>

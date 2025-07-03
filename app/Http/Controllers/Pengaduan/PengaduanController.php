@@ -216,8 +216,15 @@ class PengaduanController extends Controller
             'alamat_kantor_cabang' => 'nullable|string',
             'narasi_kasus' => 'required|string',
             'catatan_tambahan' => 'nullable|string',
+            'risalah_bipartit' => 'required|file|mimes:pdf|max:10240',
             'lampiran.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' // 5MB max
         ]);
+
+        // Handle risalah bipartit upload
+        $risalahBipartitPath = null;
+        if ($request->hasFile('risalah_bipartit')) {
+            $risalahBipartitPath = $request->file('risalah_bipartit')->store('risalah-bipartit', 'public');
+        }
 
         // Handle file uploads
         $lampiranPaths = [];
@@ -230,6 +237,7 @@ class PengaduanController extends Controller
 
         $pengaduan = new Pengaduan($validated);
         $pengaduan->pelapor_id = $pelapor->pelapor_id;
+        $pengaduan->risalah_bipartit = $risalahBipartitPath;
         $pengaduan->lampiran = $lampiranPaths;
         $pengaduan->status = 'pending';
         $pengaduan->save();
@@ -341,8 +349,19 @@ class PengaduanController extends Controller
             'alamat_kantor_cabang' => 'nullable|string',
             'narasi_kasus' => 'required|string',
             'catatan_tambahan' => 'nullable|string',
+            'risalah_bipartit' => 'nullable|file|mimes:pdf|max:10240', // 10MB max
             'lampiran.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120'
         ]);
+
+        // Handle risalah bipartit upload (jika ada file baru)
+        if ($request->hasFile('risalah_bipartit')) {
+            // Hapus file lama jika ada
+            if ($pengaduan->risalah_bipartit && file_exists(storage_path('app/public/' . $pengaduan->risalah_bipartit))) {
+                unlink(storage_path('app/public/' . $pengaduan->risalah_bipartit));
+            }
+
+            $validated['risalah_bipartit'] = $request->file('risalah_bipartit')->store('risalah-bipartit', 'public');
+        }
 
         // Handle new file uploads
         $existingLampiran = $pengaduan->lampiran ?? [];

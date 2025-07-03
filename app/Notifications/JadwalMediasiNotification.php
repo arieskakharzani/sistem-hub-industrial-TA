@@ -50,6 +50,7 @@ class JadwalMediasiNotification extends Mailable
             ->subject($subject)
             ->with([
                 'recipient' => $this->recipient,
+                'jadwal' => $this->jadwal,
                 'data' => $this->notificationData,
                 'eventType' => $this->eventType,
             ]);

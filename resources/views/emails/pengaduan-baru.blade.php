@@ -282,7 +282,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p><strong>Sistem Informasi Penyelesaian Perselisihan Hubungan Industrial</strong></p>
+            <p><strong>Sistem Informasi Pengaduan dan Penyelesaian Perselisihan Hubungan Industrial</strong></p>
             <p>Email ini dikirim secara otomatis oleh sistem.</p>
             <p style="font-size: 12px; color: #999;">
                 Diterima pada {{ now()->format('d F Y, H:i') }} WIB

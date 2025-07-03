@@ -21,6 +21,27 @@
             }
         }
     </script>
+    <style>
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .animate-shake {
+            animation: shake 0.5s ease-in-out 3;
+        }
+    </style>
 </head>
 
 <body>
@@ -81,7 +102,7 @@
                                     Tanggal Membuat Laporan
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="date" name="tanggal_laporan"
+                                <input type="date" name="tanggal_laporan" readonly
                                     value="{{ old('tanggal_laporan', date('Y-m-d')) }}" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
@@ -168,6 +189,8 @@
                                 <input type="text" name="email_terlapor" value="{{ old('email_terlapor') }}"
                                     placeholder="Email aktif resmi pihak yang dilaporkan" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                                <p class="text-xs text-gray-500 italic"> Email yang diinputkan harus email aktif pihak
+                                    terlapor</p>
                             </div>
 
                             <div class="space-y-2">
@@ -215,6 +238,77 @@
                                 </label>
                                 <textarea name="catatan_tambahan" rows="4" placeholder="Informasi tambahan yang perlu disampaikan (opsional)"
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('catatan_tambahan') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risalah Bipartit (WAJIB) -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-red-200">
+                            <span class="flex items-center">
+                                Risalah Bipartit
+                                {{-- <span class="text-red-500 ml-2 text-sm">(WAJIB)</span> --}}
+                            </span>
+                        </h3>
+
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <span class="text-red-600 text-sm">⚠️</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-red-800 mb-2">Dokumen Wajib: Risalah Bipartit
+                                    </h4>
+                                    <p class="text-xs text-red-700">
+                                        Sesuai UU No. 2 Tahun 2004, wajib melampirkan bukti upaya penyelesaian melalui
+                                        perundingan bipartit.
+                                        Upload file PDF risalah/notulen perundingan antara pekerja dengan perusahaan.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm font-medium text-gray-700">
+                                    Upload Risalah Bipartit
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div
+                                    class="border-2 border-dashed border-red-300 rounded-lg p-6 text-center hover:border-red-400 transition-colors duration-300">
+                                    <div class="space-y-4">
+                                        <div
+                                            class="mx-auto w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <label for="risalah-bipartit-upload" class="cursor-pointer">
+                                                <span class="text-sm font-medium text-red-600 hover:text-red-700">Klik
+                                                    untuk upload</span>
+                                                <span class="text-sm text-gray-500"> file PDF risalah bipartit</span>
+                                            </label>
+                                            <input id="risalah-bipartit-upload" name="risalah_bipartit"
+                                                type="file" accept=".pdf" required class="hidden">
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            <strong>Format:</strong> PDF saja | <strong>Ukuran maksimal:</strong> 10MB
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preview Risalah Bipartit -->
+                            <div id="risalah-preview" class="hidden">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">File Risalah Bipartit:</h4>
+                                <div id="risalah-container" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                    <!-- File info will be added here -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -281,7 +375,7 @@
                                             <h4 class="text-sm font-medium text-primary mb-2">Dokumen yang Disarankan:
                                             </h4>
                                             <ul class="text-xs text-gray-600 space-y-1">
-                                                <li>• Risalah Bipartit</li>
+                                                {{-- <li>• Risalah Bipartit</li> --}}
                                                 <li>• Kontrak kerja atau surat pengangkatan</li>
                                                 <li>• Slip gaji atau bukti pembayaran upah</li>
                                                 <li>• Surat peringatan atau teguran (jika ada)</li>
@@ -313,12 +407,196 @@
     </x-app-layout>
 
     <script>
-        // File upload functionality
+        // File upload functionality (existing)
         const fileUpload = document.getElementById('file-upload');
         const fileList = document.getElementById('file-list');
         const filesContainer = document.getElementById('files-container');
         let selectedFiles = [];
 
+        // ✅ NEW: Risalah Bipartit upload functionality dengan validasi
+        const risalahUpload = document.getElementById('risalah-bipartit-upload');
+        const risalahPreview = document.getElementById('risalah-preview');
+        const risalahContainer = document.getElementById('risalah-container');
+        let risalahFile = null; // Track risalah file
+
+        if (risalahUpload) {
+            risalahUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+
+                if (file) {
+                    if (file.type !== 'application/pdf') {
+                        alert('❌ File risalah bipartit harus berformat PDF!');
+                        e.target.value = '';
+                        risalahPreview.classList.add('hidden');
+                        risalahFile = null;
+                        updateUploadAreaStyle();
+                        return;
+                    }
+
+                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                        alert('❌ Ukuran file risalah bipartit tidak boleh lebih dari 10MB!');
+                        e.target.value = '';
+                        risalahPreview.classList.add('hidden');
+                        risalahFile = null;
+                        updateUploadAreaStyle();
+                        return;
+                    }
+
+                    // File valid, simpan reference
+                    risalahFile = file;
+
+                    // Show preview
+                    risalahContainer.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-200 rounded flex items-center justify-center">
+                            <span class="text-green-700 text-sm">✅</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-green-900">${file.name}</div>
+                            <div class="text-xs text-green-600">${formatFileSize(file.size)} - PDF</div>
+                        </div>
+                        <button type="button" class="text-red-500 hover:text-red-700 p-1" onclick="removeRisalah()">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+
+                    risalahPreview.classList.remove('hidden');
+                    updateUploadAreaStyle();
+
+                    // ✅ NEW: Hapus peringatan jika ada
+                    removeWarningMessage();
+
+                } else {
+                    risalahFile = null;
+                    risalahPreview.classList.add('hidden');
+                    updateUploadAreaStyle();
+                }
+            });
+        }
+
+        function removeRisalah() {
+            if (risalahUpload) {
+                risalahUpload.value = '';
+                risalahPreview.classList.add('hidden');
+                risalahFile = null;
+                updateUploadAreaStyle();
+            }
+        }
+
+        // ✅ NEW: Update upload area style berdasarkan risalah file (tanpa disable button)
+        function updateUploadAreaStyle() {
+            const uploadArea = document.querySelector('.border-dashed.border-red-300');
+
+            if (risalahFile) {
+                // File sudah ada - update upload area style
+                uploadArea.classList.remove('border-red-300');
+                uploadArea.classList.add('border-green-300', 'bg-green-50');
+            } else {
+                // File belum ada - kembalikan ke style warning
+                uploadArea.classList.remove('border-green-300', 'bg-green-50');
+                uploadArea.classList.add('border-red-300');
+            }
+        }
+
+        // ✅ NEW: Form submission validation dengan peringatan (button tetap enabled)
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!risalahFile) {
+                e.preventDefault(); // Stop form submission
+
+                // Scroll ke bagian risalah bipartit
+                document.querySelector('.border-red-300').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                // Tampilkan peringatan
+                showWarningMessage();
+
+                // Shake effect pada upload area
+                const uploadArea = document.querySelector('.border-dashed.border-red-300');
+                uploadArea.classList.add('animate-shake');
+                setTimeout(() => {
+                    uploadArea.classList.remove('animate-shake');
+                }, 1500);
+
+                // Flash effect pada submit button untuk memberikan feedback
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.classList.add('animate-pulse');
+                setTimeout(() => {
+                    submitBtn.classList.remove('animate-pulse');
+                }, 2000);
+
+                return false;
+            }
+
+            // File ada, lanjutkan submission dengan loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = true; // Disable only during submission
+            submitBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Mengirim Pengaduan...
+        `;
+        });
+
+        // ✅ NEW: Show warning message dengan styling yang lebih prominent
+        function showWarningMessage() {
+            // Remove existing warning first
+            removeWarningMessage();
+
+            const warningHtml = `
+            <div id="risalah-warning" class="mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-r relative animate-pulse">
+                <div class="flex items-start">
+                    <svg class="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                            <h4 class="font-bold text-red-800">⚠️ Risalah Bipartit Belum Diupload!</h4>
+                        </div>
+                        <p class="text-sm">
+                            Pengaduan tidak dapat dikirim karena <strong>risalah bipartit wajib dilampirkan</strong>. 
+                            Ini merupakan syarat wajib sesuai <strong>UU No. 2 Tahun 2004 Pasal 3</strong>.
+                        </p>
+                        <div class="mt-3 text-xs bg-red-50 border border-red-200 rounded p-2">
+                            <p class="font-medium">Yang perlu dilakukan:</p>
+                            <ol class="list-decimal list-inside mt-1 space-y-1">
+                                <li>Upload file PDF risalah/notulen perundingan bipartit</li>
+                                <li>Pastikan file berukuran maksimal 10MB</li>
+                                <li>Klik "Kirim Pengaduan" setelah file terupload</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+            // Insert after risalah upload area
+            const uploadArea = document.querySelector('.border-dashed.border-red-300').parentElement;
+            uploadArea.insertAdjacentHTML('afterend', warningHtml);
+
+            // Auto remove warning after 10 seconds
+            setTimeout(() => {
+                removeWarningMessage();
+            }, 10000);
+        }
+
+        // ✅ NEW: Remove warning message
+        function removeWarningMessage() {
+            const existingWarning = document.getElementById('risalah-warning');
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        }
+
+        // ✅ NEW: Initialize upload area style
+        updateUploadAreaStyle();
+
+        // Existing lampiran functionality
         fileUpload.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
 
@@ -349,9 +627,9 @@
 
             const fileDetails = document.createElement('div');
             fileDetails.innerHTML = `
-                <div class="text-sm font-medium text-gray-800">${file.name}</div>
-                <div class="text-xs text-gray-500">${formatFileSize(file.size)}</div>
-            `;
+            <div class="text-sm font-medium text-gray-800">${file.name}</div>
+            <div class="text-xs text-gray-500">${formatFileSize(file.size)}</div>
+        `;
 
             fileInfo.appendChild(fileIcon);
             fileInfo.appendChild(fileDetails);
@@ -392,7 +670,7 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Drag and drop functionality
+        // Existing drag and drop functionality
         const uploadArea = document.querySelector('.border-dashed');
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -439,19 +717,6 @@
                 fileList.classList.remove('hidden');
             }
         }
-
-        // Form submission with loading state
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const submitBtn = document.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Mengirim Pengaduan...
-            `;
-        });
     </script>
 
 </body>

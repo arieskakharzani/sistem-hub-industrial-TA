@@ -26,6 +26,7 @@ class Pengaduan extends Model
         'alamat_kantor_cabang',
         'narasi_kasus',
         'catatan_tambahan',
+        'risalah_bipartit',
         'lampiran',
         'status',
         'mediator_id',
@@ -163,6 +164,22 @@ class Pengaduan extends Model
     public function getPerihalTextAttribute()
     {
         return $this->perihal;
+    }
+
+    /**
+     * Get risalah bipartit file URL
+     */
+    public function getRisalahBipartitUrlAttribute()
+    {
+        return $this->risalah_bipartit ? asset('storage/' . $this->risalah_bipartit) : null;
+    }
+
+    /**
+     * Check if risalah bipartit exists
+     */
+    public function hasRisalahBipartit(): bool
+    {
+        return !empty($this->risalah_bipartit) && file_exists(storage_path('app/public/' . $this->risalah_bipartit));
     }
 
     /**

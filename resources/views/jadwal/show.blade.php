@@ -40,6 +40,146 @@
                 </div>
             @endif
 
+            {{-- Alert Status Konfirmasi Kehadiran --}}
+            @if ($jadwal->status_jadwal === 'dijadwalkan')
+                @if ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir())
+                    {{-- Kedua pihak hadir - siap mediasi --}}
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6 rounded-r-lg">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <h3 class="text-lg font-medium text-green-800">🎉 Mediasi Siap Dilaksanakan!</h3>
+                                <p class="text-green-700 mt-1">
+                                    Kedua belah pihak telah mengkonfirmasi kehadiran. Mediasi dapat dilaksanakan sesuai
+                                    jadwal
+                                    pada <strong>{{ $jadwal->tanggal_mediasi->format('d F Y') }}</strong>
+                                    pukul <strong>{{ $jadwal->waktu_mediasi->format('H:i') }} WIB</strong>.
+                                </p>
+                                <div class="mt-3">
+                                    {{-- {{ route('risalah.create', ['jadwal_id' => $jadwal->jadwal_id]) }} --}}
+                                    <a href="#"
+                                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                        Buat Risalah Mediasi
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @elseif ($jadwal->adaYangTidakHadir())
+                    {{-- Ada yang tidak hadir - perlu reschedule --}}
+                    <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-6 rounded-r-lg">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-medium text-red-800">⚠️ Penjadwalan Ulang Diperlukan</h3>
+                                <p class="text-red-700 mt-1">
+                                    Ada pihak yang tidak dapat hadir pada jadwal mediasi.
+                                    Status jadwal telah diubah menjadi "Ditunda". Silakan koordinasikan jadwal baru
+                                    dengan semua pihak.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    {{-- Masih menunggu konfirmasi --}}
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-6 rounded-r-lg">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-medium text-yellow-800">⏳ Menunggu Konfirmasi Kehadiran</h3>
+                                <p class="text-yellow-700 mt-1">
+                                    Masih menunggu konfirmasi kehadiran dari
+                                    @if ($jadwal->konfirmasi_pelapor === 'pending' && $jadwal->konfirmasi_terlapor === 'pending')
+                                        pelapor dan terlapor
+                                    @elseif ($jadwal->konfirmasi_pelapor === 'pending')
+                                        pelapor
+                                    @else
+                                        terlapor
+                                    @endif
+                                    untuk jadwal mediasi ini.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @elseif ($jadwal->status_jadwal === 'selesai')
+                {{-- Status selesai - cek apakah sudah ada risalah --}}
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6 rounded-r-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-medium text-blue-800">✅ Mediasi Telah Selesai</h3>
+                                <p class="text-blue-700 mt-1">
+                                    Mediasi telah dilaksanakan dan selesai.
+                                    @if ($jadwal->risalahPenyelesaian)
+                                        Risalah penyelesaian sudah dibuat.
+                                    @else
+                                        Belum ada risalah penyelesaian yang dibuat.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            @if ($jadwal->risalahPenyelesaian)
+                                <a href="{{ route('risalah.show', $jadwal->risalahPenyelesaian->risalah_penyelesaian_id) }}"
+                                    class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
+                                    Lihat Risalah
+                                </a>
+                            @else
+                                <a href="{{ route('risalah.create', ['jadwal_id' => $jadwal->jadwal_id]) }}"
+                                    class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Buat Risalah
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {{-- Konten Utama --}}
                 <div class="lg:col-span-2 space-y-6">
@@ -51,11 +191,13 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                                    <p class="text-sm text-gray-900">{{ $jadwal->tanggal_mediasi->format('d F Y') }}</p>
+                                    <p class="text-sm text-gray-900">{{ $jadwal->tanggal_mediasi->format('d F Y') }}
+                                    </p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Waktu</label>
-                                    <p class="text-sm text-gray-900">{{ $jadwal->waktu_mediasi->format('H:i') }} WIB</p>
+                                    <p class="text-sm text-gray-900">{{ $jadwal->waktu_mediasi->format('H:i') }} WIB
+                                    </p>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Tempat</label>
@@ -132,6 +274,70 @@
 
                 {{-- Sidebar --}}
                 <div class="space-y-6">
+                    {{-- Status Konfirmasi Kehadiran --}}
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Konfirmasi Kehadiran</h3>
+
+                            <div class="space-y-4">
+                                {{-- Konfirmasi Pelapor --}}
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Pelapor</p>
+                                        <p class="text-xs text-gray-600">
+                                            {{ $jadwal->pengaduan->pelapor->nama_pelapor }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $jadwal->getKonfirmasiBadgeClass('pelapor') }}">
+                                            {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_pelapor)) }}
+                                        </span>
+                                        @if ($jadwal->tanggal_konfirmasi_pelapor)
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                {{ $jadwal->tanggal_konfirmasi_pelapor->format('d/m/Y H:i') }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Konfirmasi Terlapor --}}
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Terlapor</p>
+                                        <p class="text-xs text-gray-600">{{ $jadwal->pengaduan->nama_terlapor }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $jadwal->getKonfirmasiBadgeClass('terlapor') }}">
+                                            {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_terlapor)) }}
+                                        </span>
+                                        @if ($jadwal->tanggal_konfirmasi_terlapor)
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                {{ $jadwal->tanggal_konfirmasi_terlapor->format('d/m/Y H:i') }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Catatan Konfirmasi --}}
+                                @if ($jadwal->catatan_konfirmasi_pelapor)
+                                    <div class="bg-blue-50 p-3 rounded-lg">
+                                        <p class="text-xs font-medium text-blue-800 mb-1">Catatan Pelapor:</p>
+                                        <p class="text-xs text-blue-700">{{ $jadwal->catatan_konfirmasi_pelapor }}</p>
+                                    </div>
+                                @endif
+
+                                @if ($jadwal->catatan_konfirmasi_terlapor)
+                                    <div class="bg-blue-50 p-3 rounded-lg">
+                                        <p class="text-xs font-medium text-blue-800 mb-1">Catatan Terlapor:</p>
+                                        <p class="text-xs text-blue-700">{{ $jadwal->catatan_konfirmasi_terlapor }}
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Informasi Pelapor --}}
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
@@ -249,12 +455,6 @@
 
                                         <button type="submit"
                                             class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
-                                            {{-- <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12">
-                                                </path>
-                                            </svg> --}}
                                             Update Status
                                         </button>
                                     </form>

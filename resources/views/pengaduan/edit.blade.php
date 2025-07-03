@@ -108,6 +108,7 @@
                                             Tanggal Laporan <span class="text-red-500">*</span>
                                         </label>
                                         <input type="date" name="tanggal_laporan" id="tanggal_laporan" required
+                                            readonly
                                             value="{{ old('tanggal_laporan', $pengaduan->tanggal_laporan->format('Y-m-d')) }}"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                                         @error('tanggal_laporan')
@@ -266,6 +267,83 @@
                                 </div>
                             </div>
 
+                            <!-- Risalah Bipartit -->
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Risalah Bipartit <span class="text-red-500 text-sm">(WAJIB)</span>
+                                </h3>
+
+                                @if ($pengaduan->risalah_bipartit)
+                                    <!-- Show current file -->
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <svg class="w-6 h-6 text-green-600 mr-3" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-green-900">
+                                                        {{ basename($pengaduan->risalah_bipartit) }}</p>
+                                                    <p class="text-xs text-green-700">Risalah Bipartit saat ini</p>
+                                                </div>
+                                            </div>
+                                            <a href="{{ asset('storage/' . $pengaduan->risalah_bipartit) }}"
+                                                target="_blank" class="text-green-600 hover:text-green-700">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Upload new file -->
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor"
+                                            fill="none" viewBox="0 0 48 48">
+                                            <path
+                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="mt-4">
+                                            <label for="risalah_bipartit" class="cursor-pointer">
+                                                <span
+                                                    class="mt-2 block text-sm font-medium text-green-500 hover:text-green-700">
+                                                    {{ $pengaduan->risalah_bipartit ? 'Ganti Risalah Bipartit' : 'Upload Risalah Bipartit' }}
+                                                </span>
+                                                <input id="risalah_bipartit" name="risalah_bipartit" type="file"
+                                                    accept=".pdf" class="sr-only">
+                                            </label>
+                                            <p class="mt-2 text-xs text-gray-500">
+                                                PDF hingga 10MB
+                                                {{ $pengaduan->risalah_bipartit ? '(Opsional untuk mengganti)' : '(Wajib)' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @error('risalah_bipartit')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Lampiran yang Ada -->
                             @if ($pengaduan->lampiran && count($pengaduan->lampiran) > 0)
                                 <div class="mb-8">
@@ -347,7 +425,8 @@
                                         </svg>
                                         <div class="mt-4">
                                             <label for="lampiran" class="cursor-pointer">
-                                                <span class="mt-2 block text-sm font-medium text-gray-900">
+                                                <span
+                                                    class="mt-2 block text-sm font-medium text-blue-700 hover:text-blue-900">
                                                     Upload file pendukung
                                                 </span>
                                                 <input id="lampiran" name="lampiran[]" type="file" multiple
@@ -378,7 +457,7 @@
                                     Batal
                                 </a>
                                 <button type="submit"
-                                    class="px-8 py-3 bg-black marker: text-white rounded-lg font-medium hover:bg-primary-dark transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
+                                    class="px-8 py-3 bg-blue-800 marker: text-white rounded-lg font-medium hover:bg-primary-dark transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -451,6 +530,22 @@
                     autoResize(this);
                 });
                 autoResize(textarea); // Initial resize
+            });
+
+            // Risalah bipartit file preview for edit form
+            document.getElementById('risalah_bipartit').addEventListener('change', function(e) {
+                // Simple validation
+                const file = e.target.files[0];
+                if (file && file.type !== 'application/pdf') {
+                    alert('File harus berformat PDF!');
+                    e.target.value = '';
+                    return;
+                }
+                if (file && file.size > 10 * 1024 * 1024) {
+                    alert('Ukuran file tidak boleh lebih dari 10MB!');
+                    e.target.value = '';
+                    return;
+                }
             });
         </script>
     </x-app-layout>

@@ -66,7 +66,7 @@
                     $isViewOnlyMediator = $currentUser->role === 'mediator' && !$isAssignedMediator;
                 @endphp
 
-                <!-- ✅ NEW: View-Only Mode Alert for Non-Assigned Mediators -->
+                <!-- View-Only Mode Alert for Non-Assigned Mediators -->
                 @if ($isViewOnlyMediator)
                     <div class="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded relative">
                         <div class="flex items-center">
@@ -91,7 +91,7 @@
                             <div>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
                                     Pengaduan #{{ $pengaduan->pengaduan_id }}
-                                    <!-- ✅ NEW: Responsibility Indicator -->
+                                    <!-- Responsibility Indicator -->
                                     @if ($isAssignedMediator)
                                         <span
                                             class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
@@ -251,7 +251,7 @@
                                             </div>
                                         @else
                                             <!-- Jika akun belum ada, tampilkan button untuk membuat akun -->
-                                            <!-- ✅ UPDATED: Hanya mediator yang bertanggung jawab atau kepala dinas yang bisa buat akun -->
+                                            <!-- Hanya mediator yang bertanggung jawab atau kepala dinas yang bisa buat akun -->
                                             @if ($canManageActions)
                                                 <a href="{{ route('mediator.akun.create', ['pengaduan_id' => $pengaduan->pengaduan_id]) }}"
                                                     class="w-full inline-flex items-center justify-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-dark focus:bg-primary-dark active:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition ease-in-out duration-150">
@@ -265,7 +265,7 @@
                                             @else
                                                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                                                     <p class="text-sm text-gray-600 text-center">
-                                                        <!-- ✅ UPDATED: Pesan yang lebih spesifik -->
+                                                        <!-- Pesan yang lebih spesifik -->
                                                         @if ($isViewOnlyMediator)
                                                             Akun belum dibuat. Hanya mediator yang bertanggung jawab
                                                             atas kasus ini yang dapat membuat akun terlapor.
@@ -317,6 +317,82 @@
                                         </div>
                                     @endif
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Risalah Bipartit -->
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">
+                                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Risalah Bipartit
+                                </h4>
+                                @if ($pengaduan->risalah_bipartit)
+                                    <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                                        <svg class="w-8 h-8 text-green-600 mr-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-green-900">
+                                                {{ basename($pengaduan->risalah_bipartit) }}</p>
+                                            <p class="text-xs text-green-700">Bukti upaya penyelesaian bipartit -
+                                                Sesuai UU No. 2/2004</p>
+                                        </div>
+                                        <a href="{{ asset('storage/' . $pengaduan->risalah_bipartit) }}"
+                                            target="_blank" class="text-green-600 hover:text-green-700 ml-4">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                            </svg>
+                                        </a>
+                                    </div>
+
+                                    <!-- Validation Info for Mediator -->
+                                    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 text-blue-600 mr-2" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                </path>
+                                            </svg>
+                                            <p class="text-xs text-blue-800">
+                                                <strong>Catatan:</strong> Dokumen ini merupakan bukti bahwa pelapor
+                                                telah melakukan upaya penyelesaian secara bipartit sebelum mengajukan
+                                                pengaduan ke Dinas, sesuai dengan ketentuan Pasal 3 UU No. 2 Tahun 2004.
+                                            </p>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 text-red-600 mr-2" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm text-red-800 font-medium">Tidak ada risalah bipartit!
+                                                </p>
+                                                <p class="text-xs text-red-600 mt-1">Pengaduan ini tidak memenuhi
+                                                    syarat karena tidak melampirkan bukti upaya penyelesaian bipartit.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
