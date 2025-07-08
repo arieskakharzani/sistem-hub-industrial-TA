@@ -237,4 +237,43 @@ Route::get('/debug/email-test', [\App\Http\Controllers\Debug\EmailTestController
 Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEventOnly']);
 Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);
 
+// Route untuk debugging auth
+Route::get('/debug-auth', function () {
+    // Test 1: Cek apakah user ada
+    $user = App\Models\User::where('email', 'pelapor1@example.com')->first();
+
+    if (!$user) {
+        return 'User tidak ditemukan di database';
+    }
+
+    // Test 2: Cek struktur user
+    return [
+        'user_exists' => true,
+        'user_id' => $user->user_id,
+        'email' => $user->email,
+        'primary_key' => $user->getKeyName(),
+        'auth_identifier' => $user->getAuthIdentifierName(),
+        'auth_id' => $user->getAuthIdentifier(),
+    ];
+});
+
+Route::get('/test-login', function () {
+    $user = App\Models\User::where('email', 'pelapor1@example.com')->first();
+
+    if ($user) {
+        // Manual login
+        Auth::login($user);
+
+        return [
+            'login_attempt' => 'success',
+            'auth_check' => Auth::check(),
+            'auth_id' => Auth::id(),
+            'session_id' => session()->getId(),
+            'user_data' => Auth::user(),
+        ];
+    }
+
+    return 'User tidak ditemukan';
+});
+
 require __DIR__ . '/auth.php';

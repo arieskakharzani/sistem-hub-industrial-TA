@@ -1,6 +1,7 @@
-// database/migrations/xxxx_migrate_users_data.php
 <?php
+// database/migrations/2025_05_31_120516_migrate_users_data.php
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Migrations\Migration;
@@ -23,21 +24,28 @@ return new class extends Migration
         }
 
         foreach ($users_backup as $old_user) {
-            // Insert ke tabel users baru
-            $user_id = DB::table('users')->insertGetId([
+            // Generate UUID untuk user baru
+            $user_id = (string) Str::uuid();
+
+            // Insert ke tabel users baru - PERBAIKAN: tidak assign ke variable
+            DB::table('users')->insert([
+                'user_id' => $user_id,
                 'email' => $old_user->email,
                 'password' => $old_user->password,
                 'role' => $old_user->role,
-                // 'is_active' => true,
+                'is_active' => true,
                 'created_at' => $old_user->created_at,
                 'updated_at' => $old_user->updated_at,
             ]);
+
+            echo "Migrated user: {$old_user->email} with ID: {$user_id}\n";
 
             // Insert ke tabel role sesuai role user
             switch ($old_user->role) {
                 case 'pelapor':
                     DB::table('pelapor')->insert([
-                        'user_id' => $user_id,
+                        'pelapor_id' => (string) Str::uuid(),
+                        'user_id' => $user_id, // Gunakan UUID yang sudah digenerate
                         'nama_pelapor' => $old_user->name,
                         'tempat_lahir' => $old_user->tempat_lahir,
                         'tanggal_lahir' => $old_user->tanggal_lahir,
@@ -47,8 +55,6 @@ return new class extends Migration
                         'perusahaan' => $old_user->perusahaan,
                         'npk' => $old_user->npk,
                         'email' => $old_user->email,
-                        // 'email_verified_at' => $old_user->email_verified_at,
-                        // 'role' => $old_user->role,
                         'created_at' => $old_user->created_at,
                         'updated_at' => $old_user->updated_at,
                     ]);
@@ -56,8 +62,9 @@ return new class extends Migration
 
                 case 'terlapor':
                     DB::table('terlapor')->insert([
+                        'terlapor_id' => (string) Str::uuid(),
                         'user_id' => $user_id,
-                        'nama_terlapor' => $old_user->nama_terlapor, // mapping field
+                        'nama_terlapor' => $old_user->name, // PERBAIKAN: gunakan 'name' bukan 'nama_terlapor'
                         'alamat_kantor_cabang' => $old_user->alamat,
                         'email_terlapor' => $old_user->email,
                         'no_hp_terlapor' => $old_user->no_hp,
@@ -68,9 +75,10 @@ return new class extends Migration
 
                 case 'mediator':
                     DB::table('mediator')->insert([
+                        'mediator_id' => (string) Str::uuid(),
                         'user_id' => $user_id,
                         'nama_mediator' => $old_user->name,
-                        'nip' => $old_user->npk, // mapping field
+                        'nip' => $old_user->npk,
                         'created_at' => $old_user->created_at,
                         'updated_at' => $old_user->updated_at,
                     ]);
@@ -78,9 +86,10 @@ return new class extends Migration
 
                 case 'kepala_dinas':
                     DB::table('kepala_dinas')->insert([
+                        'kepala_dinas_id' => (string) Str::uuid(),
                         'user_id' => $user_id,
                         'nama_kepala_dinas' => $old_user->name,
-                        'nip' => $old_user->npk, // mapping field
+                        'nip' => $old_user->npk,
                         'created_at' => $old_user->created_at,
                         'updated_at' => $old_user->updated_at,
                     ]);
@@ -90,8 +99,9 @@ return new class extends Migration
                     echo "Warning: Unknown role '{$old_user->role}' for user {$old_user->email}\n";
                     break;
             }
-            echo "Data migration completed successfully.\n";
         }
+
+        echo "Data migration completed successfully.\n";
     }
 
     public function down()

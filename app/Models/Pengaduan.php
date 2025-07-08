@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pengaduan extends Model
 {
@@ -12,8 +13,11 @@ class Pengaduan extends Model
 
     protected $table = 'pengaduans';
     protected $primaryKey = 'pengaduan_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'pengaduan_id',
         'pelapor_id',
         'terlapor_id', // Updated to match terlapor table
         'mediator_id',
@@ -29,7 +33,6 @@ class Pengaduan extends Model
         'risalah_bipartit',
         'lampiran',
         'status',
-        'mediator_id',
         'catatan_mediator',
         'assigned_at'
     ];
@@ -41,6 +44,19 @@ class Pengaduan extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    // Auto-generate UUID saat membuat pengaduan baru
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->pengaduan_id)) {
+                $model->pengaduan_id = (string) Str::uuid();
+            }
+        });
+    }
+
 
     /**
      * Get the pelapor that owns the pengaduan.

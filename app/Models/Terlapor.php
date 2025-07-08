@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 
 class Terlapor extends Model
 {
     protected $table = 'terlapor';
     protected $primaryKey = 'terlapor_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'terlapor_id',
         'user_id',
         'nama_terlapor',
         'alamat_kantor_cabang',
@@ -23,6 +27,18 @@ class Terlapor extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    // Auto-generate UUID saat membuat pelapor baru
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->terlapor_id)) {
+                $model->terlapor_id = (string) Str::uuid();
+            }
+        });
+    }
 
     public function user()
     {

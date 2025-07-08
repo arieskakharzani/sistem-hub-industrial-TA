@@ -16,7 +16,7 @@ class TerlaporService
     /**
      * Create terlapor account
      */
-    public function createTerlaporAccount(array $data, int $mediatorId): array
+    public function createTerlaporAccount(array $data, string $mediatorId): array
     {
         DB::beginTransaction();
 
@@ -26,7 +26,6 @@ class TerlaporService
 
             // 1. Create user account
             $user = User::create([
-                'name' => $data['nama_terlapor'],
                 'email' => $data['email_terlapor'],
                 'password' => Hash::make($tempPassword),
                 'role' => 'terlapor',
@@ -75,7 +74,7 @@ class TerlaporService
     /**
      * Get terlapor by mediator
      */
-    public function getTerlaporByMediator(int $mediatorId)
+    public function getTerlaporByMediator(string $mediatorId)
     {
         return Terlapor::with(['user'])
             ->where('created_by_mediator_id', $mediatorId)
@@ -86,7 +85,7 @@ class TerlaporService
     /**
      * Deactivate terlapor
      */
-    public function deactivateTerlapor(int $terlaporId, int $mediatorId): bool
+    public function deactivateTerlapor(string $terlaporId, string $mediatorId): bool
     {
         try {
             $terlapor = Terlapor::with('user')
@@ -126,7 +125,7 @@ class TerlaporService
     /**
      * Activate terlapor
      */
-    public function activateTerlapor(int $terlaporId, int $mediatorId): bool
+    public function activateTerlapor(string $terlaporId, string $mediatorId): bool
     {
         try {
             $terlapor = Terlapor::with('user')
@@ -166,7 +165,7 @@ class TerlaporService
     /**
      * Send credentials email to terlapor
      */
-    private function sendCredentialsEmail(Terlapor $terlapor, string $tempPassword, int $pengaduanId = null): void
+    private function sendCredentialsEmail(Terlapor $terlapor, string $tempPassword, ?string $pengaduanId = null): void
     {
         try {
             $emailData = [

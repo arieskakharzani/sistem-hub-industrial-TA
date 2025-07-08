@@ -24,10 +24,46 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+
+        // Debug log sebelum authenticate
+        \Log::info('Before authenticate', [
+            'email' => $request->string('email'),
+            'session_id' => $request->session()->getId(),
+        ]);
         $request->authenticate();
+
+        // Debug log setelah authenticate
+        \Log::info('After authenticate', [
+            'auth_check' => Auth::check(),
+            'auth_id' => Auth::id(),
+            'session_id' => $request->session()->getId(),
+        ]);
+
         $request->session()->regenerate();
 
+        // Debug log setelah regenerate
+        \Log::info('After session regenerate', [
+            'auth_check' => Auth::check(),
+            'auth_id' => Auth::id(),
+            'new_session_id' => $request->session()->getId(),
+        ]);
+
         $user = Auth::user();
+
+        if (!$user) {
+            \Log::error('User not found after authentication');
+            Auth::logout();
+            return redirect()->route('login')->withErrors([
+                'email' => 'Authentication failed. Please try again.',
+            ]);
+        }
+
+        // ⬅️ Debug user data
+        \Log::info('User authenticated', [
+            'user_id' => $user->user_id,
+            'email' => $user->email,
+            'role' => $user->role,
+        ]);
 
         // ✅ Simple approach - langsung akses kolom role
         $role = $user->role ?? null;
@@ -38,6 +74,12 @@ class AuthenticatedSessionController extends Controller
                 'email' => 'User role not found. Please contact administrator.',
             ]);
         }
+
+        //Debug redirect
+        \Log::info('Redirecting user', [
+            'user_id' => $user->user_id,
+            'role' => $role,
+        ]);
 
         switch ($role) {
             case 'pelapor':

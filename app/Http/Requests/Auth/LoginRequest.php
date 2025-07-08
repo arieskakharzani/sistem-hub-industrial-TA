@@ -41,13 +41,33 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // Debug log untuk melihat credentials
+        \Log::info('Login attempt', [
+            'email' => $this->string('email'),
+            'ip' => $this->ip(),
+        ]);
+
+        // Attempt authentication
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            // Debug log untuk failed login
+            \Log::error('Login failed', [
+                'email' => $this->string('email'),
+                'ip' => $this->ip(),
+            ]);
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
+
+        // Debug log untuk successful login
+        \Log::info('Login successful', [
+            'user_id' => Auth::id(),
+            'email' => Auth::user()->email,
+            'role' => Auth::user()->role,
+        ]);
 
         RateLimiter::clear($this->throttleKey());
     }

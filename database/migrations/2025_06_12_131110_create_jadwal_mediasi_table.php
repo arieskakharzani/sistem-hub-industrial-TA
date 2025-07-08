@@ -9,9 +9,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('jadwal_mediasi', function (Blueprint $table) {
-            $table->id('jadwal_id');
-            $table->foreignId('pengaduan_id')->constrained('pengaduans', 'pengaduan_id')->onDelete('cascade');
-            $table->foreignId('mediator_id')->constrained('mediator', 'mediator_id')->onDelete('cascade');
+            $table->uuid('jadwal_id')->primary();
+            $table->uuid('pengaduan_id');
+            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduans')->onDelete('cascade');
+            $table->uuid('mediator_id');
+            $table->foreign('mediator_id')->references('mediator_id')->on('mediator')->onDelete('cascade');
             $table->date('tanggal_mediasi');
             $table->time('waktu_mediasi');
             $table->string('tempat_mediasi');

@@ -10,8 +10,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('kepala_dinas', function (Blueprint $table) {
-            $table->id('kepala_dinas_id');
-            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
+            $table->uuid('kepala_dinas_id')->primary();
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->string('nama_kepala_dinas');
             $table->string('nip');
             $table->timestamps();

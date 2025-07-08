@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class JadwalMediasi extends Model
 {
     protected $table = 'jadwal_mediasi';
     protected $primaryKey = 'jadwal_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'jadwal_id',
         'pengaduan_id',
         'mediator_id',
         'tanggal_mediasi',
@@ -35,6 +39,18 @@ class JadwalMediasi extends Model
         'tanggal_konfirmasi_pelapor' => 'datetime',
         'tanggal_konfirmasi_terlapor' => 'datetime'
     ];
+
+    // Auto-generate UUID saat membuat jadwal mediasi baru
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->jadwal_id)) {
+                $model->jadwal_id = (string) Str::uuid();
+            }
+        });
+    }
 
     // Hubungan dengan tabel pengaduan
     public function pengaduan(): BelongsTo

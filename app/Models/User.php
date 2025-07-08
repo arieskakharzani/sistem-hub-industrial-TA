@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'user_id',
         'email',
         'password',
         'role',
@@ -27,9 +31,39 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean', // Tambahkan cast untuk is_active
         ];
+    }
+
+    // Auto-generate UUID saat membuat user baru
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->user_id)) {
+                $model->user_id = (string) Str::uuid();
+            }
+        });
+    }
+
+    // Override method untuk UUID
+    public function getAuthIdentifierName()
+    {
+        return 'user_id';
+    }
+
+    public function getAuthIdentifier()
+    {
+        return $this->user_id;
+    }
+
+    // Method untuk debugging
+    public function getKeyName()
+    {
+        return $this->primaryKey;
     }
 
     // Relationships

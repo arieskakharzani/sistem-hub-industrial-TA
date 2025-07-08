@@ -229,7 +229,7 @@
                                             <p class="text-sm font-medium text-blue-900">
                                                 {{ basename($pengaduan->risalah_bipartit) }}</p>
                                             <p class="text-xs text-blue-700">Dokumen risalah perundingan bipartit yang
-                                                diajukan oleh pelapor</p>
+                                                dilampirkan oleh pelapor</p>
                                         </div>
                                         <a href="{{ asset('storage/' . $pengaduan->risalah_bipartit) }}"
                                             target="_blank" class="text-blue-600 hover:text-blue-700 ml-4">

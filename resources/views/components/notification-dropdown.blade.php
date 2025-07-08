@@ -43,7 +43,7 @@
                 class="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-primary to-primary-light text-white rounded-t-xl">
                 <h3 class="text-lg font-semibold">🔔 Notifikasi</h3>
                 <button onclick="markAllAsRead()"
-                    class="text-sm text-primary-lighter hover:text-white focus:outline-none transition-colors duration-200 bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg font-medium">
+                    class="text-sm text-white hover:text-white focus:outline-none transition-colors duration-200 bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg font-medium">
                     Tandai Semua Dibaca
                 </button>
             </div>

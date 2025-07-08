@@ -9,8 +9,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('pelapor', function (Blueprint $table) {
-            $table->id('pelapor_id');
-            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
+            $table->uuid('pelapor_id')->primary();
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->string('nama_pelapor');
             $table->string('tempat_lahir');
             $table->date('tanggal_lahir');

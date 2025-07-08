@@ -15,9 +15,11 @@ return new class extends Migration
         Schema::dropIfExists('pengaduans');
 
         Schema::create('pengaduans', function (Blueprint $table) {
-            $table->id('pengaduan_id');
-            $table->foreignId('pelapor_id')->constrained('pelapor', 'pelapor_id')->onDelete('cascade');
-            $table->foreignId('terlapor_id')->nullable()->constrained('terlapor', 'terlapor_id')->onDelete('set null');
+            $table->uuid('pengaduan_id')->primary();
+            $table->uuid('pelapor_id');
+            $table->foreign('pelapor_id')->references('pelapor_id')->on('pelapor')->onDelete('cascade');
+            $table->uuid('terlapor_id')->nullable();
+            $table->foreign('terlapor_id')->references('terlapor_id')->on('terlapor')->onDelete('set null');
             $table->date('tanggal_laporan');
             $table->enum('perihal', [
                 'Perselisihan Hak',
@@ -38,7 +40,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'proses', 'selesai'])->default('pending');
 
             // Fields untuk mediator
-            $table->foreignId('mediator_id')->nullable()->constrained('mediator', 'mediator_id')->onDelete('set null');
+            $table->uuid('mediator_id')->nullable();
+            $table->foreign('mediator_id')->references('mediator_id')->on('mediator')->onDelete('set null');
             $table->text('catatan_mediator')->nullable();
             $table->timestamp('assigned_at')->nullable();
 
