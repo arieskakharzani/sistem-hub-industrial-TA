@@ -198,7 +198,7 @@
                                             </th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                Pelapor
+                                                Terlapor
                                             </th>
                                             <th
                                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -211,7 +211,8 @@
                                             <tr class="hover:bg-gray-50">
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">
-                                                        #{{ $jadwal->pengaduan->pengaduan_id }}
+                                                        Pengaduan oleh :
+                                                        {{ $jadwal->pengaduan->pelapor->nama_pelapor }}
                                                     </div>
                                                     <div class="text-sm text-gray-500">
                                                         {{ $jadwal->pengaduan->perihal }}
@@ -240,7 +241,7 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-900">
-                                                        {{ $jadwal->pengaduan->pelapor->nama_pelapor }}
+                                                        {{ $jadwal->pengaduan->terlapor->nama_terlapor }}
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

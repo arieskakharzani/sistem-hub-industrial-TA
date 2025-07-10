@@ -6,7 +6,7 @@
                     Edit Jadwal Mediasi
                 </h2>
                 <p class="text-sm text-gray-600 mt-1">
-                    Pengaduan #{{ $jadwal->pengaduan->pengaduan_id }} - {{ $jadwal->pengaduan->perihal }}
+                    {{ $jadwal->pengaduan->perihal }}
                 </p>
             </div>
             <a href="{{ route('jadwal.show', $jadwal) }}"
@@ -35,10 +35,10 @@
                     <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                         <h3 class="text-sm font-medium text-gray-700 mb-2">Informasi Pengaduan</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
+                            {{-- <div>
                                 <span class="text-gray-500">ID Pengaduan:</span>
                                 <span class="ml-2 text-gray-900">#{{ $jadwal->pengaduan->pengaduan_id }}</span>
-                            </div>
+                            </div> --}}
                             <div>
                                 <span class="text-gray-500">Perihal:</span>
                                 <span class="ml-2 text-gray-900">{{ $jadwal->pengaduan->perihal }}</span>
@@ -54,7 +54,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('jadwal.update', $jadwal) }}">
+                    <form method="POST" action="{{ route('jadwal.update', $jadwal) }}" id="editJadwalForm">
                         @csrf
                         @method('PUT')
 
@@ -67,6 +67,8 @@
                                 <input type="date" name="tanggal_mediasi" id="tanggal_mediasi"
                                     value="{{ old('tanggal_mediasi', $jadwal->tanggal_mediasi->format('Y-m-d')) }}"
                                     min="{{ date('Y-m-d') }}" class="w-full rounded-md border-gray-300" required>
+                                <p class="text-xs text-gray-500 mt-1">Minimal tanggal hari ini ({{ date('d/m/Y') }})
+                                </p>
                             </div>
 
                             {{-- Waktu Mediasi --}}
@@ -76,8 +78,13 @@
                                 </label>
                                 <input type="time" name="waktu_mediasi" id="waktu_mediasi"
                                     value="{{ old('waktu_mediasi', $jadwal->waktu_mediasi->format('H:i')) }}"
-                                    class="w-full rounded-md border-gray-300" required>
-                                <p class="text-xs text-gray-500 mt-1">Jam kerja: 08:00 - 17:00</p>
+                                    min="08:00" max="16:00" class="w-full rounded-md border-gray-300" required>
+                                <p class="text-xs text-gray-500 mt-1" id="waktu-info">
+                                    Jam kerja: 08:00 - 16:00
+                                </p>
+                                <p class="text-xs text-red-500 mt-1 hidden" id="waktu-error">
+                                    Waktu harus lebih dari waktu saat ini untuk hari ini
+                                </p>
                             </div>
                         </div>
 
@@ -133,7 +140,7 @@
                                 class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded-lg">
                                 Batal
                             </a>
-                            <button type="submit"
+                            <button type="submit" id="submitBtn"
                                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
                                 Simpan Perubahan
                             </button>
@@ -144,15 +151,169 @@
         </div>
     </div>
 
+    {{-- JavaScript untuk validasi tanggal, waktu, dan status --}}
     <script>
-        // Show/hide hasil mediasi section based on status
-        document.getElementById('status_jadwal').addEventListener('change', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const tanggalInput = document.getElementById('tanggal_mediasi');
+            const waktuInput = document.getElementById('waktu_mediasi');
+            const waktuInfo = document.getElementById('waktu-info');
+            const waktuError = document.getElementById('waktu-error');
+            const statusSelect = document.getElementById('status_jadwal');
             const hasilMediasiSection = document.getElementById('hasil_mediasi_section');
-            if (this.value === 'selesai') {
-                hasilMediasiSection.style.display = 'block';
-            } else {
-                hasilMediasiSection.style.display = 'none';
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('editJadwalForm');
+
+            // Fungsi untuk mendapatkan waktu saat ini dalam format HH:MM
+            function getCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
             }
+
+            // Fungsi untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+            function getTodayDate() {
+                const today = new Date();
+                return today.toISOString().split('T')[0];
+            }
+
+            // Fungsi untuk memvalidasi waktu
+            function validateTime() {
+                const selectedDate = tanggalInput.value;
+                const selectedTime = waktuInput.value;
+                const today = getTodayDate();
+                const currentTime = getCurrentTime();
+
+                // Reset error state
+                waktuError.classList.add('hidden');
+                waktuInfo.classList.remove('hidden');
+                waktuInput.classList.remove('border-red-500');
+
+                if (selectedDate && selectedTime) {
+                    // Jika tanggal yang dipilih adalah hari ini
+                    if (selectedDate === today) {
+                        // Periksa apakah waktu yang dipilih sudah lewat
+                        if (selectedTime <= currentTime) {
+                            waktuError.classList.remove('hidden');
+                            waktuInfo.classList.add('hidden');
+                            waktuInput.classList.add('border-red-500');
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            // Fungsi untuk mengatur waktu minimal berdasarkan tanggal
+            function updateTimeConstraints() {
+                const selectedDate = tanggalInput.value;
+                const today = getTodayDate();
+
+                if (selectedDate === today) {
+                    // Jika hari ini, set waktu minimal 1 jam dari sekarang
+                    const now = new Date();
+                    now.setHours(now.getHours() + 1);
+                    const minTime = now.toTimeString().slice(0, 5);
+
+                    // Pastikan tidak melebihi jam kerja
+                    if (minTime > '16:00') {
+                        waktuInput.min = '16:00';
+                        waktuInput.max = '16:00';
+                        waktuInfo.textContent =
+                            'Hari ini sudah terlalu sore untuk mengubah jadwal. Pilih tanggal besok atau setelahnya.';
+                        waktuInfo.classList.add('text-red-500');
+                    } else {
+                        waktuInput.min = minTime > '08:00' ? minTime : '08:00';
+                        waktuInput.max = '16:00';
+                        waktuInfo.textContent = `Jam kerja: ${waktuInput.min} - 16:00 (untuk hari ini)`;
+                        waktuInfo.classList.remove('text-red-500');
+                    }
+                } else {
+                    // Jika tanggal lain, gunakan jam kerja normal
+                    waktuInput.min = '08:00';
+                    waktuInput.max = '16:00';
+                    waktuInfo.textContent = 'Jam kerja: 08:00 - 16:00';
+                    waktuInfo.classList.remove('text-red-500');
+                }
+
+                // Jangan reset value yang sudah ada saat edit, kecuali tidak valid
+                const currentValue = waktuInput.value;
+                if (currentValue && (currentValue < waktuInput.min || currentValue > waktuInput.max)) {
+                    // Hanya beri warning, jangan reset value
+                    waktuInfo.textContent += ' (Waktu saat ini tidak valid)';
+                    waktuInfo.classList.add('text-orange-500');
+                }
+            }
+
+            // Event listener untuk perubahan tanggal
+            tanggalInput.addEventListener('change', function() {
+                updateTimeConstraints();
+                validateTime();
+            });
+
+            // Event listener untuk perubahan waktu
+            waktuInput.addEventListener('change', validateTime);
+            waktuInput.addEventListener('input', validateTime);
+
+            // Show/hide hasil mediasi section based on status
+            statusSelect.addEventListener('change', function() {
+                if (this.value === 'selesai') {
+                    hasilMediasiSection.style.display = 'block';
+                } else {
+                    hasilMediasiSection.style.display = 'none';
+                }
+            });
+
+            // Validasi form sebelum submit
+            form.addEventListener('submit', function(e) {
+                const selectedDate = tanggalInput.value;
+                const selectedTime = waktuInput.value;
+                const today = getTodayDate();
+
+                // Validasi tanggal tidak boleh kemarin
+                if (selectedDate < today) {
+                    e.preventDefault();
+                    alert('Tanggal mediasi tidak boleh di masa lalu.');
+                    return false;
+                }
+
+                // Validasi waktu untuk hari ini
+                if (selectedDate === today && !validateTime()) {
+                    e.preventDefault();
+                    alert(
+                        'Mohon pilih waktu yang valid. Waktu harus setelah waktu saat ini jika memilih hari ini.'
+                    );
+                    return false;
+                }
+
+                // Validasi jam kerja
+                if (selectedTime < '08:00' || selectedTime > '16:00') {
+                    e.preventDefault();
+                    alert('Waktu mediasi harus dalam jam kerja (08:00 - 16:00).');
+                    return false;
+                }
+
+                // Validasi hasil mediasi jika status selesai
+                if (statusSelect.value === 'selesai') {
+                    const hasilMediasi = document.getElementById('hasil_mediasi').value.trim();
+                    if (!hasilMediasi) {
+                        e.preventDefault();
+                        alert('Hasil mediasi harus diisi jika status jadwal adalah "Selesai".');
+                        return false;
+                    }
+                }
+            });
+
+            // Inisialisasi saat halaman dimuat
+            updateTimeConstraints();
+
+            // Update setiap menit untuk memastikan validasi waktu tetap akurat
+            setInterval(function() {
+                if (tanggalInput.value === getTodayDate()) {
+                    updateTimeConstraints();
+                    validateTime();
+                }
+            }, 60000); // Update setiap 1 menit
         });
     </script>
 </x-app-layout>

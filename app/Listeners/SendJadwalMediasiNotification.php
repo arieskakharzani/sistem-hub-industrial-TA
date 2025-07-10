@@ -11,9 +11,9 @@ use App\Services\JadwalNotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\JadwalMediasiNotification;
 
-class SendJadwalMediasiNotification implements ShouldQueue
+class SendJadwalMediasiNotification
 {
-    use InteractsWithQueue;
+    // use InteractsWithQueue;
 
     protected $notificationService;
 
@@ -28,6 +28,11 @@ class SendJadwalMediasiNotification implements ShouldQueue
      */
     public function handle($event)
     {
+        Log::info('🚀 [LISTENER] SendJadwalMediasiNotification.handle() CALLED!', [
+            'event_class' => get_class($event),
+            'jadwal_id' => $event->jadwal->jadwal_id ?? 'unknown'
+        ]);
+
         try {
             Log::info('🔔 [JADWAL EMAIL] Processing jadwal mediasi notification', [
                 'jadwal_id' => $event->jadwal->jadwal_id,

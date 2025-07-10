@@ -320,7 +320,8 @@
                                                 <label
                                                     class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 cursor-pointer">
                                                     <input type="radio" name="konfirmasi" value="hadir"
-                                                        class="mr-3 text-green-600" required>
+                                                        class="mr-3 text-green-600" required
+                                                        onchange="toggleCatatanField()">
                                                     <div>
                                                         <div class="font-medium text-green-800">✅ Saya akan hadir</div>
                                                         <div class="text-sm text-green-600">Saya akan menghadiri sesi
@@ -330,7 +331,8 @@
                                                 <label
                                                     class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-300 cursor-pointer">
                                                     <input type="radio" name="konfirmasi" value="tidak_hadir"
-                                                        class="mr-3 text-red-600" required>
+                                                        class="mr-3 text-red-600" required
+                                                        onchange="toggleCatatanField()">
                                                     <div>
                                                         <div class="font-medium text-red-800">❌ Saya tidak dapat hadir
                                                         </div>
@@ -344,14 +346,15 @@
                                             @enderror
                                         </div>
 
-                                        <div>
+                                        <div id="catatanField" class="hidden">
                                             <label for="catatan"
                                                 class="block text-sm font-medium text-gray-700 mb-2">
-                                                Catatan (Opsional)
+                                                <span id="catatanLabel">Catatan</span> <span id="catatanRequired"
+                                                    class="text-red-500">*</span>
                                             </label>
                                             <textarea name="catatan" id="catatan" rows="3"
                                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                                placeholder="Tambahkan catatan jika diperlukan...">{{ old('catatan') }}</textarea>
+                                                placeholder="Mohon jelaskan alasan Anda tidak dapat hadir...">{{ old('catatan') }}</textarea>
                                             @error('catatan')
                                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                             @enderror
@@ -461,6 +464,41 @@
             </div>
         </div>
     </x-app-layout>
+
+    <script>
+        function toggleCatatanField() {
+            const konfirmasiRadios = document.querySelectorAll('input[name="konfirmasi"]');
+            const catatanField = document.getElementById('catatanField');
+            const catatanTextarea = document.getElementById('catatan');
+            const catatanRequired = document.getElementById('catatanRequired');
+
+            let selectedValue = '';
+            konfirmasiRadios.forEach(radio => {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                }
+            });
+
+            if (selectedValue === 'tidak_hadir') {
+                // Show catatan field and make it required
+                catatanField.classList.remove('hidden');
+                catatanTextarea.setAttribute('required', 'required');
+                catatanRequired.classList.remove('hidden');
+                catatanTextarea.placeholder = 'Mohon jelaskan alasan Anda tidak dapat hadir dan kapan bisa hadir';
+            } else if (selectedValue === 'hadir') {
+                // Hide catatan field and remove required attribute
+                catatanField.classList.add('hidden');
+                catatanTextarea.removeAttribute('required');
+                catatanRequired.classList.add('hidden');
+                catatanTextarea.value = ''; // Clear the field
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleCatatanField();
+        });
+    </script>
 </body>
 
 </html>

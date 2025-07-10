@@ -6,7 +6,7 @@
                     Detail Jadwal Mediasi
                 </h2>
                 <p class="text-sm text-gray-600 mt-1">
-                    Pengaduan #{{ $jadwal->pengaduan->pengaduan_id }} - {{ $jadwal->pengaduan->perihal }}
+                    {{ $jadwal->pengaduan->perihal }}
                 </p>
             </div>
             <div class="flex space-x-2">

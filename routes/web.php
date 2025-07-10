@@ -238,42 +238,60 @@ Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController
 Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);
 
 // Route untuk debugging auth
-Route::get('/debug-auth', function () {
-    // Test 1: Cek apakah user ada
-    $user = App\Models\User::where('email', 'pelapor1@example.com')->first();
+// Route::get('/debug-auth', function () {
+//     // Test 1: Cek apakah user ada
+//     $user = App\Models\User::where('email', 'pelapor1@example.com')->first();
 
-    if (!$user) {
-        return 'User tidak ditemukan di database';
+//     if (!$user) {
+//         return 'User tidak ditemukan di database';
+//     }
+
+//     // Test 2: Cek struktur user
+//     return [
+//         'user_exists' => true,
+//         'user_id' => $user->user_id,
+//         'email' => $user->email,
+//         'primary_key' => $user->getKeyName(),
+//         'auth_identifier' => $user->getAuthIdentifierName(),
+//         'auth_id' => $user->getAuthIdentifier(),
+//     ];
+// });
+
+// Route::get('/test-login', function () {
+//     $user = App\Models\User::where('email', 'pelapor1@example.com')->first();
+
+//     if ($user) {
+//         // Manual login
+//         Auth::login($user);
+
+//         return [
+//             'login_attempt' => 'success',
+//             'auth_check' => Auth::check(),
+//             'auth_id' => Auth::id(),
+//             'session_id' => session()->getId(),
+//             'user_data' => Auth::user(),
+//         ];
+//     }
+
+//     return 'User tidak ditemukan';
+// });
+
+//Test Listener
+Route::get('/test-simple-mail', function () {
+    try {
+        Log::info('🧪 Testing simple mail to arieskaeeca@gmail.com');
+
+        Mail::raw('Test email sederhana dari sistem - ' . now(), function ($message) {
+            $message->to('arieskaeeca@gmail.com') // test ke email yang sama dengan sender
+                ->subject('Test Email Simple - ' . now());
+        });
+
+        Log::info('✅ Simple mail sent successfully');
+        return 'Simple email sent! Check inbox and spam folder.';
+    } catch (\Exception $e) {
+        Log::error('❌ Simple mail failed: ' . $e->getMessage());
+        return 'Email failed: ' . $e->getMessage();
     }
-
-    // Test 2: Cek struktur user
-    return [
-        'user_exists' => true,
-        'user_id' => $user->user_id,
-        'email' => $user->email,
-        'primary_key' => $user->getKeyName(),
-        'auth_identifier' => $user->getAuthIdentifierName(),
-        'auth_id' => $user->getAuthIdentifier(),
-    ];
-});
-
-Route::get('/test-login', function () {
-    $user = App\Models\User::where('email', 'pelapor1@example.com')->first();
-
-    if ($user) {
-        // Manual login
-        Auth::login($user);
-
-        return [
-            'login_attempt' => 'success',
-            'auth_check' => Auth::check(),
-            'auth_id' => Auth::id(),
-            'session_id' => session()->getId(),
-            'user_data' => Auth::user(),
-        ];
-    }
-
-    return 'User tidak ditemukan';
 });
 
 require __DIR__ . '/auth.php';

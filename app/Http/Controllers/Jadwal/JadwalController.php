@@ -142,10 +142,10 @@ class JadwalController extends Controller
         ]);
 
         // DEBUG: Log sebelum trigger event
-        Log::info('🚀 Jadwal created, triggering JadwalMediasiCreated event', [
+        Log::info('🧪 [DEBUG] About to trigger JadwalMediasiCreated event', [
             'jadwal_id' => $jadwal->jadwal_id,
-            'pengaduan_id' => $jadwal->pengaduan_id,
-            'mediator_id' => $jadwal->mediator_id
+            'jadwal_exists' => $jadwal ? 'yes' : 'no',
+            'event_class' => JadwalMediasiCreated::class
         ]);
 
         event(new JadwalMediasiCreated($jadwal));
@@ -334,7 +334,7 @@ class JadwalController extends Controller
                 ->with('error', 'Jadwal yang sedang berlangsung atau sudah selesai tidak dapat dihapus');
         }
 
-        // $jadwal->delete();
+        $jadwal->delete();
 
         return redirect()->route('jadwal.index')
             ->with('success', 'Jadwal mediasi berhasil dihapus');

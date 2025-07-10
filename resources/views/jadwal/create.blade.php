@@ -40,7 +40,7 @@
                                 @foreach ($pengaduanList as $pengaduan)
                                     <option value="{{ $pengaduan->pengaduan_id }}"
                                         {{ old('pengaduan_id') == $pengaduan->pengaduan_id ? 'selected' : '' }}>
-                                        #{{ $pengaduan->pengaduan_id }} - {{ $pengaduan->perihal }}
+                                       {{ $pengaduan->perihal }}
                                         ({{ $pengaduan->pelapor->nama_pelapor }})
                                     </option>
                                 @endforeach

@@ -63,7 +63,21 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Manual event binding sebagai fallback
+        Event::listen(
+            \App\Events\JadwalMediasiCreated::class,
+            [\App\Listeners\SendJadwalMediasiNotification::class, 'handle']
+        );
+
+        Event::listen(
+            \App\Events\JadwalMediasiUpdated::class,
+            [\App\Listeners\SendJadwalMediasiNotification::class, 'handle']
+        );
+
+        Event::listen(
+            \App\Events\JadwalMediasiStatusUpdated::class,
+            [\App\Listeners\SendJadwalMediasiNotification::class, 'handle']
+        );
     }
 
     /**
