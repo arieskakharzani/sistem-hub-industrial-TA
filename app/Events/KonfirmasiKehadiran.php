@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,21 +15,21 @@ class KonfirmasiKehadiran
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $jadwalMediasi;
+    public $jadwal;
     public $userRole;
     public $konfirmasi;
 
     /**
      * Create a new event instance.
      *
-     * @param  \App\Models\JadwalMediasi  $jadwalMediasi
+     * @param  \App\Models\Jadwal  $jadwal
      * @param  string  $userRole
      * @param  string  $konfirmasi
      * @return void
      */
-    public function __construct(JadwalMediasi $jadwalMediasi, string $userRole, string $konfirmasi)
+    public function __construct(Jadwal $jadwal, string $userRole, string $konfirmasi)
     {
-        $this->jadwalMediasi = $jadwalMediasi;
+        $this->jadwal = $jadwal;
         $this->userRole = $userRole;
         $this->konfirmasi = $konfirmasi;
     }

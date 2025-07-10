@@ -110,7 +110,7 @@ class PengaduanController extends Controller
         }
 
         // Load relasi yang diperlukan
-        $pengaduan->load(['pelapor', 'mediator.user', 'terlapor', 'jadwalMediasi']);
+        $pengaduan->load(['pelapor', 'mediator.user', 'terlapor', 'jadwal']);
 
         return view('pengaduan.show-terlapor', compact('pengaduan', 'terlapor'));
     }

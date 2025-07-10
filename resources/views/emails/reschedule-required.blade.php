@@ -159,7 +159,7 @@
         <div class="alert-box">
             <h3>🚨 PEMBERITAHUAN URGENT</h3>
             <p><strong>{{ $absentPartyText }}</strong> telah mengkonfirmasi <strong>TIDAK DAPAT HADIR</strong> pada
-                jadwal mediasi yang telah ditetapkan.</p>
+                jadwal yang telah ditetapkan.</p>
             <p><strong>Status Jadwal:</strong> Automatically changed to <span
                     style="color: #DC2626; font-weight: bold;">"DITUNDA"</span></p>
             <p><strong>Tindakan Diperlukan:</strong> Penjadwalan ulang segera diperlukan.</p>
@@ -188,19 +188,19 @@
         </div>
 
         <div class="info-box">
-            <h3>🗓️ Jadwal Mediasi Yang Ditunda</h3>
+            <h3>🗓️ jadwal Yang Ditunda</h3>
             <table class="details-table">
                 <tr>
                     <th>Tanggal Original</th>
-                    <td>{{ $jadwal->tanggal_mediasi->format('d F Y') }}</td>
+                    <td>{{ $jadwal->tanggal->format('d F Y') }}</td>
                 </tr>
                 <tr>
                     <th>Waktu Original</th>
-                    <td>{{ $jadwal->waktu_mediasi->format('H:i') }} WIB</td>
+                    <td>{{ $jadwal->waktu->format('H:i') }} WIB</td>
                 </tr>
                 <tr>
                     <th>Tempat</th>
-                    <td>{{ $jadwal->tempat_mediasi }}</td>
+                    <td>{{ $jadwal->tempat }}</td>
                 </tr>
                 <tr>
                     <th>Status Saat Ini</th>

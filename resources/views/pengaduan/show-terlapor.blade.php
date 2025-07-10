@@ -52,7 +52,7 @@
                             <strong class="font-bold">Informasi Penting</strong>
                             <span class="block sm:inline">Berikut adalah detail pengaduan yang melibatkan
                                 perusahaan/instansi Anda.
-                                Silakan tunggu informasi selanjutnya untuk jadwal mediasi dari mediator yang menangani
+                                Silakan tunggu informasi selanjutnya untuk jadwal dari mediator yang menangani
                                 kasus ini.</span>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                                    Pengaduan #{{ $pengaduan->pengaduan_id }}
+                                    Detail Pengaduan
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 ml-2">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
@@ -341,7 +341,7 @@
                                                     Pengaduan sedang menunggu untuk ditugaskan ke mediator.
                                                 @elseif ($pengaduan->status === 'proses')
                                                     Pengaduan sedang ditangani oleh mediator. Mohon tunggu informasi
-                                                    jadwal mediasi.
+                                                    jadwal.
                                                 @else
                                                     Pengaduan telah selesai diproses.
                                                 @endif
@@ -386,7 +386,7 @@
                                         <div class="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
                                             <p class="text-xs text-green-800">
                                                 Mediator yang menangani kasus Anda. Tunggu informasi lebih lanjut
-                                                mengenai jadwal mediasi.
+                                                mengenai jadwal.
                                             </p>
                                         </div>
                                     </div>
@@ -465,13 +465,13 @@
                                         <div class="flex items-start">
                                             <span
                                                 class="inline-block w-6 h-6 bg-orange-200 text-orange-800 rounded-full text-xs text-center leading-6 mr-3 flex-shrink-0">2</span>
-                                            <p>Mediator akan menghubungi Anda untuk mengatur jadwal mediasi</p>
+                                            <p>Mediator akan menghubungi Anda untuk mengatur jadwal</p>
                                         </div>
                                     @elseif ($pengaduan->status === 'proses')
                                         <div class="flex items-start">
                                             <span
                                                 class="inline-block w-6 h-6 bg-orange-200 text-orange-800 rounded-full text-xs text-center leading-6 mr-3 flex-shrink-0">1</span>
-                                            <p>Tunggu informasi jadwal mediasi dari mediator</p>
+                                            <p>Tunggu informasi jadwal dari mediator</p>
                                         </div>
                                         <div class="flex items-start">
                                             <span

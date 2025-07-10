@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Detail Jadwal Mediasi
+                    Detail jadwal
                 </h2>
                 <p class="text-sm text-gray-600 mt-1">
                     {{ $jadwal->pengaduan->perihal }}
@@ -58,8 +58,8 @@
                                 <p class="text-green-700 mt-1">
                                     Kedua belah pihak telah mengkonfirmasi kehadiran. Mediasi dapat dilaksanakan sesuai
                                     jadwal
-                                    pada <strong>{{ $jadwal->tanggal_mediasi->format('d F Y') }}</strong>
-                                    pukul <strong>{{ $jadwal->waktu_mediasi->format('H:i') }} WIB</strong>.
+                                    pada <strong>{{ $jadwal->tanggal->format('d F Y') }}</strong>
+                                    pukul <strong>{{ $jadwal->waktu->format('H:i') }} WIB</strong>.
                                 </p>
                                 <div class="mt-3">
                                     {{-- {{ route('risalah.create', ['jadwal_id' => $jadwal->jadwal_id]) }} --}}
@@ -92,7 +92,7 @@
                             <div class="ml-3">
                                 <h3 class="text-lg font-medium text-red-800">⚠️ Penjadwalan Ulang Diperlukan</h3>
                                 <p class="text-red-700 mt-1">
-                                    Ada pihak yang tidak dapat hadir pada jadwal mediasi.
+                                    Ada pihak yang tidak dapat hadir pada jadwal.
                                     Status jadwal telah diubah menjadi "Ditunda". Silakan koordinasikan jadwal baru
                                     dengan semua pihak.
                                 </p>
@@ -121,7 +121,7 @@
                                     @else
                                         terlapor
                                     @endif
-                                    untuk jadwal mediasi ini.
+                                    untuk jadwal ini.
                                 </p>
                             </div>
                         </div>
@@ -191,17 +191,17 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                                    <p class="text-sm text-gray-900">{{ $jadwal->tanggal_mediasi->format('d F Y') }}
+                                    <p class="text-sm text-gray-900">{{ $jadwal->tanggal->format('d F Y') }}
                                     </p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Waktu</label>
-                                    <p class="text-sm text-gray-900">{{ $jadwal->waktu_mediasi->format('H:i') }} WIB
+                                    <p class="text-sm text-gray-900">{{ $jadwal->waktu->format('H:i') }} WIB
                                     </p>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Tempat</label>
-                                    <p class="text-sm text-gray-900">{{ $jadwal->tempat_mediasi }}</p>
+                                    <p class="text-sm text-gray-900">{{ $jadwal->tempat }}</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -215,6 +215,14 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Mediator</label>
                                     <p class="text-sm text-gray-900">{{ $jadwal->mediator->nama_mediator }}</p>
                                 </div>
+                                <tr>
+                                    <th>Jenis Jadwal</th>
+                                    <td>{{ ucfirst($jadwal->jenis_jadwal) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Sidang Ke-</th>
+                                    <td>{{ $jadwal->sidang_ke ?? '-' }}</td>
+                                </tr>
                             </div>
 
                             @if ($jadwal->catatan_jadwal)
@@ -226,11 +234,11 @@
                                 </div>
                             @endif
 
-                            @if ($jadwal->hasil_mediasi)
+                            @if ($jadwal->hasil)
                                 <div class="mt-6">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Hasil Mediasi</label>
                                     <div class="bg-green-50 p-4 rounded-md">
-                                        <p class="text-sm text-green-800">{{ $jadwal->hasil_mediasi }}</p>
+                                        <p class="text-sm text-green-800">{{ $jadwal->hasil }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -380,7 +388,7 @@
                                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         <span class="text-sm font-medium text-green-800">
-                                            Jadwal Mediasi Selesai
+                                            jadwal Selesai
                                         </span>
                                     </div>
                                     <p class="text-xs text-green-700 mt-2">
@@ -435,7 +443,7 @@
                                             </label>
                                             <select name="status_jadwal" id="status_jadwal"
                                                 class="w-full rounded-md border-gray-300">
-                                                @foreach (\App\Models\JadwalMediasi::getStatusOptions() as $key => $label)
+                                                @foreach (\App\Models\Jadwal::getStatusOptions() as $key => $label)
                                                     <option value="{{ $key }}"
                                                         {{ $jadwal->status_jadwal == $key ? 'selected' : '' }}>
                                                         {{ $label }}

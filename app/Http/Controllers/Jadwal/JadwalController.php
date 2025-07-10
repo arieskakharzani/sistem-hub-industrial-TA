@@ -5,15 +5,15 @@ namespace App\Http\Controllers\Jadwal;
 use App\Models\Pengaduan;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use App\Events\JadwalMediasiCreated;
-use App\Events\JadwalMediasiUpdated;
+use App\Events\JadwalCreated;
+use App\Events\JadwalUpdated;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use App\Events\JadwalMediasiStatusUpdated;
+use App\Events\JadwalStatusUpdated;
 
 class JadwalController extends Controller
 {
@@ -33,7 +33,7 @@ class JadwalController extends Controller
         }
 
         // Ambil jadwal dengan filter 
-        $query = JadwalMediasi::with(['pengaduan.pelapor'])
+        $query = Jadwal::with(['pengaduan.pelapor'])
             ->byMediator($mediator->mediator_id);
 
         // Filter berdasarkan status 
@@ -43,19 +43,19 @@ class JadwalController extends Controller
 
         // Filter berdasarkan bulan 
         if (request('bulan')) {
-            $query->whereMonth('tanggal_mediasi', request('bulan'));
+            $query->whereMonth('tanggal', request('bulan'));
         }
 
-        $jadwalList = $query->orderBy('tanggal_mediasi', 'desc')
-            ->orderBy('waktu_mediasi', 'desc')
+        $jadwalList = $query->orderBy('tanggal', 'desc')
+            ->orderBy('waktu', 'desc')
             ->paginate(10);
 
         // Hitung statistik
         $stats = [
-            'total' => JadwalMediasi::byMediator($mediator->mediator_id)->count(),
-            'hari_ini' => JadwalMediasi::byMediator($mediator->mediator_id)->hariIni()->count(),
-            'dijadwalkan' => JadwalMediasi::byMediator($mediator->mediator_id)->byStatus('dijadwalkan')->count(),
-            'selesai' => JadwalMediasi::byMediator($mediator->mediator_id)->byStatus('selesai')->count(),
+            'total' => Jadwal::byMediator($mediator->mediator_id)->count(),
+            'hari_ini' => Jadwal::byMediator($mediator->mediator_id)->hariIni()->count(),
+            'dijadwalkan' => Jadwal::byMediator($mediator->mediator_id)->byStatus('dijadwalkan')->count(),
+            'selesai' => Jadwal::byMediator($mediator->mediator_id)->byStatus('selesai')->count(),
         ];
 
         return view('jadwal.index', compact('jadwalList', 'stats'));
@@ -80,7 +80,7 @@ class JadwalController extends Controller
         $pengaduanList = Pengaduan::with('pelapor')
             ->where('mediator_id', $mediator->mediator_id)
             ->where('status', 'proses')
-            ->whereDoesntHave('jadwalMediasi', function ($query) {
+            ->whereDoesntHave('jadwal', function ($query) {
                 $query->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung']);
             })
             ->get();
@@ -106,14 +106,14 @@ class JadwalController extends Controller
         // Validasi input
         $request->validate([
             'pengaduan_id' => 'required|exists:pengaduans,pengaduan_id',
-            'tanggal_mediasi' => 'required|date|after_or_equal:today',
-            'waktu_mediasi' => 'required|date_format:H:i',
-            'tempat_mediasi' => 'required|string|max:255|min:5',
+            'tanggal' => 'required|date|after_or_equal:today',
+            'waktu' => 'required|date_format:H:i',
+            'tempat' => 'required|string|max:255|min:5',
             'catatan_jadwal' => 'nullable|string|max:1000'
         ], [
-            'tanggal_mediasi.after_or_equal' => 'Tanggal mediasi tidak boleh di masa lampau',
-            'waktu_mediasi.date_format' => 'Format waktu harus HH:MM',
-            'tempat_mediasi.min' => 'Tempat mediasi minimal 5 karakter'
+            'tanggal.after_or_equal' => 'Tanggal tidak boleh di masa lampau',
+            'waktu.date_format' => 'Format waktu harus HH:MM',
+            'tempat.min' => 'Tempat minimal 5 karakter'
         ]);
 
         // Cek apakah pengaduan milik mediator ini
@@ -131,35 +131,37 @@ class JadwalController extends Controller
         }
 
         // Buat jadwal baru
-        $jadwal = JadwalMediasi::create([
+        $jadwal = Jadwal::create([
             'pengaduan_id' => $request->pengaduan_id,
             'mediator_id' => $mediator->mediator_id,
-            'tanggal_mediasi' => $request->tanggal_mediasi,
-            'waktu_mediasi' => $request->waktu_mediasi,
-            'tempat_mediasi' => $request->tempat_mediasi,
+            'tanggal' => $request->tanggal,
+            'waktu' => $request->waktu,
+            'tempat' => $request->tempat,
+            'jenis_jadwal' => $request->jenis_jadwal ?? 'mediasi',
+            'sidang_ke' => $request->sidang_ke,
             'status_jadwal' => 'dijadwalkan',
             'catatan_jadwal' => $request->catatan_jadwal
         ]);
 
         // DEBUG: Log sebelum trigger event
-        Log::info('🧪 [DEBUG] About to trigger JadwalMediasiCreated event', [
+        Log::info('🧪 [DEBUG] About to trigger JadwalCreated event', [
             'jadwal_id' => $jadwal->jadwal_id,
             'jadwal_exists' => $jadwal ? 'yes' : 'no',
-            'event_class' => JadwalMediasiCreated::class
+            'event_class' => JadwalCreated::class
         ]);
 
-        event(new JadwalMediasiCreated($jadwal));
+        event(new JadwalCreated($jadwal));
 
-        Log::info('JadwalMediasiCreated event triggered successfully');
+        Log::info('JadwalCreated event triggered successfully');
 
         return redirect()->route('jadwal.show', $jadwal)
-            ->with('success', 'Jadwal mediasi berhasil dibuat');
+            ->with('success', 'Jadwal berhasil dibuat');
     }
 
     // Halaman detail jadwal
     public function show($jadwalId): View
     {
-        $jadwal = JadwalMediasi::with(['pengaduan.pelapor', 'mediator'])
+        $jadwal = Jadwal::with(['pengaduan.pelapor', 'mediator'])
             ->findOrFail($jadwalId);
 
         $user = Auth::user();
@@ -179,7 +181,7 @@ class JadwalController extends Controller
     // Halaman edit jadwal
     public function edit($jadwalId): View
     {
-        $jadwal = JadwalMediasi::with(['pengaduan.pelapor'])
+        $jadwal = Jadwal::with(['pengaduan.pelapor'])
             ->findOrFail($jadwalId);
 
         $user = Auth::user();
@@ -205,7 +207,7 @@ class JadwalController extends Controller
     // Update jadwal
     public function update(Request $request, $jadwalId): RedirectResponse
     {
-        $jadwal = JadwalMediasi::findOrFail($jadwalId);
+        $jadwal = Jadwal::findOrFail($jadwalId);
 
         $user = Auth::user();
 
@@ -219,50 +221,50 @@ class JadwalController extends Controller
         }
 
         $request->validate([
-            'tanggal_mediasi' => 'required|date|after_or_equal:today',
-            'waktu_mediasi' => 'required|date_format:H:i',
-            'tempat_mediasi' => 'required|string|max:255|min:5',
+            'tanggal' => 'required|date|after_or_equal:today',
+            'waktu' => 'required|date_format:H:i',
+            'tempat' => 'required|string|max:255|min:5',
             'status_jadwal' => 'required|in:dijadwalkan,berlangsung,selesai,ditunda,dibatalkan',
             'catatan_jadwal' => 'nullable|string|max:1000',
-            'hasil_mediasi' => 'nullable|string|max:2000'
+            'hasil' => 'nullable|string|max:2000'
         ]);
 
         // SIMPAN DATA LAMA UNTUK COMPARISON
         $oldData = [
-            'tanggal_mediasi' => $jadwal->tanggal_mediasi,
-            'waktu_mediasi' => $jadwal->waktu_mediasi,
-            'tempat_mediasi' => $jadwal->tempat_mediasi,
+            'tanggal' => $jadwal->tanggal,
+            'waktu' => $jadwal->waktu,
+            'tempat' => $jadwal->tempat,
             'status_jadwal' => $jadwal->status_jadwal,
             'catatan_jadwal' => $jadwal->catatan_jadwal,
         ];
 
-        // 🚀 DEBUG LOG: Sebelum update
+        // �� DEBUG LOG: Sebelum update
         Log::info('🚀 [JADWAL UPDATE] Before update', [
             'jadwal_id' => $jadwal->jadwal_id,
             'old_data' => $oldData,
-            'new_data' => $request->only(['tanggal_mediasi', 'waktu_mediasi', 'tempat_mediasi', 'status_jadwal', 'catatan_jadwal'])
+            'new_data' => $request->only(['tanggal', 'waktu', 'tempat', 'status_jadwal', 'catatan_jadwal'])
         ]);
 
         $jadwal->update($request->all());
 
         // 🚀 DEBUG LOG: Event UPDATE
-        Log::info('🚀 [JADWAL UPDATE] Triggering JadwalMediasiUpdated event', [
+        Log::info('🚀 [JADWAL UPDATE] Triggering JadwalUpdated event', [
             'jadwal_id' => $jadwal->jadwal_id,
-            'has_changes' => $oldData !== $request->only(['tanggal_mediasi', 'waktu_mediasi', 'tempat_mediasi', 'status_jadwal', 'catatan_jadwal'])
+            'has_changes' => $oldData !== $request->only(['tanggal', 'waktu', 'tempat', 'status_jadwal', 'catatan_jadwal'])
         ]);
 
-        event(new JadwalMediasiUpdated($jadwal, $oldData));
+        event(new JadwalUpdated($jadwal, $oldData));
 
-        Log::info('JadwalMediasiUpdated event triggered successfully');
+        Log::info('JadwalUpdated event triggered successfully');
 
         return redirect()->route('jadwal.show', $jadwal)
-            ->with('success', 'Jadwal mediasi berhasil diperbarui');
+            ->with('success', ' berhasil diperbarui');
     }
 
     // Update status via AJAX
     public function updateStatus(Request $request, $jadwalId): JsonResponse
     {
-        $jadwal = JadwalMediasi::findOrFail($jadwalId);
+        $jadwal = Jadwal::findOrFail($jadwalId);
 
         $user = Auth::user();
 
@@ -290,15 +292,15 @@ class JadwalController extends Controller
 
         // TRIGGER EVENT - STATUS UPDATED (hanya jika status berubah)
         if ($oldStatus !== $request->status_jadwal) {
-            Log::info('🚀 Status changed, triggering JadwalMediasiStatusUpdated event', [
+            Log::info('🚀 Status changed, triggering JadwalStatusUpdated event', [
                 'jadwal_id' => $jadwal->jadwal_id,
                 'old_status' => $oldStatus,
                 'new_status' => $request->status_jadwal
             ]);
 
-            event(new JadwalMediasiStatusUpdated($jadwal, $oldStatus));
+            event(new JadwalStatusUpdated($jadwal, $oldStatus));
 
-            Log::info('✅ JadwalMediasiStatusUpdated event triggered successfully');
+            Log::info('✅ JadwalStatusUpdated event triggered successfully');
         } else {
             Log::info('ℹ️  Status unchanged, no event triggered', [
                 'jadwal_id' => $jadwal->jadwal_id,
@@ -315,7 +317,7 @@ class JadwalController extends Controller
     // Hapus jadwal
     public function destroy($jadwalId): RedirectResponse
     {
-        $jadwal = JadwalMediasi::findOrFail($jadwalId);
+        $jadwal = Jadwal::findOrFail($jadwalId);
 
         $user = Auth::user();
 
@@ -337,6 +339,6 @@ class JadwalController extends Controller
         $jadwal->delete();
 
         return redirect()->route('jadwal.index')
-            ->with('success', 'Jadwal mediasi berhasil dihapus');
+            ->with('success', 'Jadwal berhasil dihapus');
     }
 }

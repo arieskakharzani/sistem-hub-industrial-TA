@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Jadwal;
 
 use App\Models\Pengaduan;
 use Illuminate\Http\Request;
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use Illuminate\Support\Facades\DB;
 use App\Events\KonfirmasiKehadiran;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Events\JadwalMediasiRescheduleNeeded;
+use App\Events\JadwalRescheduleNeeded;
 
 class KonfirmasiController extends Controller
 {
@@ -22,28 +22,28 @@ class KonfirmasiController extends Controller
             abort(403, 'Akses ditolak');
         }
 
-        // Ambil jadwal mediasi berdasarkan role user
+        // Ambil jadwal berdasarkan role user
         if ($user->role === 'pelapor' && $user->pelapor) {
-            $jadwalMediasi = JadwalMediasi::with(['pengaduan', 'mediator'])
+            $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($user) {
                     $query->where('pelapor_id', $user->pelapor->pelapor_id);
                 })
                 ->whereIn('status_jadwal', ['dijadwalkan', 'ditunda'])
-                ->orderBy('tanggal_mediasi', 'asc')
+                ->orderBy('tanggal', 'asc')
                 ->get();
         } elseif ($user->role === 'terlapor' && $user->terlapor) {
-            $jadwalMediasi = JadwalMediasi::with(['pengaduan', 'mediator'])
+            $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($user) {
                     $query->where('terlapor_id', $user->terlapor->terlapor_id);
                 })
                 ->whereIn('status_jadwal', ['dijadwalkan', 'ditunda'])
-                ->orderBy('tanggal_mediasi', 'asc')
+                ->orderBy('tanggal', 'asc')
                 ->get();
         } else {
-            $jadwalMediasi = collect();
+            $jadwal = collect();
         }
 
-        return view('Jadwal.konfirmasi-index', compact('jadwalMediasi', 'user'));
+        return view('Jadwal.konfirmasi-index', compact('jadwal', 'user'));
     }
 
     public function show($jadwalId)
@@ -54,7 +54,7 @@ class KonfirmasiController extends Controller
             abort(403, 'Akses ditolak');
         }
 
-        $jadwal = JadwalMediasi::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])
+        $jadwal = Jadwal::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])
             ->findOrFail($jadwalId);
 
         // Pastikan user berhak mengakses jadwal ini
@@ -87,7 +87,7 @@ class KonfirmasiController extends Controller
             abort(403, 'Akses ditolak');
         }
 
-        $jadwal = JadwalMediasi::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])
+        $jadwal = Jadwal::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])
             ->findOrFail($jadwalId);
 
         // Pastikan user berhak mengakses jadwal ini
@@ -153,7 +153,7 @@ class KonfirmasiController extends Controller
                 event(new KonfirmasiKehadiran($jadwal, $user->role, $request->konfirmasi));
 
                 // Trigger event reschedule needed (for special handling)
-                event(new JadwalMediasiRescheduleNeeded($jadwal, $absentParty, $request->catatan ?? ''));
+                event(new JadwalRescheduleNeeded($jadwal, $absentParty, $request->catatan ?? ''));
 
                 Log::info('🚨 Reschedule needed - absent party detected', [
                     'jadwal_id' => $jadwal->jadwal_id,
@@ -207,7 +207,7 @@ class KonfirmasiController extends Controller
             abort(403, 'Akses ditolak');
         }
 
-        $jadwal = JadwalMediasi::with(['pengaduan.pelapor', 'pengaduan.terlapor'])
+        $jadwal = Jadwal::with(['pengaduan.pelapor', 'pengaduan.terlapor'])
             ->findOrFail($jadwalId);
 
         // Pastikan user berhak mengakses jadwal ini

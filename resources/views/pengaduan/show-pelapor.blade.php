@@ -400,7 +400,7 @@
                                                     Pengaduan sedang menunggu untuk direview oleh mediator.
                                                 @elseif ($pengaduan->status === 'proses')
                                                     Pengaduan sedang ditangani oleh mediator. Anda akan dihubungi untuk
-                                                    jadwal mediasi.
+                                                    jadwal.
                                                 @else
                                                     Pengaduan telah selesai diproses.
                                                 @endif

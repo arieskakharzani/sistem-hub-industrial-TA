@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Models\Pelapor;
 use App\Models\Pengaduan;
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +33,7 @@ class DashboardController extends Controller
 
         // Inisialisasi pengaduans sebagai collection kosong
         $pengaduans = collect();
-        $jadwalMediasi = collect();
+        $jadwal = collect();
 
         // Stats default
         $stats = [
@@ -50,13 +50,13 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Ambil jadwal mediasi yang perlu dikonfirmasi
-            $jadwalMediasi = JadwalMediasi::with(['pengaduan', 'mediator'])
+            // Ambil jadwal  yang perlu dikonfirmasi
+            $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($pelapor) {
                     $query->where('pelapor_id', $pelapor->pelapor_id);
                 })
                 ->where('status_jadwal', 'dijadwalkan')
-                ->orderBy('tanggal_mediasi', 'asc')
+                ->orderBy('tanggal', 'asc')
                 ->get();
 
             // Hitung stats berdasarkan pengaduan real
@@ -64,11 +64,11 @@ class DashboardController extends Controller
                 'total_pengaduan' => $pengaduans->count(),
                 'pengaduan_proses' => $pengaduans->whereIn('status', ['pending', 'proses'])->count(),
                 'pengaduan_selesai' => $pengaduans->where('status', 'selesai')->count(),
-                'jadwal_menunggu_konfirmasi' => $jadwalMediasi->where('konfirmasi_pelapor', 'pending')->count(),
+                'jadwal_menunggu_konfirmasi' => $jadwal->where('konfirmasi_pelapor', 'pending')->count(),
             ];
         }
 
-        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor', 'jadwalMediasi'));
+        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor', 'jadwal'));
     }
 
     public function terlapor()
@@ -84,7 +84,7 @@ class DashboardController extends Controller
         }
 
         // Inisialisasi
-        $jadwalMediasi = collect();
+        $jadwal = collect();
 
         // Data khusus untuk terlapor
         $stats = [
@@ -101,13 +101,13 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Ambil jadwal mediasi yang perlu dikonfirmasi
-            $jadwalMediasi = JadwalMediasi::with(['pengaduan', 'mediator'])
+            // Ambil jadwal  yang perlu dikonfirmasi
+            $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($terlapor) {
                     $query->where('terlapor_id', $terlapor->terlapor_id);
                 })
                 ->where('status_jadwal', 'dijadwalkan')
-                ->orderBy('tanggal_mediasi', 'asc')
+                ->orderBy('tanggal', 'asc')
                 ->get();
 
             // Hitung stats berdasarkan pengaduan real
@@ -115,11 +115,11 @@ class DashboardController extends Controller
                 'total_aduan_terhadap_saya' => $pengaduans->count() ?? 0,
                 'menunggu_respons' => $pengaduans->where('status', 'pending')->count() ?? 0,
                 'dalam_mediasi' => $pengaduans->where('status', 'proses')->count() ?? 0,
-                'jadwal_menunggu_konfirmasi' => $jadwalMediasi->where('konfirmasi_terlapor', 'pending')->count(),
+                'jadwal_menunggu_konfirmasi' => $jadwal->where('konfirmasi_terlapor', 'pending')->count(),
             ];
         }
 
-        return view('dashboard.terlapor', compact('user', 'stats', 'jadwalMediasi'));
+        return view('dashboard.terlapor', compact('user', 'stats', 'jadwal'));
     }
 
     public function mediator()
@@ -139,8 +139,8 @@ class DashboardController extends Controller
             'total_kasus_saya' => Pengaduan::count(),
             'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
             'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
-            'jadwal_hari_ini' => JadwalMediasi::whereDate('tanggal_mediasi', today())->count(),
-            'menunggu_konfirmasi' => JadwalMediasi::menungguKonfirmasi()->count(),
+            'jadwal_hari_ini' => Jadwal::whereDate('tanggal', today())->count(),
+            'menunggu_konfirmasi' => Jadwal::menungguKonfirmasi()->count(),
         ];
 
         return view('dashboard.mediator', compact('user', 'stats'));

@@ -116,7 +116,7 @@
             <ul>
                 <li>Melihat detail pengaduan yang melibatkan perusahaan/organisasi Anda</li>
                 <li>Mengikuti perkembangan status penyelesaian secara real-time</li>
-                <li>Berpartisipasi dalam jadwal mediasi yang ditetapkan</li>
+                <li>Berpartisipasi dalam jadwal yang ditetapkan</li>
                 <li>Mengakses dokumen-dokumen terkait kasus</li>
             </ul>
 

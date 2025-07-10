@@ -156,7 +156,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Jadwal Mediasi</p>
+                                <p class="font-medium text-gray-900">Jadwal</p>
                                 <p class="text-sm text-gray-600">Atur jadwal sesi</p>
                             </div>
                         </a>

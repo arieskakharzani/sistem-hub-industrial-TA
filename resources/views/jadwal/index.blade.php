@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Atur Jadwal Mediasi</title>
+    <title>Atur Jadwal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -28,14 +28,14 @@
         <x-slot name="header">
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Kelola Jadwal Mediasi
+                    Kelola Jadwal
                 </h2>
                 <a href="{{ route('jadwal.create') }}"
                     class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Tambah Jadwal Mediasi
+                    Tambah jadwal
                 </a>
             </div>
         </x-slot>
@@ -141,7 +141,7 @@
                             <div class="flex-1 min-w-48">
                                 <select name="status" class="w-full rounded-md border-gray-300">
                                     <option value="">Semua Status</option>
-                                    @foreach (\App\Models\JadwalMediasi::getStatusOptions() as $key => $label)
+                                    @foreach (\App\Models\Jadwal::getStatusOptions() as $key => $label)
                                         <option value="{{ $key }}"
                                             {{ request('status') == $key ? 'selected' : '' }}>
                                             {{ $label }}
@@ -198,7 +198,11 @@
                                             </th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                Terlapor
+                                                Jenis Jadwal
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Sidang Ke-
                                             </th>
                                             <th
                                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -220,15 +224,15 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-900">
-                                                        {{ $jadwal->tanggal_mediasi->format('d M Y') }}
+                                                        {{ $jadwal->tanggal->format('d M Y') }}
                                                     </div>
                                                     <div class="text-sm text-gray-500">
-                                                        {{ $jadwal->waktu_mediasi->format('H:i') }} WIB
+                                                        {{ $jadwal->waktu->format('H:i') }} WIB
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <div class="text-sm text-gray-900">
-                                                        {{ Str::limit($jadwal->tempat_mediasi, 30) }}
+                                                        {{ Str::limit($jadwal->tempat, 30) }}
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -241,7 +245,12 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-900">
-                                                        {{ $jadwal->pengaduan->terlapor->nama_terlapor }}
+                                                        {{ ucfirst($jadwal->jenis_jadwal) }}
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-900">
+                                                        {{ $jadwal->sidang_ke ?? '-' }}
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -289,9 +298,9 @@
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                     </path>
                                 </svg>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada jadwal mediasi</h3>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada jadwal</h3>
                                 <p class="text-gray-600 mb-4">
-                                    Mulai buat jadwal mediasi untuk mengelola pengaduan yang ditugaskan kepada Anda.
+                                    Mulai buat jadwal untuk mengelola pengaduan yang ditugaskan kepada Anda.
                                 </p>
                                 <a href="{{ route('jadwal.create') }}"
                                     class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">

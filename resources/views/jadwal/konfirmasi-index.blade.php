@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Jadwal Mediasi - Konfirmasi Kehadiran</title>
+    <title>jadwal - Konfirmasi Kehadiran</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,7 +27,7 @@
     <x-app-layout>
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Jadwal Mediasi - Konfirmasi Kehadiran
+                jadwal - Konfirmasi Kehadiran
             </h2>
         </x-slot>
 
@@ -72,12 +72,12 @@
                 <div class="bg-gradient-to-br from-primary to-primary-light rounded-xl p-8 text-white mb-8">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h1 class="text-3xl font-bold mb-2">🗓️ Jadwal Mediasi</h1>
+                            <h1 class="text-3xl font-bold mb-2">🗓️ jadwal</h1>
                             <p class="text-white">Konfirmasi kehadiran Anda untuk sesi mediasi yang telah
                                 dijadwalkan</p>
                         </div>
                         <div class="text-right">
-                            <div class="text-2xl font-bold">{{ $jadwalMediasi->count() }}</div>
+                            <div class="text-2xl font-bold">{{ $jadwal->count() }}</div>
                             <div class="text-sm text-white">Total Jadwal</div>
                         </div>
                     </div>
@@ -86,20 +86,20 @@
                 {{-- Statistics Cards --}}
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     @php
-                        $pendingKonfirmasi = $jadwalMediasi
+                        $pendingKonfirmasi = $jadwal
                             ->where($user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor', 'pending')
                             ->count();
-                        $sudahKonfirmasi = $jadwalMediasi
+                        $sudahKonfirmasi = $jadwal
                             ->where(
                                 $user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
                                 '!=',
                                 'pending',
                             )
                             ->count();
-                        $akanHadir = $jadwalMediasi
+                        $akanHadir = $jadwal
                             ->where($user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor', 'hadir')
                             ->count();
-                        $tidakHadir = $jadwalMediasi
+                        $tidakHadir = $jadwal
                             ->where(
                                 $user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
                                 'tidak_hadir',
@@ -166,72 +166,72 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-gray-600 text-sm">Total Jadwal</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ $jadwalMediasi->count() }}</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ $jadwal->count() }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Jadwal List --}}
-                @if ($jadwalMediasi->count() > 0)
+                @if ($jadwal->count() > 0)
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">Daftar Jadwal Mediasi</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar jadwal</h3>
                             <p class="text-sm text-gray-600">Klik "Konfirmasi" untuk memberikan konfirmasi kehadiran
                                 Anda</p>
                         </div>
 
                         <div class="divide-y divide-gray-200">
-                            @foreach ($jadwalMediasi as $jadwal)
+                            @foreach ($jadwal as $item)
                                 @php
                                     $userKonfirmasi =
                                         $user->role === 'pelapor'
-                                            ? $jadwal->konfirmasi_pelapor
-                                            : $jadwal->konfirmasi_terlapor;
+                                            ? $item->konfirmasi_pelapor
+                                            : $item->konfirmasi_terlapor;
                                     $userTanggalKonfirmasi =
                                         $user->role === 'pelapor'
-                                            ? $jadwal->tanggal_konfirmasi_pelapor
-                                            : $jadwal->tanggal_konfirmasi_terlapor;
+                                            ? $item->tanggal_konfirmasi_pelapor
+                                            : $item->tanggal_konfirmasi_terlapor;
                                     $userCatatanKonfirmasi =
                                         $user->role === 'pelapor'
-                                            ? $jadwal->catatan_konfirmasi_pelapor
-                                            : $jadwal->catatan_konfirmasi_terlapor;
+                                            ? $item->catatan_konfirmasi_pelapor
+                                            : $item->catatan_konfirmasi_terlapor;
 
                                     $otherRole = $user->role === 'pelapor' ? 'terlapor' : 'pelapor';
                                     $otherKonfirmasi =
                                         $user->role === 'pelapor'
-                                            ? $jadwal->konfirmasi_terlapor
-                                            : $jadwal->konfirmasi_pelapor;
+                                            ? $item->konfirmasi_terlapor
+                                            : $item->konfirmasi_pelapor;
                                 @endphp
 
                                 <div class="p-6 {{ $userKonfirmasi === 'pending' ? 'bg-yellow-50' : 'bg-white' }}">
                                     <div class="flex justify-between items-start mb-4">
                                         <div class="flex-1">
                                             <h4 class="text-lg font-semibold text-gray-900 mb-2">
-                                                {{ $jadwal->pengaduan->perihal }}
+                                                {{ $item->pengaduan->perihal }}
                                             </h4>
                                             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                                                 <div>
                                                     <p class="text-gray-500">Tanggal & Waktu</p>
                                                     <p class="font-medium">
-                                                        {{ $jadwal->tanggal_mediasi->format('d F Y') }}<br>
-                                                        {{ $jadwal->waktu_mediasi->format('H:i') }} WIB
+                                                        {{ $item->tanggal->format('d F Y') }}<br>
+                                                        {{ $item->waktu->format('H:i') }} WIB
                                                     </p>
                                                 </div>
                                                 <div>
                                                     <p class="text-gray-500">Tempat</p>
-                                                    <p class="font-medium">{{ $jadwal->tempat_mediasi }}</p>
+                                                    <p class="font-medium">{{ $item->tempat }}</p>
                                                 </div>
                                                 <div>
                                                     <p class="text-gray-500">Mediator</p>
                                                     <p class="font-medium">
-                                                        {{ $jadwal->mediator->nama_mediator ?? '-' }}</p>
+                                                        {{ $item->mediator->nama_mediator ?? '-' }}</p>
                                                 </div>
                                                 <div>
                                                     <p class="text-gray-500">Status Jadwal</p>
                                                     <span
-                                                        class="inline-block px-2 py-1 text-xs rounded-full {{ $jadwal->getStatusBadgeClass() }}">
-                                                        {{ ucfirst($jadwal->status_jadwal) }}
+                                                        class="inline-block px-2 py-1 text-xs rounded-full {{ $item->getStatusBadgeClass() }}">
+                                                        {{ ucfirst($item->status_jadwal) }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -239,7 +239,7 @@
 
                                         <div class="ml-6 text-right">
                                             <span
-                                                class="inline-block px-3 py-1 text-sm rounded-full {{ $jadwal->getKonfirmasiBadgeClass($user->role) }}">
+                                                class="inline-block px-3 py-1 text-sm rounded-full {{ $item->getKonfirmasiBadgeClass($user->role) }}">
                                                 {{ ucfirst(str_replace('_', ' ', $userKonfirmasi)) }}
                                             </span>
                                         </div>
@@ -253,15 +253,15 @@
                                                 <div class="flex justify-between items-center">
                                                     <span>{{ $user->role === 'pelapor' ? 'Pelapor (Anda)' : 'Pelapor' }}:</span>
                                                     <span
-                                                        class="px-2 py-1 text-xs rounded-full {{ $jadwal->getKonfirmasiBadgeClass('pelapor') }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_pelapor)) }}
+                                                        class="px-2 py-1 text-xs rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
                                                     </span>
                                                 </div>
                                                 <div class="flex justify-between items-center">
                                                     <span>{{ $user->role === 'terlapor' ? 'Terlapor (Anda)' : 'Terlapor' }}:</span>
                                                     <span
-                                                        class="px-2 py-1 text-xs rounded-full {{ $jadwal->getKonfirmasiBadgeClass('terlapor') }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_terlapor)) }}
+                                                        class="px-2 py-1 text-xs rounded-full {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_terlapor)) }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -287,7 +287,7 @@
                                     {{-- Action Buttons --}}
                                     <div class="flex flex-wrap gap-3">
                                         @if ($userKonfirmasi === 'pending')
-                                            <a href="{{ route('konfirmasi.show', $jadwal->jadwal_id) }}"
+                                            <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
                                                 class="inline-flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -298,7 +298,7 @@
                                                 <span>Konfirmasi Kehadiran</span>
                                             </a>
                                         @else
-                                            <a href="{{ route('konfirmasi.show', $jadwal->jadwal_id) }}"
+                                            <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
                                                 class="inline-flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -312,7 +312,7 @@
                                                 <span>Lihat Detail</span>
                                             </a>
 
-                                            <form action="{{ route('konfirmasi.cancel', $jadwal->jadwal_id) }}"
+                                            <form action="{{ route('konfirmasi.cancel', $item->jadwal_id) }}"
                                                 method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -329,7 +329,7 @@
                                             </form>
                                         @endif
 
-                                        <a href="{{ route('pengaduan.show', $jadwal->pengaduan_id) }}"
+                                        <a href="{{ route('pengaduan.show', $item->pengaduan_id) }}"
                                             class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -342,7 +342,7 @@
                                     </div>
 
                                     {{-- Warning jika ada yang tidak hadir --}}
-                                    @if ($jadwal->adaYangTidakHadir())
+                                    @if ($item->adaYangTidakHadir())
                                         <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                                             <div class="flex items-center gap-2 text-red-800">
                                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -367,9 +367,9 @@
                     {{-- Empty State --}}
                     <div class="bg-white rounded-lg shadow-sm p-12 text-center">
                         <div class="text-8xl mb-6 opacity-50">📅</div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Belum Ada Jadwal Mediasi</h3>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Belum Ada jadwal</h3>
                         <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                            Saat ini Anda belum memiliki jadwal mediasi yang perlu dikonfirmasi.
+                            Saat ini Anda belum memiliki jadwal yang perlu dikonfirmasi.
                             Jadwal akan muncul setelah mediator menetapkan waktu mediasi.
                         </p>
                         <a href="{{ route('dashboard') }}"
@@ -397,7 +397,7 @@
                     <div class="grid md:grid-cols-2 gap-4 text-sm text-blue-700">
                         <div>
                             <p class="font-medium mb-2">🕒 Batas Waktu Konfirmasi</p>
-                            <p>Harap konfirmasi kehadiran Anda paling lambat 1 hari sebelum jadwal mediasi.</p>
+                            <p>Harap konfirmasi kehadiran Anda paling lambat 1 hari sebelum jadwal.</p>
                         </div>
                         <div>
                             <p class="font-medium mb-2">📞 Butuh Bantuan?</p>

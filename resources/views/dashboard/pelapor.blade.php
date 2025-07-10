@@ -54,8 +54,8 @@
                 </div>
             </div>
 
-            <!-- Jadwal Mediasi Alert (jika ada) -->
-            @if ($jadwalMediasi->where('konfirmasi_pelapor', 'pending')->count() > 0)
+            <!-- Jadwal Alert (jika ada) -->
+            @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-r-xl">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -68,8 +68,8 @@
                         <div class="ml-3">
                             <p class="text-sm text-yellow-700">
                                 <span class="font-medium">Perhatian!</span>
-                                Anda memiliki {{ $jadwalMediasi->where('konfirmasi_pelapor', 'pending')->count() }}
-                                jadwal mediasi yang menunggu konfirmasi kehadiran.
+                                Anda memiliki {{ $jadwal->where('konfirmasi_pelapor', 'pending')->count() }}
+                                jadwal yang menunggu konfirmasi kehadiran.
                             </p>
                         </div>
                         <div class="ml-auto">
@@ -197,11 +197,11 @@
                                             <span>📄</span>
                                             <span>Lihat Detail Pengaduan</span>
                                         </a>
-                                        @if ($jadwalMediasi->count() > 0)
+                                        @if ($jadwal->count() > 0)
                                             <a href="{{ route('konfirmasi.index') }}"
                                                 class="inline-flex items-center gap-3 bg-orange-500 text-white px-8 py-3 rounded-xl font-medium hover:bg-orange-600 transform hover:-translate-y-1 transition-all duration-300">
                                                 <span>🗓️</span>
-                                                <span>Jadwal Mediasi</span>
+                                                <span>Jadwal</span>
                                             </a>
                                         @endif
                                     </div>
@@ -251,31 +251,31 @@
                                     </div>
                                 </div>
 
-                                <!-- Jadwal Mediasi Section (jika ada) -->
-                                @if ($jadwalMediasi->count() > 0)
+                                <!-- Jadwal Section (jika ada) -->
+                                @if ($jadwal->count() > 0)
                                     <div class="mb-6">
                                         <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                                             <span>🗓️</span>
-                                            <span>Jadwal Mediasi</span>
+                                            <span>Jadwal</span>
                                         </h5>
-                                        @foreach ($jadwalMediasi->take(3) as $jadwal)
+                                        @foreach ($jadwal->take(3) as $item)
                                             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-3">
                                                 <div class="flex justify-between items-start mb-2">
                                                     <div>
                                                         <p class="font-semibold text-blue-800">
-                                                            {{ $jadwal->tanggal_mediasi->format('d F Y') }} -
-                                                            {{ $jadwal->waktu_mediasi->format('H:i') }} WIB
+                                                            {{ $item->tanggal->format('d F Y') }} -
+                                                            {{ $item->waktu->format('H:i') }} WIB
                                                         </p>
-                                                        <p class="text-sm text-blue-600">{{ $jadwal->tempat_mediasi }}
+                                                        <p class="text-sm text-blue-600">{{ $item->tempat }}
                                                         </p>
                                                     </div>
                                                     <span
-                                                        class="text-xs px-2 py-1 rounded-full {{ $jadwal->getKonfirmasiBadgeClass('pelapor') }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_pelapor)) }}
+                                                        class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
                                                     </span>
                                                 </div>
-                                                @if ($jadwal->konfirmasi_pelapor === 'pending')
-                                                    <a href="{{ route('konfirmasi.show', $jadwal->jadwal_id) }}"
+                                                @if ($item->konfirmasi_pelapor === 'pending')
+                                                    <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
                                                         class="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-700 transition-colors">
                                                         <span>✓</span>
                                                         <span>Konfirmasi Kehadiran</span>
@@ -283,10 +283,10 @@
                                                 @endif
                                             </div>
                                         @endforeach
-                                        @if ($jadwalMediasi->count() > 3)
+                                        @if ($jadwal->count() > 3)
                                             <a href="{{ route('konfirmasi.index') }}"
                                                 class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                Lihat semua jadwal ({{ $jadwalMediasi->count() }} total)
+                                                Lihat semua jadwal ({{ $jadwal->count() }} total)
                                             </a>
                                         @endif
                                     </div>
@@ -355,7 +355,7 @@
                                                 <h6 class="font-semibold text-blue-800 mb-1">Proses Mediasi Berlangsung
                                                 </h6>
                                                 <p class="text-blue-700 text-sm">Mediasi sedang berlangsung.
-                                                    @if ($jadwalMediasi->where('konfirmasi_pelapor', 'pending')->count() > 0)
+                                                    @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
                                                         Pastikan Anda telah mengkonfirmasi kehadiran untuk jadwal
                                                         mediasi.
                                                     @else
@@ -465,7 +465,7 @@
                                     </div>
                                 </a>
 
-                                @if ($jadwalMediasi->count() > 0)
+                                @if ($jadwal->count() > 0)
                                     <a href="{{ route('konfirmasi.index') }}"
                                         class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 transform hover:translate-x-1 transition-all duration-300">
                                         <div
@@ -473,7 +473,7 @@
                                             🗓️
                                         </div>
                                         <div class="flex-1">
-                                            <div class="text-sm font-medium text-gray-800">Jadwal Mediasi</div>
+                                            <div class="text-sm font-medium text-gray-800">Jadwal</div>
                                             <div class="text-xs text-gray-600">Konfirmasi kehadiran</div>
                                         </div>
                                         @if ($stats['jadwal_menunggu_konfirmasi'] > 0)

@@ -3,19 +3,20 @@
 
 namespace App\Services;
 
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use App\Models\Terlapor;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\JadwalNotification;
 
 class JadwalNotificationService
 {
     /**
      * Get recipients for jadwal mediation notification
      * 
-     * @param JadwalMediasi $jadwal
+     * @param Jadwal $jadwal
      * @return array
      */
-    public function getRecipients(JadwalMediasi $jadwal): array
+    public function getRecipients(Jadwal $jadwal): array
     {
         $recipients = [];
 
@@ -100,10 +101,10 @@ class JadwalNotificationService
     /**
      * Get terlapor data with multiple fallback methods
      * 
-     * @param JadwalMediasi $jadwal
+     * @param Jadwal $jadwal
      * @return array|null
      */
-    private function getTerlaporData(JadwalMediasi $jadwal): ?array
+    private function getTerlaporData(Jadwal $jadwal): ?array
     {
         try {
             Log::info('🔍 Starting terlapor data search', [
@@ -234,7 +235,7 @@ class JadwalNotificationService
      * Get mediator for konfirmasi notifications
      * DIPERLUKAN untuk SendKonfirmasiNotification
      */
-    public function getMediator(JadwalMediasi $jadwal): ?array
+    public function getMediator(Jadwal $jadwal): ?array
     {
         try {
             $jadwal->load(['mediator.user']);
@@ -297,19 +298,19 @@ class JadwalNotificationService
     /**
      * Format notification data for email template
      * 
-     * @param JadwalMediasi $jadwal
+     * @param Jadwal $jadwal
      * @param string $eventType
      * @param array $additionalData
      * @return array
      */
-    public function formatNotificationData(JadwalMediasi $jadwal, string $eventType, array $additionalData = []): array
+    public function formatNotificationData(Jadwal $jadwal, string $eventType, array $additionalData = []): array
     {
         $data = [
             'jadwal' => [
                 'id' => $jadwal->jadwal_id,
-                'tanggal' => $jadwal->tanggal_mediasi->format('d F Y'),
-                'waktu' => $jadwal->waktu_mediasi->format('H:i'),
-                'tempat' => $jadwal->tempat_mediasi,
+                'tanggal' => $jadwal->tanggal->format('d F Y'),
+                'waktu' => $jadwal->waktu->format('H:i'),
+                'tempat' => $jadwal->tempat,
                 'status' => $jadwal->status_jadwal,
                 'status_label' => $this->getStatusLabel($jadwal->status_jadwal),
                 'catatan' => $jadwal->catatan_jadwal,
@@ -362,8 +363,8 @@ class JadwalNotificationService
     private function getEventLabel(string $eventType): string
     {
         return match ($eventType) {
-            'created' => 'Jadwal Mediasi Baru',
-            'updated' => 'Perubahan Jadwal Mediasi',
+            'created' => 'Jadwal Baru',
+            'updated' => 'Perubahan Jadwal',
             'status_updated' => 'Update Status Jadwal',
             default => 'Notifikasi Jadwal'
         };
@@ -372,14 +373,14 @@ class JadwalNotificationService
     /**
      * Get changes between old and new data
      */
-    private function getChanges(JadwalMediasi $jadwal, array $oldData): array
+    private function getChanges(Jadwal $jadwal, array $oldData): array
     {
         $changes = [];
 
         $fields = [
-            'tanggal_mediasi' => 'Tanggal',
-            'waktu_mediasi' => 'Waktu',
-            'tempat_mediasi' => 'Tempat',
+            'tanggal' => 'Tanggal',
+            'waktu' => 'Waktu',
+            'tempat' => 'Tempat',
             'catatan_jadwal' => 'Catatan'
         ];
 

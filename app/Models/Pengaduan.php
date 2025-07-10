@@ -79,14 +79,14 @@ class Pengaduan extends Model
         return $this->belongsTo(Mediator::class, 'mediator_id', 'mediator_id');
     }
 
-    public function jadwalMediasi()
+    public function jadwal()
     {
-        return $this->hasMany(JadwalMediasi::class, 'pengaduan_id', 'pengaduan_id');
+        return $this->hasMany(Jadwal::class, 'pengaduan_id', 'pengaduan_id');
     }
 
     public function hasActiveJadwal(): bool
     {
-        return $this->jadwalMediasi()
+        return $this->jadwal()
             ->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung'])
             ->exists();
     }

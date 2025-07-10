@@ -37,9 +37,9 @@ class Mediator extends Model
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    public function jadwalMediasi()
+    public function jadwal()
     {
-        return $this->hasMany(JadwalMediasi::class, 'mediator_id', 'mediator_id');
+        return $this->hasMany(Jadwal::class, 'mediator_id', 'mediator_id');
     }
 
     public function pengaduans()

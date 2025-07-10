@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -12,21 +12,21 @@ class KonfirmasiKehadiranNotification extends Notification implements ShouldQueu
 {
     use Queueable;
 
-    protected $jadwalMediasi;
+    protected $jadwal;
     protected $userRole;
     protected $konfirmasi;
 
     /**
      * Create a new notification instance.
      *
-     * @param  \App\Models\JadwalMediasi  $jadwalMediasi
+     * @param  \App\Models\Jadwal  $jadwal
      * @param  string  $userRole
      * @param  string  $konfirmasi
      * @return void
      */
-    public function __construct(JadwalMediasi $jadwalMediasi, string $userRole, string $konfirmasi)
+    public function __construct(Jadwal $jadwal, string $userRole, string $konfirmasi)
     {
-        $this->jadwalMediasi = $jadwalMediasi;
+        $this->jadwal = $jadwal;
         $this->userRole = $userRole;
         $this->konfirmasi = $konfirmasi;
     }
@@ -50,7 +50,7 @@ class KonfirmasiKehadiranNotification extends Notification implements ShouldQueu
      */
     public function toMail($notifiable)
     {
-        $pengaduan = $this->jadwalMediasi->pengaduan;
+        $pengaduan = $this->jadwal->pengaduan;
         $roleText = $this->userRole === 'pelapor' ? 'Pelapor' : 'Terlapor';
         $konfirmasiText = $this->konfirmasi === 'hadir' ? 'AKAN HADIR' : 'TIDAK DAPAT HADIR';
 
@@ -59,7 +59,7 @@ class KonfirmasiKehadiranNotification extends Notification implements ShouldQueu
         return (new MailMessage)
             ->subject($subject)
             ->view('emails.konfirmasi-kehadiran', [
-                'jadwal' => $this->jadwalMediasi,
+                'jadwal' => $this->jadwal,
                 'pengaduan' => $pengaduan,
                 'userRole' => $this->userRole,
                 'konfirmasi' => $this->konfirmasi,
@@ -77,25 +77,25 @@ class KonfirmasiKehadiranNotification extends Notification implements ShouldQueu
      */
     public function toArray($notifiable)
     {
-        $pengaduan = $this->jadwalMediasi->pengaduan;
+        $pengaduan = $this->jadwal->pengaduan;
         $roleText = $this->userRole === 'pelapor' ? 'Pelapor' : 'Terlapor';
         $konfirmasiText = $this->konfirmasi === 'hadir' ? 'akan hadir' : 'tidak dapat hadir';
 
         $title = "✅ Konfirmasi Kehadiran - {$roleText}";
-        $message = "{$roleText} telah mengkonfirmasi bahwa mereka {$konfirmasiText} pada jadwal mediasi '{$pengaduan->perihal}' tanggal {$this->jadwalMediasi->tanggal_mediasi->format('d F Y')}.";
+        $message = "{$roleText} telah mengkonfirmasi bahwa mereka {$konfirmasiText} pada jadwal '{$pengaduan->perihal}' tanggal {$this->jadwal->tanggal->format('d F Y')}.";
 
         return [
             'type' => 'konfirmasi_kehadiran',
             'title' => $title,
             'message' => $message,
             'icon' => $this->konfirmasi === 'hadir' ? '✅' : '❌',
-            'action_url' => route('jadwal.show', $this->jadwalMediasi->jadwal_id),
-            'jadwal_id' => $this->jadwalMediasi->jadwal_id,
-            'pengaduan_id' => $this->jadwalMediasi->pengaduan_id,
+            'action_url' => route('jadwal.show', $this->jadwal->jadwal_id),
+            'jadwal_id' => $this->jadwal->jadwal_id,
+            'pengaduan_id' => $this->jadwal->pengaduan_id,
             'user_role' => $this->userRole,
             'konfirmasi' => $this->konfirmasi,
-            'tanggal_mediasi' => $this->jadwalMediasi->tanggal_mediasi,
-            'waktu_mediasi' => $this->jadwalMediasi->waktu_mediasi,
+            'tanggal' => $this->jadwal->tanggal,
+            'waktu' => $this->jadwal->waktu,
         ];
     }
 }

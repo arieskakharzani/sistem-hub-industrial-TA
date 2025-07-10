@@ -95,7 +95,7 @@
                                 'features' => [
                                     'Lihat pengaduan terhadap perusahaan',
                                     'Pantau status penyelesaian',
-                                    'Akses jadwal mediasi',
+                                    'Akses jadwal',
                                 ],
                             ],
                             'mediator' => [

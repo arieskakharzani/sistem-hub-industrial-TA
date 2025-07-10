@@ -105,7 +105,7 @@
     <div class="content">
         <h2>Kepada Yth. {{ $mediator->nama_mediator ?? 'Mediator' }},</h2>
 
-        <p>Anda mendapat notifikasi konfirmasi kehadiran untuk jadwal mediasi dengan detail sebagai berikut:</p>
+        <p>Anda mendapat notifikasi konfirmasi kehadiran untuk jadwal dengan detail sebagai berikut:</p>
 
         <div class="info-box">
             <h3>📋 Detail Pengaduan</h3>
@@ -130,19 +130,19 @@
         </div>
 
         <div class="info-box">
-            <h3>🗓️ Detail Jadwal Mediasi</h3>
+            <h3>🗓️ Detail jadwal</h3>
             <table class="details-table">
                 <tr>
                     <th>Tanggal</th>
-                    <td>{{ $jadwal->tanggal_mediasi->format('d F Y') }}</td>
+                    <td>{{ $jadwal->tanggal->format('d F Y') }}</td>
                 </tr>
                 <tr>
                     <th>Waktu</th>
-                    <td>{{ $jadwal->waktu_mediasi->format('H:i') }} WIB</td>
+                    <td>{{ $jadwal->waktu->format('H:i') }} WIB</td>
                 </tr>
                 <tr>
                     <th>Tempat</th>
-                    <td>{{ $jadwal->tempat_mediasi }}</td>
+                    <td>{{ $jadwal->tempat }}</td>
                 </tr>
             </table>
         </div>
@@ -156,7 +156,7 @@
             </div>
 
             @if ($konfirmasi === 'hadir')
-                <p>✅ <strong>Kabar Baik!</strong> {{ $roleText }} akan hadir pada jadwal mediasi yang telah
+                <p>✅ <strong>Kabar Baik!</strong> {{ $roleText }} akan hadir pada jadwal yang telah
                     ditetapkan.</p>
             @else
                 <p>⚠️ <strong>Perhatian!</strong> {{ $roleText }} tidak dapat hadir pada jadwal yang telah

@@ -90,7 +90,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                                    Pengaduan #{{ $pengaduan->pengaduan_id }}
+                                    Detail Pengaduan
                                     <!-- Responsibility Indicator -->
                                     @if ($isAssignedMediator)
                                         <span

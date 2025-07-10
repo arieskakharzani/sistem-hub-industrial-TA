@@ -2,13 +2,13 @@
 
 namespace App\Notifications;
 
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use App\Services\JadwalNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class JadwalMediasiNotification extends Mailable
+class JadwalNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -21,7 +21,7 @@ class JadwalMediasiNotification extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        JadwalMediasi $jadwal,
+        Jadwal $jadwal,
         array $recipient,
         string $eventType,
         array $additionalData = []
@@ -61,7 +61,7 @@ class JadwalMediasiNotification extends Mailable
      */
     private function getEmailSubject(): string
     {
-        $baseSubject = "Notifikasi Jadwal Mediasi #{$this->jadwal->jadwal_id}";
+        $baseSubject = "Notifikasi Jadwal #{$this->jadwal->jadwal_id}";
 
         return match ($this->eventType) {
             'created' => "{$baseSubject} - Jadwal Baru Dibuat",

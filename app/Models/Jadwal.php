@@ -7,9 +7,9 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class JadwalMediasi extends Model
+class Jadwal extends Model
 {
-    protected $table = 'jadwal_mediasi';
+    protected $table = 'jadwal';
     protected $primaryKey = 'jadwal_id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -18,12 +18,14 @@ class JadwalMediasi extends Model
         'jadwal_id',
         'pengaduan_id',
         'mediator_id',
-        'tanggal_mediasi',
-        'waktu_mediasi',
-        'tempat_mediasi',
+        'tanggal',
+        'waktu',
+        'tempat',
+        'jenis_jadwal',
+        'sidang_ke',
         'status_jadwal',
         'catatan_jadwal',
-        'hasil_mediasi',
+        'hasil',
         // Konfirmasi kehadiran
         'konfirmasi_pelapor',
         'konfirmasi_terlapor',
@@ -34,13 +36,13 @@ class JadwalMediasi extends Model
     ];
 
     protected $casts = [
-        'tanggal_mediasi' => 'date',
-        'waktu_mediasi' => 'datetime:H:i',
+        'tanggal' => 'date',
+        'waktu' => 'datetime:H:i',
         'tanggal_konfirmasi_pelapor' => 'datetime',
         'tanggal_konfirmasi_terlapor' => 'datetime'
     ];
 
-    // Auto-generate UUID saat membuat jadwal mediasi baru
+    // Auto-generate UUID saat membuat jadwal baru
     protected static function boot()
     {
         parent::boot();
@@ -79,7 +81,7 @@ class JadwalMediasi extends Model
     // Scope untuk jadwal hari ini
     public function scopeHariIni($query)
     {
-        return $query->whereDate('tanggal_mediasi', today());
+        return $query->whereDate('tanggal', today());
     }
 
     // Scope untuk jadwal yang membutuhkan konfirmasi

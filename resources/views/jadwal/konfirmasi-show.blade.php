@@ -91,7 +91,7 @@
                                             d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    <span>{{ $jadwal->tanggal_mediasi->format('d F Y') }}</span>
+                                    <span>{{ $jadwal->tanggal->format('d F Y') }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -99,7 +99,7 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    <span>{{ $jadwal->waktu_mediasi->format('H:i') }} WIB</span>
+                                    <span>{{ $jadwal->waktu->format('H:i') }} WIB</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -107,7 +107,7 @@
                                             d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    <span>{{ $jadwal->tempat_mediasi }}</span>
+                                    <span>{{ $jadwal->tempat }}</span>
                                 </div>
                             </div>
                         </div>
@@ -133,10 +133,6 @@
                             </div>
                             <div class="p-6">
                                 <div class="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <p class="text-sm text-gray-500 mb-1">No. Pengaduan</p>
-                                        <p class="font-medium">{{ $jadwal->pengaduan->pengaduan_id }}</p>
-                                    </div>
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">Tanggal Laporan</p>
                                         <p class="font-medium">
@@ -166,10 +162,10 @@
                             </div>
                         </div>
 
-                        {{-- Detail Jadwal Mediasi --}}
+                        {{-- Detail jadwal --}}
                         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                             <div class="px-6 py-4 border-b border-gray-200">
-                                <h3 class="text-lg font-semibold text-gray-900">Detail Jadwal Mediasi</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">Detail jadwal</h3>
                             </div>
                             <div class="p-6">
                                 <div class="grid md:grid-cols-2 gap-6">

@@ -133,13 +133,13 @@ Route::middleware(['auth', 'verified'])->prefix('jadwal')->name('jadwal.')->grou
         ->name('updateStatus');
 });
 
-// Routes untuk Konfirmasi Kehadiran Jadwal Mediasi
+// Routes untuk Konfirmasi Kehadiran jadwal
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Routes khusus untuk Pelapor dan Terlapor
     Route::middleware(['role:pelapor,terlapor'])->group(function () {
 
-        // Konfirmasi Jadwal Mediasi - menggunakan view di folder Jadwal/
+        // Konfirmasi jadwal - menggunakan view di folder Jadwal/
         Route::prefix('konfirmasi')->name('konfirmasi.')->group(function () {
             Route::get('/', [KonfirmasiController::class, 'index'])->name('index'); // View: Jadwal/konfirmasi-index.blade.php
             Route::get('/{jadwal}', [KonfirmasiController::class, 'show'])->name('show'); // View: Jadwal/konfirmasi-show.blade.php

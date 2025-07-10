@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\JadwalMediasiRescheduleNeeded;
+use App\Events\JadwalRescheduleNeeded;
 use App\Services\JadwalNotificationService;
 use App\Notifications\MediatorInAppNotification;
 use App\Notifications\RescheduleRequiredNotification;
@@ -25,7 +25,7 @@ class HandleRescheduleNotification implements ShouldQueue
      * Handle reschedule needed event
      * Sends PRIORITY EMAIL + IN-APP NOTIFICATION to mediator
      */
-    public function handle(JadwalMediasiRescheduleNeeded $event)
+    public function handle(JadwalRescheduleNeeded $event)
     {
         try {
             $jadwal = $event->jadwal;
@@ -99,8 +99,8 @@ class HandleRescheduleNotification implements ShouldQueue
         $summary = [
             'jadwal_id' => $jadwal->jadwal_id,
             'pengaduan_id' => $jadwal->pengaduan_id,
-            'original_date' => $jadwal->tanggal_mediasi->format('Y-m-d'),
-            'original_time' => $jadwal->waktu_mediasi->format('H:i'),
+            'original_date' => $jadwal->tanggal->format('Y-m-d'),
+            'original_time' => $jadwal->waktu->format('H:i'),
             'status_jadwal' => $jadwal->status_jadwal,
             'absent_party' => $event->absentParty,
             'reason' => $event->reason,
@@ -127,7 +127,7 @@ class HandleRescheduleNotification implements ShouldQueue
     /**
      * Handle job failure
      */
-    public function failed(JadwalMediasiRescheduleNeeded $event, $exception)
+    public function failed(JadwalRescheduleNeeded $event, $exception)
     {
         Log::error('❌ Reschedule notification job failed permanently', [
             'jadwal_id' => $event->jadwal->jadwal_id ?? null,

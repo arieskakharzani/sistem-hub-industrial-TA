@@ -181,21 +181,21 @@
         {{-- Event specific intro --}}
         @if ($eventType === 'created')
             <div class="alert alert-info">
-                <strong>Informasi:</strong> Jadwal mediasi baru telah dibuat untuk pengaduan Anda.
+                <strong>Informasi:</strong> jadwal baru telah dibuat untuk pengaduan Anda.
             </div>
         @elseif($eventType === 'updated')
             <div class="alert alert-warning">
-                <strong>Perubahan:</strong> Terdapat perubahan pada jadwal mediasi Anda.
+                <strong>Perubahan:</strong> Terdapat perubahan pada jadwal Anda.
             </div>
         @elseif($eventType === 'status_updated')
             <div class="alert alert-info">
-                <strong>Update Status:</strong> Status jadwal mediasi Anda telah diperbarui.
+                <strong>Update Status:</strong> Status jadwal Anda telah diperbarui.
             </div>
         @endif
 
         {{-- Jadwal Information --}}
         <div class="section">
-            <h3>📅 Informasi Jadwal Mediasi</h3>
+            <h3>📅 Informasi Jadwal</h3>
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">ID Jadwal:</div>
@@ -239,7 +239,7 @@
         @if ($eventType === 'status_updated' && isset($data['old_status']))
             <div class="section">
                 <h3>🔄 Perubahan Status</h3>
-                <p>Status jadwal mediasi telah berubah:</p>
+                <p>Status jadwal telah berubah:</p>
                 <div style="margin: 10px 0;">
                     <span class="status-badge status-{{ $data['old_status'] }}">{{ $data['old_status_label'] }}</span>
                     <span style="margin: 0 10px;">→</span>
@@ -315,12 +315,12 @@
         @elseif($data['jadwal']['status'] === 'ditunda')
             <div class="alert alert-warning">
                 <strong>⚠️ Perhatian:</strong><br>
-                Jadwal mediasi ditunda. Anda akan mendapat pemberitahuan jadwal baru segera.
+                jadwal ditunda. Anda akan mendapat pemberitahuan jadwal baru segera.
             </div>
         @elseif($data['jadwal']['status'] === 'dibatalkan')
             <div class="alert alert-warning">
                 <strong>❌ Informasi:</strong><br>
-                Jadwal mediasi dibatalkan. Silakan hubungi mediator untuk informasi lebih lanjut.
+                jadwal dibatalkan. Silakan hubungi mediator untuk informasi lebih lanjut.
             </div>
         @endif
 

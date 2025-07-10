@@ -8,19 +8,21 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('jadwal_mediasi', function (Blueprint $table) {
+        Schema::create('jadwal', function (Blueprint $table) {
             $table->uuid('jadwal_id')->primary();
             $table->uuid('pengaduan_id');
             $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduans')->onDelete('cascade');
             $table->uuid('mediator_id');
             $table->foreign('mediator_id')->references('mediator_id')->on('mediator')->onDelete('cascade');
-            $table->date('tanggal_mediasi');
-            $table->time('waktu_mediasi');
-            $table->string('tempat_mediasi');
+            $table->date('tanggal');
+            $table->time('waktu');
+            $table->string('tempat');
+            $table->enum('jenis_jadwal', ['klarifikasi', 'mediasi'])->default('mediasi');
+            $table->string('sidang_ke')->nullable();
             $table->enum('status_jadwal', ['dijadwalkan', 'berlangsung', 'selesai', 'ditunda', 'dibatalkan'])
                 ->default('dijadwalkan');
             $table->text('catatan_jadwal')->nullable();
-            $table->text('hasil_mediasi')->nullable();
+            $table->text('hasil')->nullable();
             $table->timestamps();
 
             // Field untuk konfirmasi kehadiran
@@ -32,10 +34,10 @@ return new class extends Migration
             $table->text('catatan_konfirmasi_terlapor')->nullable();
 
             // Indexes untuk optimasi query
-            $table->index(['mediator_id', 'tanggal_mediasi']);
+            $table->index(['mediator_id', 'tanggal']);
             $table->index(['pengaduan_id', 'status_jadwal']);
             $table->index('status_jadwal');
-            $table->index('tanggal_mediasi');
+            $table->index('tanggal');
             $table->index(['konfirmasi_pelapor', 'konfirmasi_terlapor']);
             $table->index('tanggal_konfirmasi_pelapor');
             $table->index('tanggal_konfirmasi_terlapor');
@@ -44,6 +46,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('jadwal_mediasi');
+        Schema::dropIfExists('jadwal');
     }
 };

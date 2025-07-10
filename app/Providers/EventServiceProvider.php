@@ -5,15 +5,15 @@ namespace App\Providers;
 use App\Events\PengaduanCreated;
 use App\Listeners\NotifyMediators;
 use App\Events\KonfirmasiKehadiran;
-use App\Events\JadwalMediasiCreated;
-use App\Events\JadwalMediasiUpdated;
+use App\Events\JadwalCreated;
+use App\Events\JadwalUpdated;
+use App\Events\JadwalStatusUpdated;
+use App\Events\JadwalRescheduleNeeded;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
-use App\Events\JadwalMediasiStatusUpdated;
-use App\Events\JadwalMediasiRescheduleNeeded;
 use App\Listeners\SendKonfirmasiNotification;
 use App\Listeners\HandleRescheduleNotification;
-use App\Listeners\SendJadwalMediasiNotification;
+use App\Listeners\SendJadwalNotification;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -34,27 +34,23 @@ class EventServiceProvider extends ServiceProvider
             NotifyMediators::class,
         ],
 
-        //Event untuk pemberitahuan jadwal mediasi ke pelapor dan terlapor
-        JadwalMediasiCreated::class => [
-            SendJadwalMediasiNotification::class,
+        //Event untuk pemberitahuan jadwal ke pelapor dan terlapor
+        JadwalCreated::class => [
+            SendJadwalNotification::class,
         ],
-
-        JadwalMediasiUpdated::class => [
-            SendJadwalMediasiNotification::class,
+        JadwalUpdated::class => [
+            SendJadwalNotification::class,
         ],
-
-        JadwalMediasiStatusUpdated::class => [
-            SendJadwalMediasiNotification::class,
+        JadwalStatusUpdated::class => [
+            SendJadwalNotification::class,
+        ],
+        JadwalRescheduleNeeded::class => [
+            HandleRescheduleNotification::class,
         ],
 
         // Event untuk konfirmasi kehadiran (EMAIL + IN-APP untuk mediator)
         KonfirmasiKehadiran::class => [
             SendKonfirmasiNotification::class,
-        ],
-
-        // Event untuk situasi reschedule diperlukan (SPECIAL HANDLING)
-        JadwalMediasiRescheduleNeeded::class => [
-            HandleRescheduleNotification::class,
         ],
     ];
 
@@ -64,20 +60,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Manual event binding sebagai fallback
-        Event::listen(
-            \App\Events\JadwalMediasiCreated::class,
-            [\App\Listeners\SendJadwalMediasiNotification::class, 'handle']
-        );
-
-        Event::listen(
-            \App\Events\JadwalMediasiUpdated::class,
-            [\App\Listeners\SendJadwalMediasiNotification::class, 'handle']
-        );
-
-        Event::listen(
-            \App\Events\JadwalMediasiStatusUpdated::class,
-            [\App\Listeners\SendJadwalMediasiNotification::class, 'handle']
-        );
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\JadwalMediasi;
+use App\Models\Jadwal;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -11,7 +11,7 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $jadwalMediasi;
+    protected $jadwal;
     protected $userRole;
     protected $konfirmasi;
     protected $notificationType;
@@ -19,9 +19,9 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(JadwalMediasi $jadwalMediasi, string $userRole, string $konfirmasi, string $notificationType)
+    public function __construct(Jadwal $jadwal, string $userRole, string $konfirmasi, string $notificationType)
     {
-        $this->jadwalMediasi = $jadwalMediasi;
+        $this->jadwal = $jadwal;
         $this->userRole = $userRole;
         $this->konfirmasi = $konfirmasi;
         $this->notificationType = $notificationType;
@@ -41,7 +41,7 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
-        $pengaduan = $this->jadwalMediasi->pengaduan;
+        $pengaduan = $this->jadwal->pengaduan;
 
         return [
             'type' => $this->getNotificationType(),
@@ -50,24 +50,24 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
             'icon' => $this->getNotificationIcon(),
             'color' => $this->getNotificationColor(),
             'priority' => $this->getNotificationPriority(),
-            'action_url' => route('jadwal.show', $this->jadwalMediasi->jadwal_id),
+            'action_url' => route('jadwal.show', $this->jadwal->jadwal_id),
             'action_text' => $this->getActionText(),
 
             // Data payload
             'data' => [
-                'jadwal_id' => $this->jadwalMediasi->jadwal_id,
-                'pengaduan_id' => $this->jadwalMediasi->pengaduan_id,
+                'jadwal_id' => $this->jadwal->jadwal_id,
+                'pengaduan_id' => $this->jadwal->pengaduan_id,
                 'user_role' => $this->userRole,
                 'konfirmasi' => $this->konfirmasi,
                 'notification_type' => $this->notificationType,
-                'tanggal_mediasi' => $this->jadwalMediasi->tanggal_mediasi->format('Y-m-d'),
-                'waktu_mediasi' => $this->jadwalMediasi->waktu_mediasi->format('H:i'),
-                'tempat_mediasi' => $this->jadwalMediasi->tempat_mediasi,
-                'status_jadwal' => $this->jadwalMediasi->status_jadwal,
+                'tanggal' => $this->jadwal->tanggal->format('Y-m-d'),
+                'waktu' => $this->jadwal->waktu->format('H:i'),
+                'tempat' => $this->jadwal->tempat,
+                'status_jadwal' => $this->jadwal->status_jadwal,
 
                 // Confirmation status
-                'konfirmasi_pelapor' => $this->jadwalMediasi->konfirmasi_pelapor,
-                'konfirmasi_terlapor' => $this->jadwalMediasi->konfirmasi_terlapor,
+                'konfirmasi_pelapor' => $this->jadwal->konfirmasi_pelapor,
+                'konfirmasi_terlapor' => $this->jadwal->konfirmasi_terlapor,
 
                 // Pengaduan info
                 'pengaduan_perihal' => $pengaduan->perihal ?? '',
@@ -118,9 +118,9 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
      */
     private function getNotificationMessage(): string
     {
-        $pengaduan = $this->jadwalMediasi->pengaduan;
+        $pengaduan = $this->jadwal->pengaduan;
         $perihal = $pengaduan->perihal ?? 'Mediasi';
-        $tanggal = $this->jadwalMediasi->tanggal_mediasi->format('d F Y');
+        $tanggal = $this->jadwal->tanggal->format('d F Y');
 
         $roleText = $this->userRole === 'pelapor' ? 'Pelapor' : ($this->userRole === 'terlapor' ? 'Terlapor' : '');
 

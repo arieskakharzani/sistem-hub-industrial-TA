@@ -28,7 +28,7 @@ class SendKonfirmasiNotification implements ShouldQueue
     public function handle(KonfirmasiKehadiran $event)
     {
         try {
-            $jadwal = $event->jadwalMediasi;
+            $jadwal = $event->jadwal;
 
             Log::info('🔔 Processing konfirmasi kehadiran notification', [
                 'jadwal_id' => $jadwal->jadwal_id,
@@ -82,7 +82,7 @@ class SendKonfirmasiNotification implements ShouldQueue
         } catch (\Exception $e) {
             Log::error('❌ Failed to send konfirmasi kehadiran notification', [
                 'error' => $e->getMessage(),
-                'jadwal_id' => $event->jadwalMediasi->jadwal_id ?? null,
+                'jadwal_id' => $event->jadwal->jadwal_id ?? null,
                 'user_role' => $event->userRole ?? null,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -169,7 +169,7 @@ class SendKonfirmasiNotification implements ShouldQueue
     public function failed(KonfirmasiKehadiran $event, $exception)
     {
         Log::error('❌ Konfirmasi kehadiran notification job failed permanently', [
-            'jadwal_id' => $event->jadwalMediasi->jadwal_id ?? null,
+            'jadwal_id' => $event->jadwal->jadwal_id ?? null,
             'user_role' => $event->userRole ?? null,
             'error' => $exception->getMessage()
         ]);

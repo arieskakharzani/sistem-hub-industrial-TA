@@ -5,10 +5,10 @@
 namespace App\Http\Controllers\Debug;
 
 use App\Http\Controllers\Controller;
-use App\Models\JadwalMediasi;
-use App\Events\JadwalMediasiCreated;
+use App\Models\Jadwal;
+use App\Events\JadwalCreated;
 use App\Services\JadwalNotificationService;
-use App\Notifications\JadwalMediasiNotification;
+use App\Notifications\JadwalNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -35,7 +35,7 @@ class EmailTestController extends Controller
             ];
 
             // 2. Check if we have jadwal data
-            $jadwal = JadwalMediasi::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])->first();
+            $jadwal = Jadwal::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])->first();
 
             if (!$jadwal) {
                 $results['error'] = 'No jadwal found in database for testing';
@@ -74,7 +74,7 @@ class EmailTestController extends Controller
                 foreach ($recipients as $recipient) {
                     try {
                         Mail::to($recipient['email'])->send(
-                            new JadwalMediasiNotification($jadwal, $recipient, 'created')
+                            new JadwalNotification($jadwal, $recipient, 'created')
                         );
 
                         $emailResults[] = [
@@ -98,13 +98,13 @@ class EmailTestController extends Controller
 
             // 6. Test event triggering
             try {
-                Log::info('🧪 [EMAIL TEST] Triggering JadwalMediasiCreated event via web');
+                Log::info('🧪 [EMAIL TEST] Triggering JadwalCreated event via web');
 
-                event(new JadwalMediasiCreated($jadwal));
+                event(new JadwalCreated($jadwal));
 
                 $results['event_test'] = [
                     'status' => 'triggered',
-                    'event' => 'JadwalMediasiCreated',
+                    'event' => 'JadwalCreated',
                     'error' => null
                 ];
 
@@ -112,7 +112,7 @@ class EmailTestController extends Controller
             } catch (\Exception $e) {
                 $results['event_test'] = [
                     'status' => 'failed',
-                    'event' => 'JadwalMediasiCreated',
+                    'event' => 'JadwalCreated',
                     'error' => $e->getMessage()
                 ];
 
@@ -154,7 +154,7 @@ class EmailTestController extends Controller
     public function testEventOnly(Request $request)
     {
         try {
-            $jadwal = JadwalMediasi::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])->first();
+            $jadwal = Jadwal::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])->first();
 
             if (!$jadwal) {
                 return response()->json(['error' => 'No jadwal found'], 400);
@@ -169,7 +169,7 @@ class EmailTestController extends Controller
             ]);
 
             // Trigger event
-            event(new JadwalMediasiCreated($jadwal));
+            event(new JadwalCreated($jadwal));
 
             Log::info('✅ [EVENT ONLY TEST] Event completed');
 

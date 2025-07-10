@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Edit Jadwal Mediasi
+                    Edit jadwal
                 </h2>
                 <p class="text-sm text-gray-600 mt-1">
                     {{ $jadwal->pengaduan->perihal }}
@@ -61,11 +61,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             {{-- Tanggal Mediasi --}}
                             <div>
-                                <label for="tanggal_mediasi" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-2">
                                     Tanggal Mediasi <span class="text-red-500">*</span>
                                 </label>
-                                <input type="date" name="tanggal_mediasi" id="tanggal_mediasi"
-                                    value="{{ old('tanggal_mediasi', $jadwal->tanggal_mediasi->format('Y-m-d')) }}"
+                                <input type="date" name="tanggal" id="tanggal"
+                                    value="{{ old('tanggal', $jadwal->tanggal->format('Y-m-d')) }}"
                                     min="{{ date('Y-m-d') }}" class="w-full rounded-md border-gray-300" required>
                                 <p class="text-xs text-gray-500 mt-1">Minimal tanggal hari ini ({{ date('d/m/Y') }})
                                 </p>
@@ -73,12 +73,12 @@
 
                             {{-- Waktu Mediasi --}}
                             <div>
-                                <label for="waktu_mediasi" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="waktu" class="block text-sm font-medium text-gray-700 mb-2">
                                     Waktu Mediasi <span class="text-red-500">*</span>
                                 </label>
-                                <input type="time" name="waktu_mediasi" id="waktu_mediasi"
-                                    value="{{ old('waktu_mediasi', $jadwal->waktu_mediasi->format('H:i')) }}"
-                                    min="08:00" max="16:00" class="w-full rounded-md border-gray-300" required>
+                                <input type="time" name="waktu" id="waktu"
+                                    value="{{ old('waktu', $jadwal->waktu->format('H:i')) }}" min="08:00"
+                                    max="16:00" class="w-full rounded-md border-gray-300" required>
                                 <p class="text-xs text-gray-500 mt-1" id="waktu-info">
                                     Jam kerja: 08:00 - 16:00
                                 </p>
@@ -90,11 +90,11 @@
 
                         {{-- Tempat Mediasi --}}
                         <div class="mb-6">
-                            <label for="tempat_mediasi" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="tempat" class="block text-sm font-medium text-gray-700 mb-2">
                                 Tempat Mediasi <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="tempat_mediasi" id="tempat_mediasi"
-                                value="{{ old('tempat_mediasi', $jadwal->tempat_mediasi) }}"
+                            <input type="text" name="tempat" id="tempat"
+                                value="{{ old('tempat', $jadwal->tempat) }}"
                                 placeholder="Contoh: Ruang Mediasi A, Kantor Disnakertrans"
                                 class="w-full rounded-md border-gray-300" required>
                         </div>
@@ -106,7 +106,7 @@
                             </label>
                             <select name="status_jadwal" id="status_jadwal" class="w-full rounded-md border-gray-300"
                                 required>
-                                @foreach (\App\Models\JadwalMediasi::getStatusOptions() as $key => $label)
+                                @foreach (\App\Models\Jadwal::getStatusOptions() as $key => $label)
                                     <option value="{{ $key }}"
                                         {{ old('status_jadwal', $jadwal->status_jadwal) == $key ? 'selected' : '' }}>
                                         {{ $label }}
@@ -115,23 +115,52 @@
                             </select>
                         </div>
 
+                        {{-- Jenis Jadwal --}}
+                        <div class="mb-4">
+                            <label for="jenis_jadwal" class="block text-gray-700">Jenis Jadwal</label>
+                            <select name="jenis_jadwal" id="jenis_jadwal" class="form-select mt-1 block w-full">
+                                <option value="mediasi" {{ $jadwal->jenis_jadwal == 'mediasi' ? 'selected' : '' }}>
+                                    Mediasi</option>
+                                <option value="klarifikasi"
+                                    {{ $jadwal->jenis_jadwal == 'klarifikasi' ? 'selected' : '' }}>Klarifikasi</option>
+                            </select>
+                        </div>
+                        <div class="mb-4" id="sidang_ke_field" style="display: none;">
+                            <label for="sidang_ke" class="block text-gray-700">Sidang Ke-</label>
+                            <input type="text" name="sidang_ke" id="sidang_ke" class="form-input mt-1 block w-full"
+                                value="{{ $jadwal->sidang_ke }}" placeholder="I/II/III">
+                        </div>
+                        <script>
+                            const jenisJadwal = document.getElementById('jenis_jadwal');
+                            const sidangKeField = document.getElementById('sidang_ke_field');
+                            jenisJadwal.addEventListener('change', function() {
+                                if (this.value === 'mediasi') {
+                                    sidangKeField.style.display = '';
+                                } else {
+                                    sidangKeField.style.display = 'none';
+                                }
+                            });
+                            // Trigger on page load
+                            if (jenisJadwal.value === 'mediasi') sidangKeField.style.display = '';
+                        </script>
+
                         {{-- Catatan Jadwal --}}
                         <div class="mb-6">
                             <label for="catatan_jadwal" class="block text-sm font-medium text-gray-700 mb-2">
                                 Catatan Jadwal
                             </label>
                             <textarea name="catatan_jadwal" id="catatan_jadwal" rows="4"
-                                placeholder="Tambahkan catatan khusus untuk jadwal mediasi ini..." class="w-full rounded-md border-gray-300">{{ old('catatan_jadwal', $jadwal->catatan_jadwal) }}</textarea>
+                                placeholder="Tambahkan catatan khusus untuk jadwal ini..." class="w-full rounded-md border-gray-300">{{ old('catatan_jadwal', $jadwal->catatan_jadwal) }}</textarea>
                         </div>
 
                         {{-- Hasil Mediasi (hanya muncul jika status selesai) --}}
-                        <div class="mb-6" id="hasil_mediasi_section"
+                        <div class="mb-6" id="hasil_section"
                             style="{{ old('status_jadwal', $jadwal->status_jadwal) == 'selesai' ? '' : 'display: none;' }}">
-                            <label for="hasil_mediasi" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="hasil" class="block text-sm font-medium text-gray-700 mb-2">
                                 Hasil Mediasi
                             </label>
-                            <textarea name="hasil_mediasi" id="hasil_mediasi" rows="4"
-                                placeholder="Deskripsikan hasil dari mediasi yang telah dilakukan..." class="w-full rounded-md border-gray-300">{{ old('hasil_mediasi', $jadwal->hasil_mediasi) }}</textarea>
+                            <textarea name="hasil" id="hasil" rows="4"
+                                placeholder="Deskripsikan hasil dari mediasi yang telah dilakukan..." class="w-full rounded-md border-gray-300">{{ old('hasil', $jadwal->hasil) }}</textarea>
                         </div>
 
                         {{-- Tombol Submit --}}
@@ -154,12 +183,12 @@
     {{-- JavaScript untuk validasi tanggal, waktu, dan status --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const tanggalInput = document.getElementById('tanggal_mediasi');
-            const waktuInput = document.getElementById('waktu_mediasi');
+            const tanggalInput = document.getElementById('tanggal');
+            const waktuInput = document.getElementById('waktu');
             const waktuInfo = document.getElementById('waktu-info');
             const waktuError = document.getElementById('waktu-error');
             const statusSelect = document.getElementById('status_jadwal');
-            const hasilMediasiSection = document.getElementById('hasil_mediasi_section');
+            const hasilMediasiSection = document.getElementById('hasil_section');
             const submitBtn = document.getElementById('submitBtn');
             const form = document.getElementById('editJadwalForm');
 
@@ -295,7 +324,7 @@
 
                 // Validasi hasil mediasi jika status selesai
                 if (statusSelect.value === 'selesai') {
-                    const hasilMediasi = document.getElementById('hasil_mediasi').value.trim();
+                    const hasilMediasi = document.getElementById('hasil').value.trim();
                     if (!hasilMediasi) {
                         e.preventDefault();
                         alert('Hasil mediasi harus diisi jika status jadwal adalah "Selesai".');

@@ -52,7 +52,7 @@
                             <strong class="font-bold">Informasi</strong>
                             <span class="block sm:inline">Berikut adalah daftar pengaduan yang melibatkan
                                 perusahaan/instansi Anda.
-                                Mohon tunggu informasi lebih lanjut mengenai jadwal mediasi dari mediator yang
+                                Mohon tunggu informasi lebih lanjut mengenai jadwal dari mediator yang
                                 menangani.</span>
                         </div>
                     </div>
@@ -139,7 +139,7 @@
                                         <tr>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                ID & Tanggal
+                                                Tanggal
                                             </th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -169,11 +169,11 @@
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div>
                                                         <div class="text-sm font-medium text-gray-900">
-                                                            #{{ $pengaduan->pengaduan_id }}
-                                                        </div>
-                                                        <div class="text-sm text-gray-500">
                                                             {{ $pengaduan->tanggal_laporan->format('d M Y') }}
                                                         </div>
+                                                        {{-- <div class="text-sm text-gray-500">
+                                                            
+                                                        </div> --}}
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4">

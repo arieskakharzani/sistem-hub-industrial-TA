@@ -3,15 +3,18 @@
 namespace App\Listeners;
 
 use Illuminate\Support\Facades\Log;
-use App\Events\JadwalMediasiUpdated;
+use App\Events\JadwalCreated;
+use App\Events\JadwalUpdated;
+use App\Events\JadwalStatusUpdated;
+use App\Events\JadwalRescheduleNeeded;
+use App\Models\Jadwal;
+use App\Notifications\JadwalNotification;
+use App\Services\JadwalNotificationService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Events\JadwalMediasiStatusUpdated;
-use App\Services\JadwalNotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Notifications\JadwalMediasiNotification;
 
-class SendJadwalMediasiNotification
+class SendJadwalNotification
 {
     // use InteractsWithQueue;
 
@@ -28,24 +31,24 @@ class SendJadwalMediasiNotification
      */
     public function handle($event)
     {
-        Log::info('🚀 [LISTENER] SendJadwalMediasiNotification.handle() CALLED!', [
+        Log::info('🚀 [LISTENER] SendJadwalNotification.handle() CALLED!', [
             'event_class' => get_class($event),
             'jadwal_id' => $event->jadwal->jadwal_id ?? 'unknown'
         ]);
 
         try {
-            Log::info('🔔 [JADWAL EMAIL] Processing jadwal mediasi notification', [
+            Log::info('🔔 [JADWAL EMAIL] Processing jadwal notification', [
                 'jadwal_id' => $event->jadwal->jadwal_id,
-                'event_type' => $event->eventType
+                'event_type' => $event->eventType ?? null
             ]);
 
             // Get recipients (pelapor and terlapor only)
             $recipients = $this->notificationService->getRecipients($event->jadwal);
 
             if (empty($recipients)) {
-                Log::warning('❌ [JADWAL EMAIL] No recipients found for jadwal mediation notification', [
+                Log::warning('❌ [JADWAL EMAIL] No recipients found for jadwal notification', [
                     'jadwal_id' => $event->jadwal->jadwal_id,
-                    'event_type' => $event->eventType
+                    'event_type' => $event->eventType ?? null
                 ]);
                 return;
             }
@@ -72,15 +75,15 @@ class SendJadwalMediasiNotification
                         'jadwal_id' => $event->jadwal->jadwal_id,
                         'to' => $recipient['email'],
                         'role' => $recipient['role'],
-                        'event_type' => $event->eventType
+                        'event_type' => $event->eventType ?? null
                     ]);
 
                     // Send email using mailable
                     Mail::to($recipient['email'])
-                        ->send(new JadwalMediasiNotification(
+                        ->send(new JadwalNotification(
                             $event->jadwal,
                             $recipient,
-                            $event->eventType,
+                            $event->eventType ?? null,
                             $this->getEventData($event)
                         ));
 
@@ -90,7 +93,7 @@ class SendJadwalMediasiNotification
                         'jadwal_id' => $event->jadwal->jadwal_id,
                         'recipient_email' => $recipient['email'],
                         'recipient_role' => $recipient['role'],
-                        'event_type' => $event->eventType
+                        'event_type' => $event->eventType ?? null
                     ]);
                 } catch (\Exception $emailError) {
                     $errors[] = [
@@ -110,7 +113,7 @@ class SendJadwalMediasiNotification
             // Log final summary
             Log::info('📊 [JADWAL EMAIL] Notification summary', [
                 'jadwal_id' => $event->jadwal->jadwal_id,
-                'event_type' => $event->eventType,
+                'event_type' => $event->eventType ?? null,
                 'total_recipients' => count($recipients),
                 'emails_sent' => $emailsSent,
                 'in_app_notifications' => 0, // No in-app for this event
@@ -134,7 +137,7 @@ class SendJadwalMediasiNotification
         } catch (\Exception $e) {
             Log::error('❌ [JADWAL EMAIL] Failed to send jadwal mediation notification', [
                 'jadwal_id' => $event->jadwal->jadwal_id,
-                'event_type' => $event->eventType,
+                'event_type' => $event->eventType ?? null,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -151,11 +154,11 @@ class SendJadwalMediasiNotification
     {
         $data = [];
 
-        if ($event instanceof JadwalMediasiUpdated) {
+        if ($event instanceof JadwalUpdated) {
             $data['old_data'] = $event->oldData;
         }
 
-        if ($event instanceof JadwalMediasiStatusUpdated) {
+        if ($event instanceof JadwalStatusUpdated) {
             $data['old_status'] = $event->oldStatus;
         }
 
