@@ -172,6 +172,8 @@
     <div class="container">
         <div class="header">
             <h1>{{ $data['event_label'] }}</h1>
+            <p style="margin: 5px 0 0 0;">Jenis Jadwal:
+                <strong>{{ ucfirst($data['jadwal']['jenis_jadwal'] ?? '-') }}</strong></p>
             <p style="margin: 5px 0 0 0;">Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial Kab. Bungo</p>
         </div>
 
@@ -197,6 +199,10 @@
         <div class="section">
             <h3>📅 Informasi Jadwal</h3>
             <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Jenis Jadwal:</div>
+                    <div class="info-value"><strong>{{ ucfirst($data['jadwal']['jenis_jadwal'] ?? '-') }}</strong></div>
+                </div>
                 <div class="info-item">
                     <div class="info-label">ID Jadwal:</div>
                     <div class="info-value">#{{ $data['jadwal']['id'] }}</div>

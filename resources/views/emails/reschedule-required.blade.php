@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚨 Penjadwalan Ulang Diperlukan</title>
+    <title>🚨 Penjadwalan Ulang {{ ucfirst($jadwal->jenis_jadwal) }} Diperlukan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -148,7 +148,7 @@
     <div class="header">
         <div class="urgent-badge">🚨 URGENT - TINDAKAN SEGERA DIPERLUKAN</div>
         <div class="urgent-icon">⚠️</div>
-        <h1>Penjadwalan Ulang Mediasi Diperlukan</h1>
+        <h1>Penjadwalan Ulang {{ ucfirst($jadwal->jenis_jadwal) }} Diperlukan</h1>
         <p>Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial</p>
         <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo</p>
     </div>
@@ -188,8 +188,12 @@
         </div>
 
         <div class="info-box">
-            <h3>🗓️ jadwal Yang Ditunda</h3>
+            <h3>🗓️ Jadwal {{ ucfirst($jadwal->jenis_jadwal) }} Yang Ditunda</h3>
             <table class="details-table">
+                <tr>
+                    <th>Jenis Jadwal</th>
+                    <td><strong>{{ ucfirst($jadwal->jenis_jadwal) }}</strong></td>
+                </tr>
                 <tr>
                     <th>Tanggal Original</th>
                     <td>{{ $jadwal->tanggal->format('d F Y') }}</td>
@@ -204,7 +208,8 @@
                 </tr>
                 <tr>
                     <th>Status Saat Ini</th>
-                    <td><span style="color: #DC2626; font-weight: bold;">{{ strtoupper($jadwal->status_jadwal) }}</span>
+                    <td><span
+                            style="color: #DC2626; font-weight: bold;">{{ strtoupper($jadwal->status_jadwal) }}</span>
                     </td>
                 </tr>
             </table>

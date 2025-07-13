@@ -64,6 +64,7 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
                 'waktu' => $this->jadwal->waktu->format('H:i'),
                 'tempat' => $this->jadwal->tempat,
                 'status_jadwal' => $this->jadwal->status_jadwal,
+                'jenis_jadwal' => $this->jadwal->jenis_jadwal,
 
                 // Confirmation status
                 'konfirmasi_pelapor' => $this->jadwal->konfirmasi_pelapor,
@@ -91,7 +92,7 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
             'absence_reported' => 'ketidakhadiran',
             'all_confirmed_present' => 'semua_konfirmasi_hadir',
             'reschedule_required' => 'perlu_reschedule',
-            'ready_to_proceed' => 'siap_mediasi',
+            'ready_to_proceed' => 'siap_klarifikasi_mediasi',
             default => 'konfirmasi_umum'
         };
     }
@@ -102,13 +103,14 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
     private function getNotificationTitle(): string
     {
         $roleText = $this->userRole === 'pelapor' ? 'Pelapor' : ($this->userRole === 'terlapor' ? 'Terlapor' : 'Sistem');
+        $jenisJadwal = $this->jadwal->jenis_jadwal;
 
         return match ($this->notificationType) {
             'attendance_confirmed' => "✅ {$roleText} Konfirmasi Hadir",
             'absence_reported' => "❌ {$roleText} Tidak Dapat Hadir",
             'all_confirmed_present' => "🎉 Semua Pihak Siap Hadir",
             'reschedule_required' => "⚠️ Perlu Penjadwalan Ulang",
-            'ready_to_proceed' => "✅ Mediasi Siap Dilaksanakan",
+            'ready_to_proceed' => "✅ {$jenisJadwal} Siap Dilaksanakan",
             default => "📋 Update Konfirmasi"
         };
     }
@@ -121,21 +123,22 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
         $pengaduan = $this->jadwal->pengaduan;
         $perihal = $pengaduan->perihal ?? 'Mediasi';
         $tanggal = $this->jadwal->tanggal->format('d F Y');
+        $jenisJadwal = $this->jadwal->jenis_jadwal;
 
         $roleText = $this->userRole === 'pelapor' ? 'Pelapor' : ($this->userRole === 'terlapor' ? 'Terlapor' : '');
 
         return match ($this->notificationType) {
-            'attendance_confirmed' => "{$roleText} telah mengkonfirmasi kehadiran untuk mediasi '{$perihal}' pada {$tanggal}.",
+            'attendance_confirmed' => "{$roleText} telah mengkonfirmasi kehadiran untuk {$jenisJadwal} '{$perihal}' pada {$tanggal}.",
 
-            'absence_reported' => "{$roleText} melaporkan tidak dapat hadir pada mediasi '{$perihal}' tanggal {$tanggal}. Penjadwalan ulang diperlukan.",
+            'absence_reported' => "{$roleText} melaporkan tidak dapat hadir pada {$jenisJadwal} '{$perihal}' tanggal {$tanggal}. Penjadwalan ulang diperlukan.",
 
-            'all_confirmed_present' => "Kedua belah pihak telah mengkonfirmasi kehadiran untuk mediasi '{$perihal}' pada {$tanggal}. Mediasi dapat dilaksanakan sesuai jadwal.",
+            'all_confirmed_present' => "Kedua belah pihak telah mengkonfirmasi kehadiran untuk {$jenisJadwal} '{$perihal}' pada {$tanggal}. {$jenisJadwal} dapat dilaksanakan sesuai jadwal.",
 
-            'reschedule_required' => "Ada pihak yang tidak dapat hadir pada mediasi '{$perihal}' tanggal {$tanggal}. Silakan lakukan penjadwalan ulang.",
+            'reschedule_required' => "Ada pihak yang tidak dapat hadir pada {$jenisJadwal} '{$perihal}' tanggal {$tanggal}. Silakan lakukan penjadwalan ulang.",
 
-            'ready_to_proceed' => "Semua pihak siap hadir untuk mediasi '{$perihal}' pada {$tanggal}. Pastikan persiapan mediasi telah lengkap.",
+            'ready_to_proceed' => "Semua pihak siap hadir untuk {$jenisJadwal} '{$perihal}' pada {$tanggal}. Pastikan persiapan {$jenisJadwal} telah lengkap.",
 
-            default => "Update konfirmasi untuk mediasi '{$perihal}' pada {$tanggal}."
+            default => "Update konfirmasi untuk {$jenisJadwal} '{$perihal}' pada {$tanggal}."
         };
     }
 
@@ -189,12 +192,13 @@ class MediatorInAppNotification extends Notification implements ShouldQueue
      */
     private function getActionText(): string
     {
+        $jenisJadwal = $this->jadwal->jenis_jadwal;
         return match ($this->notificationType) {
-            'reschedule_required' => 'Jadwalkan Ulang',
-            'absence_reported' => 'Lihat Detail & Reschedule',
-            'all_confirmed_present' => 'Lihat Jadwal',
-            'ready_to_proceed' => 'Lihat Persiapan Mediasi',
-            default => 'Lihat Detail'
+            'reschedule_required' => "Jadwalkan Ulang",
+            'absence_reported' => "Lihat Detail & Reschedule",
+            'all_confirmed_present' => "Lihat Jadwal",
+            'ready_to_proceed' => "Lihat Persiapan {$jenisJadwal}",
+            default => "Lihat Detail"
         };
     }
 

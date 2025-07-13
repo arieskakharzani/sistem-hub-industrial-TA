@@ -59,10 +59,10 @@
                         @method('PUT')
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            {{-- Tanggal Mediasi --}}
+                            {{-- Tanggal --}}
                             <div>
                                 <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tanggal Mediasi <span class="text-red-500">*</span>
+                                    Tanggal <span class="text-red-500">*</span>
                                 </label>
                                 <input type="date" name="tanggal" id="tanggal"
                                     value="{{ old('tanggal', $jadwal->tanggal->format('Y-m-d')) }}"
@@ -71,10 +71,10 @@
                                 </p>
                             </div>
 
-                            {{-- Waktu Mediasi --}}
+                            {{-- Waktu --}}
                             <div>
                                 <label for="waktu" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Waktu Mediasi <span class="text-red-500">*</span>
+                                    Waktu <span class="text-red-500">*</span>
                                 </label>
                                 <input type="time" name="waktu" id="waktu"
                                     value="{{ old('waktu', $jadwal->waktu->format('H:i')) }}" min="08:00"
@@ -88,10 +88,10 @@
                             </div>
                         </div>
 
-                        {{-- Tempat Mediasi --}}
+                        {{-- Tempat --}}
                         <div class="mb-6">
                             <label for="tempat" class="block text-sm font-medium text-gray-700 mb-2">
-                                Tempat Mediasi <span class="text-red-500">*</span>
+                                Tempat <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="tempat" id="tempat"
                                 value="{{ old('tempat', $jadwal->tempat) }}"
@@ -302,7 +302,7 @@
                 // Validasi tanggal tidak boleh kemarin
                 if (selectedDate < today) {
                     e.preventDefault();
-                    alert('Tanggal mediasi tidak boleh di masa lalu.');
+                    alert('Tanggal tidak boleh di masa lalu.');
                     return false;
                 }
 
@@ -318,7 +318,7 @@
                 // Validasi jam kerja
                 if (selectedTime < '08:00' || selectedTime > '16:00') {
                     e.preventDefault();
-                    alert('Waktu mediasi harus dalam jam kerja (08:00 - 16:00).');
+                    alert('Waktu harus dalam jam kerja (08:00 - 16:00).');
                     return false;
                 }
 

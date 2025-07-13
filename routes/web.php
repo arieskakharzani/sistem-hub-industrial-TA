@@ -10,7 +10,7 @@ use App\Http\Controllers\Jadwal\KonfirmasiController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController;
 use App\Http\Controllers\Notifikasi\NotificationController;
-
+use App\Http\Controllers\Risalah\RisalahController;
 
 
 Route::get('/', function () {
@@ -295,3 +295,10 @@ Route::get('/test-simple-mail', function () {
 });
 
 require __DIR__ . '/auth.php';
+
+Route::get('risalah/create/{jadwal}/{jenis_risalah}', [RisalahController::class, 'create'])->name('risalah.create');
+Route::post('risalah/store/{jadwal}/{jenis_risalah}', [RisalahController::class, 'store'])->name('risalah.store');
+Route::get('risalah/{risalah}', [RisalahController::class, 'show'])->name('risalah.show');
+Route::get('risalah/{risalah}/edit', [RisalahController::class, 'edit'])->name('risalah.edit');
+Route::put('risalah/{risalah}', [RisalahController::class, 'update'])->name('risalah.update');
+Route::get('risalah/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('risalah.pdf');

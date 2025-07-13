@@ -43,7 +43,6 @@
             {{-- Alert Status Konfirmasi Kehadiran --}}
             @if ($jadwal->status_jadwal === 'dijadwalkan')
                 @if ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir())
-                    {{-- Kedua pihak hadir - siap mediasi --}}
                     <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6 rounded-r-lg">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
@@ -53,26 +52,73 @@
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
-                            <div class="ml-3 flex-1">
-                                <h3 class="text-lg font-medium text-green-800">🎉 Mediasi Siap Dilaksanakan!</h3>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-medium text-green-800">🎉 {{ ucfirst($jadwal->jenis_jadwal) }}
+                                    Siap Dilaksanakan!</h3>
                                 <p class="text-green-700 mt-1">
-                                    Kedua belah pihak telah mengkonfirmasi kehadiran. Mediasi dapat dilaksanakan sesuai
-                                    jadwal
+                                    Kedua belah pihak telah mengkonfirmasi kehadiran.
+                                    {{ ucfirst($jadwal->jenis_jadwal) }} dapat dilaksanakan sesuai jadwal
                                     pada <strong>{{ $jadwal->tanggal->format('d F Y') }}</strong>
                                     pukul <strong>{{ $jadwal->waktu->format('H:i') }} WIB</strong>.
                                 </p>
                                 <div class="mt-3">
-                                    {{-- {{ route('risalah.create', ['jadwal_id' => $jadwal->jadwal_id]) }} --}}
-                                    <a href="#"
-                                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                            </path>
-                                        </svg>
-                                        Buat Risalah Mediasi
-                                    </a>
+                                    @if ($jadwal->jenis_jadwal === 'klarifikasi')
+                                        @if ($jadwal->risalahKlarifikasi)
+                                            <a href="{{ route('risalah.show', $jadwal->risalahKlarifikasi->risalah_id) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                                Lihat Risalah Klarifikasi
+                                            </a>
+                                        @else
+                                            <a href="{{ route('risalah.create', [$jadwal->jadwal_id, 'klarifikasi']) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                                Buat Risalah Klarifikasi
+                                            </a>
+                                        @endif
+                                    @elseif ($jadwal->jenis_jadwal === 'mediasi')
+                                        @if ($jadwal->risalahMediasi)
+                                            <a href="{{ route('risalah.show', $jadwal->risalahMediasi->risalah_id) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                                Lihat Risalah Mediasi
+                                            </a>
+                                        @else
+                                            <a href="{{ route('risalah.create', [$jadwal->jadwal_id, 'mediasi']) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                                Buat Risalah Mediasi
+                                            </a>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -111,7 +157,9 @@
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-lg font-medium text-yellow-800">⏳ Menunggu Konfirmasi Kehadiran</h3>
+                                <h3 class="text-lg font-medium text-yellow-800">⏳ Menunggu Konfirmasi Kehadiran
+                                    Panggilan
+                                    {{ ucfirst($jadwal->jenis_jadwal) }}</h3>
                                 <p class="text-yellow-700 mt-1">
                                     Masih menunggu konfirmasi kehadiran dari
                                     @if ($jadwal->konfirmasi_pelapor === 'pending' && $jadwal->konfirmasi_terlapor === 'pending')
@@ -155,7 +203,8 @@
                             @if ($jadwal->risalahPenyelesaian)
                                 <a href="{{ route('risalah.show', $jadwal->risalahPenyelesaian->risalah_penyelesaian_id) }}"
                                     class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -165,9 +214,10 @@
                                     Lihat Risalah
                                 </a>
                             @else
-                                <a href="{{ route('risalah.create', ['jadwal_id' => $jadwal->jadwal_id]) }}"
+                                <a href="{{ route('risalah.create', [$jadwal->jadwal_id, $jadwal->jenis_jadwal]) }}"
                                     class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                         </path>
@@ -483,6 +533,7 @@
 
                 const formData = new FormData(this);
                 formData.append('_token', '{{ csrf_token() }}');
+                formData.append('_method', 'PATCH');
 
                 // Disable button sementara
                 const submitBtn = this.querySelector('button[type="submit"]');
@@ -492,10 +543,11 @@
                     '<svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Memproses...';
 
                 fetch('{{ route('jadwal.updateStatus', $jadwal) }}', {
-                        method: 'PATCH',
+                        method: 'POST',
                         body: formData,
                         headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
                     })
                     .then(response => response.json())

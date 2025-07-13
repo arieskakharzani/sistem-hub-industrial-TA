@@ -66,6 +66,18 @@ class Jadwal extends Model
         return $this->belongsTo(Mediator::class, 'mediator_id', 'mediator_id');
     }
 
+    // Relasi ke risalah klarifikasi
+    public function risalahKlarifikasi()
+    {
+        return $this->hasOne(\App\Models\Risalah::class, 'jadwal_id', 'jadwal_id')->where('jenis_risalah', 'klarifikasi');
+    }
+
+    // Relasi ke risalah mediasi
+    public function risalahMediasi()
+    {
+        return $this->hasOne(\App\Models\Risalah::class, 'jadwal_id', 'jadwal_id')->where('jenis_risalah', 'mediasi');
+    }
+
     // Scope untuk filter berdasarkan mediator
     public function scopeByMediator($query, $mediatorId)
     {

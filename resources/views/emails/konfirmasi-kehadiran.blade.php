@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konfirmasi Kehadiran Mediasi</title>
+    <title>Konfirmasi Kehadiran {{ ucfirst($jadwal->jenis_jadwal) }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -97,7 +97,7 @@
 
 <body>
     <div class="header">
-        <h1>🗓️ Konfirmasi Kehadiran Mediasi</h1>
+        <h1>🗓️ Konfirmasi Kehadiran {{ ucfirst($jadwal->jenis_jadwal) }}</h1>
         <p>Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial</p>
         <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo</p>
     </div>
@@ -130,8 +130,12 @@
         </div>
 
         <div class="info-box">
-            <h3>🗓️ Detail jadwal</h3>
+            <h3>🗓️ Detail Jadwal {{ ucfirst($jadwal->jenis_jadwal) }}</h3>
             <table class="details-table">
+                <tr>
+                    <th>Jenis Jadwal</th>
+                    <td><strong>{{ ucfirst($jadwal->jenis_jadwal) }}</strong></td>
+                </tr>
                 <tr>
                     <th>Tanggal</th>
                     <td>{{ $jadwal->tanggal->format('d F Y') }}</td>
@@ -200,7 +204,8 @@
                     <p>⚠️ <strong>Tindakan Diperlukan:</strong> Ada pihak yang tidak dapat hadir. Status jadwal telah
                         diubah menjadi "Ditunda". Silakan lakukan koordinasi untuk penjadwalan ulang.</p>
                 @else
-                    <p>✅ <strong>Semua Pihak Siap:</strong> Kedua belah pihak telah mengkonfirmasi kehadiran. Mediasi
+                    <p>✅ <strong>Semua Pihak Siap:</strong> Kedua belah pihak telah mengkonfirmasi kehadiran.
+                        Klarifikasi/mediasi
                         dapat dilaksanakan sesuai jadwal.</p>
                 @endif
             @else
@@ -221,7 +226,7 @@
         <p>
             <small>
                 Email dikirim pada: {{ now()->format('d F Y, H:i') }} WIB<br>
-                Ref: {{ $jadwal->jadwal_id }}-{{ $userRole }}-{{ $konfirmasi }}
+                Ref: {{ $userRole }}-{{ $konfirmasi }}
             </small>
         </p>
     </div>

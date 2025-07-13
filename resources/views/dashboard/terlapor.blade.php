@@ -154,6 +154,9 @@
                                                     <p class="text-sm text-gray-600 mb-2">
                                                         Mediator: {{ $item->mediator->nama_mediator ?? '-' }}
                                                     </p>
+                                                    <p class="text-xs text-purple-700 mt-1">Jenis Jadwal: <span
+                                                            class="font-bold">{{ ucfirst($item->jenis_jadwal) }}</span>
+                                                    </p>
                                                 </div>
                                                 <span
                                                     class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
@@ -204,7 +207,8 @@
                                                     <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
                                                         class="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors">
                                                         <span>✓</span>
-                                                        <span>Konfirmasi Kehadiran</span>
+                                                        <span>Konfirmasi Kehadiran
+                                                            {{ ucfirst($item->jenis_jadwal) }}</span>
                                                     </a>
                                                 @else
                                                     <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"

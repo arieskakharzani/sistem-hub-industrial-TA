@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>jadwal - Konfirmasi Kehadiran</title>
+    <title>Jadwal - Konfirmasi Kehadiran</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,12 +27,43 @@
     <x-app-layout>
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                jadwal - Konfirmasi Kehadiran
+                Jadwal - Konfirmasi Kehadiran
             </h2>
         </x-slot>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                @php
+                    // Cari jadwal yang status konfirmasi user-nya masih 'pending'
+                    $pendingJadwal = $jadwal->first(function ($item) use ($user) {
+                        return ($user->role === 'pelapor' ? $item->konfirmasi_pelapor : $item->konfirmasi_terlapor) ===
+                            'pending';
+                    });
+                @endphp
+                <!-- Info Card: Penjelasan Konfirmasi -->
+                <div class="mb-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 text-blue-400 mr-3" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                        </svg>
+                        <div class="text-blue-800 text-sm">
+                            @if ($jadwal->count() === 1 && $pendingJadwal)
+                                Jadwal yang akan Anda konfirmasi saat ini adalah <span class="font-semibold">Jadwal
+                                    {{ ucfirst($pendingJadwal->jenis_jadwal) }}</span> yang telah ditetapkan oleh
+                                mediator. Silakan klik tombol <span class="font-semibold">Konfirmasi Kehadiran</span>
+                                untuk melanjutkan.
+                            @else
+                                Halaman ini digunakan oleh <span class="font-semibold">pelapor</span> dan <span
+                                    class="font-semibold">terlapor</span> untuk <span
+                                    class="font-semibold">mengonfirmasi jadwal panggilan klarifikasi atau mediasi</span>
+                                yang telah ditetapkan oleh mediator. Silakan klik tombol <span
+                                    class="font-semibold">Konfirmasi Kehadiran</span> pada jadwal yang tersedia.
+                            @endif
+                        </div>
+                    </div>
+                </div>
                 {{-- Flash Messages --}}
                 @if (session('success'))
                     <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-r-lg">
@@ -72,8 +103,9 @@
                 <div class="bg-gradient-to-br from-primary to-primary-light rounded-xl p-8 text-white mb-8">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h1 class="text-3xl font-bold mb-2">🗓️ jadwal</h1>
-                            <p class="text-white">Konfirmasi kehadiran Anda untuk sesi mediasi yang telah
+                            <h1 class="text-3xl font-bold mb-2">🗓️ Jadwal</h1>
+                            <p class="text-white">Konfirmasi kehadiran Anda untuk panggilan klarifikasi/mediasi yang
+                                telah
                                 dijadwalkan</p>
                         </div>
                         <div class="text-right">
@@ -176,7 +208,7 @@
                 @if ($jadwal->count() > 0)
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">Daftar jadwal</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Jadwal</h3>
                             <p class="text-sm text-gray-600">Klik "Konfirmasi" untuk memberikan konfirmasi kehadiran
                                 Anda</p>
                         </div>
@@ -251,14 +283,16 @@
                                             <h5 class="font-semibold text-gray-800 mb-2">Status Konfirmasi</h5>
                                             <div class="space-y-2 text-sm">
                                                 <div class="flex justify-between items-center">
-                                                    <span>{{ $user->role === 'pelapor' ? 'Pelapor (Anda)' : 'Pelapor' }}:</span>
+                                                    <span>{{ $user->role === 'pelapor' ? 'Pelapor (Anda)' : 'Pelapor' }}:
+                                                        {{ $item->pengaduan->pelapor->nama_pelapor ?? '-' }}</span>
                                                     <span
                                                         class="px-2 py-1 text-xs rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
                                                         {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
                                                     </span>
                                                 </div>
                                                 <div class="flex justify-between items-center">
-                                                    <span>{{ $user->role === 'terlapor' ? 'Terlapor (Anda)' : 'Terlapor' }}:</span>
+                                                    <span>{{ $user->role === 'terlapor' ? 'Terlapor (Anda)' : 'Terlapor' }}:
+                                                        {{ $item->pengaduan->nama_terlapor ?? '-' }}</span>
                                                     <span
                                                         class="px-2 py-1 text-xs rounded-full {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
                                                         {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_terlapor)) }}
@@ -370,7 +404,7 @@
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">Belum Ada jadwal</h3>
                         <p class="text-gray-600 mb-6 max-w-md mx-auto">
                             Saat ini Anda belum memiliki jadwal yang perlu dikonfirmasi.
-                            Jadwal akan muncul setelah mediator menetapkan waktu mediasi.
+                            Jadwal akan muncul setelah mediator menetapkan waktu klarifikasi atau mediasi.
                         </p>
                         <a href="{{ route('dashboard') }}"
                             class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors">

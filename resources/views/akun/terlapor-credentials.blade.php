@@ -75,7 +75,7 @@
             <h2>Yth. {{ $nama_terlapor }},</h2>
 
             @if ($pengaduan_id)
-                <p>Kami informasikan bahwa telah ada <strong>pengaduan hubungan industrial #{{ $pengaduan_id }}</strong>
+                <p>Kami informasikan bahwa telah ada <strong>pengaduan hubungan industrial</strong>
                     yang melibatkan perusahaan/organisasi Anda sebagai pihak yang dilaporkan.</p>
             @endif
 
@@ -124,8 +124,8 @@
                 <p><strong>Langkah Selanjutnya:</strong></p>
                 <ol>
                     <li>Login ke sistem menggunakan kredensial di atas</li>
-                    <li>Lihat detail pengaduan #{{ $pengaduan_id }}</li>
-                    <li>Tunggu penjadwalan mediasi dari mediator</li>
+                    <li>Lihat detail pengaduan</li>
+                    <li>Tunggu penjadwalan klarifikasi dan/atau mediasi dari mediator</li>
                     <li>Siapkan dokumen/bukti yang diperlukan</li>
                 </ol>
             @endif

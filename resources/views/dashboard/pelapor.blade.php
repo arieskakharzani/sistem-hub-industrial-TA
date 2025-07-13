@@ -69,7 +69,8 @@
                             <p class="text-sm text-yellow-700">
                                 <span class="font-medium">Perhatian!</span>
                                 Anda memiliki {{ $jadwal->where('konfirmasi_pelapor', 'pending')->count() }}
-                                jadwal yang menunggu konfirmasi kehadiran.
+                                jadwal yang menunggu konfirmasi
+                                kehadiran.
                             </p>
                         </div>
                         <div class="ml-auto">
@@ -268,6 +269,9 @@
                                                         </p>
                                                         <p class="text-sm text-blue-600">{{ $item->tempat }}
                                                         </p>
+                                                        <p class="text-xs text-blue-700 mt-1">Jenis Jadwal: <span
+                                                                class="font-bold">{{ ucfirst($item->jenis_jadwal) }}</span>
+                                                        </p>
                                                     </div>
                                                     <span
                                                         class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
@@ -278,7 +282,8 @@
                                                     <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
                                                         class="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-700 transition-colors">
                                                         <span>✓</span>
-                                                        <span>Konfirmasi Kehadiran</span>
+                                                        <span>Konfirmasi Kehadiran
+                                                            {{ ucfirst($item->jenis_jadwal) }}</span>
                                                     </a>
                                                 @endif
                                             </div>
