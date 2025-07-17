@@ -62,7 +62,7 @@
                             </div>
                             <div>
                                 <label class="block font-medium mb-1">Arahan Mediator</label>
-                                <textarea name="arahan_mediator" class="form-input w-full rounded border-gray-300 focus:ring-blue-500">{{ old('arahan_mediator', $risalah->arahan_mediator) }}</textarea>
+                                <textarea name="arahan_mediator" class="form-input w-full rounded border-gray-300 focus:ring-blue-500">{{ old('arahan_mediator', $detail->arahan_mediator ?? '') }}</textarea>
                             </div>
                             <div>
                                 <label class="block font-medium mb-1">Kesimpulan Klarifikasi</label>
@@ -70,10 +70,10 @@
                                     class="form-input w-full rounded border-gray-300 focus:ring-blue-500" required>
                                     <option value="">-- Pilih Kesimpulan --</option>
                                     <option value="bipartit_lagi"
-                                        {{ old('kesimpulan_klarifikasi', $risalah->kesimpulan_klarifikasi) == 'bipartit_lagi' ? 'selected' : '' }}>
+                                        {{ old('kesimpulan_klarifikasi', $detail->kesimpulan_klarifikasi ?? '') == 'bipartit_lagi' ? 'selected' : '' }}>
                                         Bipartit Lagi</option>
                                     <option value="lanjut_ke_tahap_mediasi"
-                                        {{ old('kesimpulan_klarifikasi', $risalah->kesimpulan_klarifikasi) == 'lanjut_ke_tahap_mediasi' ? 'selected' : '' }}>
+                                        {{ old('kesimpulan_klarifikasi', $detail->kesimpulan_klarifikasi ?? '') == 'lanjut_ke_tahap_mediasi' ? 'selected' : '' }}>
                                         Lanjut ke Tahap Mediasi</option>
                                 </select>
                             </div>
@@ -88,7 +88,7 @@
                             </div>
                             <div>
                                 <label class="block font-medium mb-1">Kesimpulan atau Hasil Perundingan</label>
-                                <textarea name="kesimpulan_penyelesaian" class="form-input w-full rounded border-gray-300 focus:ring-blue-500">{{ old('kesimpulan_penyelesaian', $risalah->kesimpulan_penyelesaian) }}</textarea>
+                                <textarea name="kesimpulan_penyelesaian" class="form-input w-full rounded border-gray-300 focus:ring-blue-500">{{ old('kesimpulan_penyelesaian', $detail->kesimpulan_penyelesaian ?? '') }}</textarea>
                             </div>
                         @endif
                     </div>

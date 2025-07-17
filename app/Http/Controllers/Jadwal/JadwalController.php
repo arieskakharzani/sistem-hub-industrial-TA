@@ -36,6 +36,11 @@ class JadwalController extends Controller
         $query = Jadwal::with(['pengaduan.pelapor'])
             ->byMediator($mediator->mediator_id);
 
+        // Filter berdasarkan jenis jadwal
+        if (request('jenis_jadwal')) {
+            $query->where('jenis_jadwal', request('jenis_jadwal'));
+        }
+
         // Filter berdasarkan status 
         if (request('status')) {
             $query->byStatus(request('status'));

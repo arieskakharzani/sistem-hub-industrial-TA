@@ -13,14 +13,15 @@
     <x-app-layout>
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Detail Risalah Klarifikasi Perselisihan Hubungan Industrial
+                Detail Risalah {{ ucfirst($risalah->jenis_risalah) }} Perselisihan Hubungan Industrial
             </h2>
         </x-slot>
         <div class="py-12">
             <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white rounded-lg shadow-sm p-8">
                     <div class="text-center mb-8">
-                        <h3 class="text-lg font-bold uppercase tracking-wide">RISALAH KLARIFIKASI
+                        <h3 class="text-lg font-bold uppercase tracking-wide">RISALAH
+                            {{ ucfirst($risalah->jenis_risalah) }}
                             PERSELISIHAN<br>HUBUNGAN
                             INDUSTRIAL</h3>
                     </div>
@@ -80,39 +81,46 @@
                             <div class="mx-2">:</div>
                             <div class="flex-1">{{ $risalah->pendapat_pengusaha }}</div>
                         </div>
-                        <div class="flex">
-                            <div class="w-8">10.</div>
-                            <div class="w-64">Arahan Mediator</div>
-                            <div class="mx-2">:</div>
-                            <div class="flex-1">{{ $risalah->arahan_mediator }}</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-8">11.</div>
-                            <div class="w-64">Kesimpulan atau Hasil Klarifikasi</div>
-                            <div class="mx-2">:</div>
-                            <div class="flex-1">
-                                @if ($risalah->kesimpulan_klarifikasi === 'bipartit_lagi')
-                                    Perundingan Bipartit
-                                @elseif($risalah->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
-                                    Lanjut ke Tahap Mediasi
-                                @else
-                                    {{ $risalah->kesimpulan_klarifikasi }}
-                                @endif
+                        @if ($risalah->jenis_risalah === 'klarifikasi')
+                            <div class="flex">
+                                <div class="w-8">10.</div>
+                                <div class="w-64">Arahan Mediator</div>
+                                <div class="mx-2">:</div>
+                                <div class="flex-1">{{ $detail->arahan_mediator ?? '-' }}</div>
                             </div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-8"></div>
-                            <div class="w-64"></div>
-                            <div class="mx-2"></div>
-                            <div class="flex-1 text-xs text-gray-600 mt-2">Keterangan: dalam membuat Kesimpulan atau
-                                hasil
-                                klarifikasi agar ditegaskan penyelesaian perselisihannya. Ada 3 alternatif, yaitu a)
-                                sepakat
-                                untuk melakukan perundingan bipartit; atau b) sepakat akan melanjutkan penyelesaian
-                                melalui
-                                mediasi dengan hasil perjanjian bersama; atau c) sepakat akan melanjutkan penyelesaian
-                                melalui mediasi dengan hasil anjuran.</div>
-                        </div>
+                            <div class="flex">
+                                <div class="w-8">11.</div>
+                                <div class="w-64">Kesimpulan atau Hasil Klarifikasi</div>
+                                <div class="mx-2">:</div>
+                                <div class="flex-1">
+                                    @if (($detail->kesimpulan_klarifikasi ?? null) === 'bipartit_lagi')
+                                        Perundingan Bipartit
+                                    @elseif(($detail->kesimpulan_klarifikasi ?? null) === 'lanjut_ke_tahap_mediasi')
+                                        Lanjut ke Tahap Mediasi
+                                    @else
+                                        {{ $detail->kesimpulan_klarifikasi ?? '-' }}
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <div class="w-8"></div>
+                                <div class="w-64"></div>
+                                <div class="mx-2"></div>
+                                <div class="flex-1 text-xs text-gray-600 mt-2">Keterangan: dalam membuat Kesimpulan atau
+                                    hasil klarifikasi agar ditegaskan penyelesaian perselisihannya. Ada 3 alternatif,
+                                    yaitu a) sepakat untuk melakukan perundingan bipartit; atau b) sepakat akan
+                                    melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau c)
+                                    sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.</div>
+                            </div>
+                        @endif
+                        @if ($risalah->jenis_risalah === 'penyelesaian')
+                            <div class="flex">
+                                <div class="w-8">10.</div>
+                                <div class="w-64">Kesimpulan atau Hasil Perundingan</div>
+                                <div class="mx-2">:</div>
+                                <div class="flex-1">{{ $detail->kesimpulan_penyelesaian ?? '-' }}</div>
+                            </div>
+                        @endif
                     </div>
                     <div class="mt-12 flex justify-end">
                         <div class="text-left">

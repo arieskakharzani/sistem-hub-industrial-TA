@@ -138,7 +138,18 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">
                         <form method="GET" action="{{ route('jadwal.index') }}" class="flex flex-wrap gap-4">
-                            <div class="flex-1 min-w-48">
+                            <div class="flex-1 min-w-32">
+                                <select name="jenis_jadwal" class="w-full rounded-md border-gray-300">
+                                    <option value="">Semua Jenis Jadwal</option>
+                                    @foreach (\App\Models\Jadwal::getJenisJadwalOptions() as $key => $label)
+                                        <option value="{{ $key }}"
+                                            {{ request('jenis_jadwal') == $key ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex-1 min-w-32">
                                 <select name="status" class="w-full rounded-md border-gray-300">
                                     <option value="">Semua Status</option>
                                     @foreach (\App\Models\Jadwal::getStatusOptions() as $key => $label)

@@ -183,7 +183,7 @@
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                         <span
                                             class="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                                            Risalah Mediasi
+                                            Risalah Penyelesaian
                                         </span>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">RM/004/2025</td>
@@ -268,8 +268,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Risalah Mediasi</p>
-                                <p class="text-sm text-gray-600">Generate risalah mediasi</p>
+                                <p class="font-medium text-gray-900">Risalah Penyelesaian</p>
+                                <p class="text-sm text-gray-600">Generate risalah penyelesaian</p>
                             </div>
                         </a>
 

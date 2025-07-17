@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
+use App\Models\DetailKlarifikasi;
+use App\Models\DetailPenyelesaian;
 
 class RisalahController extends Controller
 {
@@ -21,8 +23,12 @@ class RisalahController extends Controller
     // Simpan risalah
     public function store(Request $request, $jadwalId, $jenis_risalah)
     {
+        if (!in_array($jenis_risalah, ['klarifikasi', 'penyelesaian'])) {
+            abort(404);
+        }
         $jadwal = Jadwal::findOrFail($jadwalId);
         $data = $request->validate([
+            'jenis_risalah' => 'required|in:klarifikasi,penyelesaian',
             'nama_perusahaan' => 'required|string|max:255',
             'jenis_usaha' => 'required|string|max:255',
             'alamat_perusahaan' => 'required|string|max:255',
@@ -30,19 +36,33 @@ class RisalahController extends Controller
             'alamat_pekerja' => 'required|string|max:255',
             'tanggal_perundingan' => 'required|date',
             'tempat_perundingan' => 'required|string|max:255',
-            // Field khusus klarifikasi
             'pokok_masalah' => 'nullable|string',
-            'arahan_mediator' => 'nullable|string',
-            'kesimpulan_klarifikasi' => 'nullable|string',
             'pendapat_pekerja' => 'nullable|string',
             'pendapat_pengusaha' => 'nullable|string',
-            // Field khusus penyelesaian
+            // detail fields
+            'arahan_mediator' => 'nullable|string',
+            'kesimpulan_klarifikasi' => 'nullable|in:bipartit_lagi,lanjut_ke_tahap_mediasi',
             'kesimpulan_penyelesaian' => 'nullable|string',
         ]);
         $data['jadwal_id'] = $jadwal->jadwal_id;
         $data['jenis_risalah'] = $jenis_risalah;
+        // Simpan risalah utama
         $risalah = Risalah::create($data);
-        // Jika risalah klarifikasi, update status jadwal menjadi selesai
+        // Simpan detail sesuai jenis
+        if ($jenis_risalah === 'klarifikasi') {
+            DetailKlarifikasi::create([
+                'detail_klarifikasi_id' => (string) Str::uuid(),
+                'risalah_id' => $risalah->risalah_id,
+                'arahan_mediator' => $data['arahan_mediator'] ?? null,
+                'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
+            ]);
+        } else {
+            DetailPenyelesaian::create([
+                'detail_penyelesaian_id' => (string) Str::uuid(),
+                'risalah_id' => $risalah->risalah_id,
+                'kesimpulan_penyelesaian' => $data['kesimpulan_penyelesaian'] ?? null,
+            ]);
+        }
         if ($jenis_risalah === 'klarifikasi') {
             $jadwal->status_jadwal = 'selesai';
             $jadwal->save();
@@ -53,19 +73,35 @@ class RisalahController extends Controller
     // Tampilkan detail risalah
     public function show(Risalah $risalah)
     {
-        return view('risalah.show', compact('risalah'));
+        $detail = null;
+        if ($risalah->jenis_risalah === 'klarifikasi') {
+            $detail = $risalah->detailKlarifikasi;
+        } else {
+            $detail = $risalah->detailPenyelesaian;
+        }
+        return view('risalah.show', compact('risalah', 'detail'));
     }
 
     public function edit(Risalah $risalah)
     {
         $jadwal = $risalah->jadwal;
         $jenis_risalah = $risalah->jenis_risalah;
-        return view('risalah.edit', compact('risalah', 'jadwal', 'jenis_risalah'));
+        $detail = null;
+        if ($jenis_risalah === 'klarifikasi') {
+            $detail = $risalah->detailKlarifikasi;
+        } else {
+            $detail = $risalah->detailPenyelesaian;
+        }
+        return view('risalah.edit', compact('risalah', 'jadwal', 'jenis_risalah', 'detail'));
     }
 
     public function update(Request $request, Risalah $risalah)
     {
+        if (!in_array($risalah->jenis_risalah, ['klarifikasi', 'penyelesaian'])) {
+            abort(404);
+        }
         $data = $request->validate([
+            'jenis_risalah' => 'required|in:klarifikasi,penyelesaian',
             'nama_perusahaan' => 'required|string|max:255',
             'jenis_usaha' => 'required|string|max:255',
             'alamat_perusahaan' => 'required|string|max:255',
@@ -74,20 +110,55 @@ class RisalahController extends Controller
             'tanggal_perundingan' => 'required|date',
             'tempat_perundingan' => 'required|string|max:255',
             'pokok_masalah' => 'nullable|string',
-            'arahan_mediator' => 'nullable|string',
-            'kesimpulan_klarifikasi' => 'nullable|string',
             'pendapat_pekerja' => 'nullable|string',
             'pendapat_pengusaha' => 'nullable|string',
+            'arahan_mediator' => 'nullable|string',
+            'kesimpulan_klarifikasi' => 'nullable|in:bipartit_lagi,lanjut_ke_tahap_mediasi',
             'kesimpulan_penyelesaian' => 'nullable|string',
         ]);
         $risalah->update($data);
+        // Update detail
+        if ($risalah->jenis_risalah === 'klarifikasi') {
+            $detail = $risalah->detailKlarifikasi;
+            if ($detail) {
+                $detail->update([
+                    'arahan_mediator' => $data['arahan_mediator'] ?? null,
+                    'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
+                ]);
+            } else {
+                DetailKlarifikasi::create([
+                    'detail_klarifikasi_id' => (string) Str::uuid(),
+                    'risalah_id' => $risalah->risalah_id,
+                    'arahan_mediator' => $data['arahan_mediator'] ?? null,
+                    'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
+                ]);
+            }
+        } else {
+            $detail = $risalah->detailPenyelesaian;
+            if ($detail) {
+                $detail->update([
+                    'kesimpulan_penyelesaian' => $data['kesimpulan_penyelesaian'] ?? null,
+                ]);
+            } else {
+                DetailPenyelesaian::create([
+                    'detail_penyelesaian_id' => (string) Str::uuid(),
+                    'risalah_id' => $risalah->risalah_id,
+                    'kesimpulan_penyelesaian' => $data['kesimpulan_penyelesaian'] ?? null,
+                ]);
+            }
+        }
         return redirect()->route('risalah.show', $risalah)->with('success', 'Risalah berhasil diperbarui');
     }
 
     public function exportPDF(Risalah $risalah)
     {
-        $pdf = Pdf::loadView('risalah.pdf', compact('risalah'));
-        $filename = 'Risalah-' . $risalah->jenis_risalah . '-' . $risalah->risalah_id . '.pdf';
-        return $pdf->download($filename);
+        $detail = null;
+        if ($risalah->jenis_risalah === 'klarifikasi') {
+            $detail = $risalah->detailKlarifikasi;
+        } else {
+            $detail = $risalah->detailPenyelesaian;
+        }
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('risalah.pdf', compact('risalah', 'detail'));
+        return $pdf->stream('Risalah-'.$risalah->jenis_risalah.'-'.$risalah->risalah_id.'.pdf');
     }
 }

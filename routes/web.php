@@ -277,22 +277,22 @@ Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestControlle
 // });
 
 //Test Listener
-Route::get('/test-simple-mail', function () {
-    try {
-        Log::info('🧪 Testing simple mail to arieskaeeca@gmail.com');
+// Route::get('/test-simple-mail', function () {
+//     try {
+//         Log::info('🧪 Testing simple mail to arieskaeeca@gmail.com');
 
-        Mail::raw('Test email sederhana dari sistem - ' . now(), function ($message) {
-            $message->to('arieskaeeca@gmail.com') // test ke email yang sama dengan sender
-                ->subject('Test Email Simple - ' . now());
-        });
+//         Mail::raw('Test email sederhana dari sistem - ' . now(), function ($message) {
+//             $message->to('arieskaeeca@gmail.com') // test ke email yang sama dengan sender
+//                 ->subject('Test Email Simple - ' . now());
+//         });
 
-        Log::info('✅ Simple mail sent successfully');
-        return 'Simple email sent! Check inbox and spam folder.';
-    } catch (\Exception $e) {
-        Log::error('❌ Simple mail failed: ' . $e->getMessage());
-        return 'Email failed: ' . $e->getMessage();
-    }
-});
+//         Log::info('✅ Simple mail sent successfully');
+//         return 'Simple email sent! Check inbox and spam folder.';
+//     } catch (\Exception $e) {
+//         Log::error('❌ Simple mail failed: ' . $e->getMessage());
+//         return 'Email failed: ' . $e->getMessage();
+//     }
+// });
 
 require __DIR__ . '/auth.php';
 
@@ -302,3 +302,9 @@ Route::get('risalah/{risalah}', [RisalahController::class, 'show'])->name('risal
 Route::get('risalah/{risalah}/edit', [RisalahController::class, 'edit'])->name('risalah.edit');
 Route::put('risalah/{risalah}', [RisalahController::class, 'update'])->name('risalah.update');
 Route::get('risalah/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('risalah.pdf');
+
+// Route risalah
+Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->group(function () {
+    Route::get('/{risalah}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
+    Route::get('/{risalah}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
+});

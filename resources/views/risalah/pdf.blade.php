@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Risalah Klarifikasi Perselisihan Hubungan Industrial</title>
+    <title>Risalah {{ $risalah->jenis_risalah }} Perselisihan Hubungan Industrial</title>
     <style>
         body {
             font-family: "Times New Roman", Times, serif;
@@ -68,7 +68,7 @@
 </head>
 
 <body>
-    <div class="judul">RISALAH KLARIFIKASI PERSELISIHAN<br>HUBUNGAN INDUSTRIAL</div>
+    <div class="judul">RISALAH {{ $risalah->jenis_risalah }} PERSELISIHAN<br>HUBUNGAN INDUSTRIAL</div>
     <table class="table-risalah">
         <tr>
             <td class="nomor">1.</td>
@@ -127,35 +127,45 @@
             <td class="colon">:</td>
             <td>{{ $risalah->pendapat_pengusaha }}</td>
         </tr>
-        <tr>
-            <td class="nomor">10.</td>
-            <td class="label">Arahan Mediator</td>
-            <td class="colon">:</td>
-            <td>{{ $risalah->arahan_mediator }}</td>
-        </tr>
-        <tr>
-            <td class="nomor">11.</td>
-            <td class="label">Kesimpulan atau Hasil Klarifikasi</td>
-            <td class="colon">:</td>
-            <td>
-                @if ($risalah->kesimpulan_klarifikasi === 'bipartit_lagi')
-                    Perundingan Bipartit
-                @elseif($risalah->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
-                    Lanjut ke Tahap Mediasi
-                @else
-                    {{ $risalah->kesimpulan_klarifikasi }}
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td colspan="3" class="keterangan">
-                Keterangan: dalam membuat Kesimpulan atau hasil klarifikasi agar ditegaskan penyelesaian
-                perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit; atau b)
-                sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau c) sepakat
-                akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.
-            </td>
-        </tr>
+
+        @if ($risalah->jenis_risalah === 'klarifikasi')
+            <tr>
+                <td class="nomor">10.</td>
+                <td class="label">Arahan Mediator</td>
+                <td class="colon">:</td>
+                <td>{{ $risalah->detailKlarifikasi->arahan_mediator }}</td>
+            </tr>
+            <tr>
+                <td class="nomor">11.</td>
+                <td class="label">Kesimpulan atau Hasil Klarifikasi</td>
+                <td class="colon">:</td>
+                <td>
+                    @if ($risalah->detailKlarifikasi->kesimpulan_klarifikasi === 'bipartit_lagi')
+                        Perundingan Bipartit
+                    @elseif($risalah->detailKlarifikasi->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
+                        Lanjut ke Tahap Mediasi
+                    @else
+                        {{ $risalah->detailKlarifikasi->kesimpulan_klarifikasi }}
+                    @endif
+
+                </td>
+                <td colspan="3" class="keterangan">
+                    Keterangan: dalam membuat Kesimpulan atau hasil klarifikasi agar ditegaskan penyelesaian
+                    perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit; atau b)
+                    sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau c)
+                    sepakat
+                    akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.
+                </td>
+            </tr>
+        @endif
+        @if ($risalah->jenis_risalah === 'penyelesaian')
+            <tr>
+                <td class="nomor">10.</td>
+                <td class="label">Kesimpulan atau Hasil Perundingan</td>
+                <td class="colon">:</td>
+                <td>{{ $risalah->detailPenyelesaian->kesimpulan_penyelesaian }}</td>
+            </tr>
+        @endif
     </table>
     <div class="ttd">
         <div>Muara Bungo, {{ \Carbon\Carbon::parse($risalah->tanggal_perundingan)->translatedFormat('d F Y') }}</div>

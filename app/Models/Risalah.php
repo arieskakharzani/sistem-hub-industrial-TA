@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class Risalah extends Model
@@ -12,10 +13,6 @@ class Risalah extends Model
     protected $primaryKey = 'risalah_id';
     public $incrementing = false;
     protected $keyType = 'string';
-
-    protected $casts = [
-        'kesimpulan_klarifikasi' => 'string',
-    ];
 
     protected $fillable = [
         'risalah_id',
@@ -29,11 +26,8 @@ class Risalah extends Model
         'tanggal_perundingan',
         'tempat_perundingan',
         'pokok_masalah',
-        'arahan_mediator',
-        'kesimpulan_klarifikasi',
         'pendapat_pekerja',
         'pendapat_pengusaha',
-        'kesimpulan_penyelesaian',
     ];
 
     protected static function boot()
@@ -49,5 +43,17 @@ class Risalah extends Model
     public function jadwal(): BelongsTo
     {
         return $this->belongsTo(Jadwal::class, 'jadwal_id', 'jadwal_id');
+    }
+
+    //Relasi ke detail klarifikasi
+    public function detailKlarifikasi(): HasOne
+    {
+        return $this->hasOne(DetailKlarifikasi::class, 'risalah_id', 'risalah_id');
+    }
+
+    //Relasi ke detail penyelesaian
+    public function detailPenyelesaian(): HasOne
+    {
+        return $this->hasOne(DetailPenyelesaian::class, 'risalah_id', 'risalah_id');
     }
 }

@@ -21,11 +21,11 @@ return new class extends Migration
             $table->date('tanggal_perundingan');
             $table->string('tempat_perundingan');
             $table->text('pokok_masalah')->nullable();
-            $table->text('arahan_mediator')->nullable();
-            $table->enum('kesimpulan_klarifikasi', ['bipartit_lagi', 'lanjut_ke_tahap_mediasi'])->nullable();
+            // $table->text('arahan_mediator')->nullable();
+            // $table->enum('kesimpulan_klarifikasi', ['bipartit_lagi', 'lanjut_ke_tahap_mediasi'])->nullable();
             $table->text('pendapat_pekerja')->nullable();
             $table->text('pendapat_pengusaha')->nullable();
-            $table->text('kesimpulan_penyelesaian')->nullable();
+            // $table->text('kesimpulan_penyelesaian')->nullable();
             $table->timestamps();
         });
     }

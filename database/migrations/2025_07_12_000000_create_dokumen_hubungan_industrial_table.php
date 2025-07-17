@@ -16,10 +16,6 @@ return new class extends Migration
         Schema::create('dokumen_hubungan_industrial', function (Blueprint $table) {
             $table->uuid('dokumen_hi_id')->primary();
             $table->uuid('pengaduan_id');
-            $table->uuid('risalah_id')->nullable();
-            $table->uuid('perjanjian_bersama_id')->nullable();
-            $table->uuid('anjuran_id')->nullable();
-            $table->uuid('buku_register_perselisihan_id')->nullable();
             $table->enum('jenis_dokumen', [
                 'risalah_klarifikasi',
                 'risalah_penyelesaian',
@@ -32,11 +28,7 @@ return new class extends Migration
             $table->timestamp('tanggal_dokumen')->nullable();
             $table->timestamps();
 
-            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduan');
-            $table->foreign('risalah_id')->references('risalah_id')->on('risalah');
-            $table->foreign('perjanjian_bersama_id')->references('perjanjian_bersama_id')->on('perjanjian_bersama');
-            $table->foreign('anjuran_id')->references('anjuran_id')->on('anjuran');
-            $table->foreign('buku_register_perselisihan_id')->references('buku_register_perselisihan_id')->on('buku_register_perselisihan');
+            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduans');
         });
     }
 
