@@ -18,7 +18,7 @@
         @method('patch')
 
         {{-- Form fields berdasarkan role --}}
-        @if ($user->role === 'pelapor')
+        @if ($user->active_role === 'pelapor')
             {{-- Form untuk Pelapor --}}
             <div>
                 <x-input-label for="nama_pelapor" :value="__('Nama Pelapor')" />
@@ -87,7 +87,7 @@
                     :value="old('perusahaan', $profileData->perusahaan ?? '')" />
                 <x-input-error class="mt-2" :messages="$errors->get('perusahaan')" />
             </div>
-        @elseif($user->role === 'mediator')
+        @elseif($user->active_role === 'mediator')
             {{-- Form untuk Mediator --}}
             <div>
                 <x-input-label for="nama_mediator" :value="__('Nama Mediator')" />
@@ -102,7 +102,7 @@
                     :value="old('nip', $profileData->nip ?? '')" />
                 <x-input-error class="mt-2" :messages="$errors->get('nip')" />
             </div>
-        @elseif($user->role === 'kepala_dinas')
+        @elseif($user->active_role === 'kepala_dinas')
             {{-- Form untuk Kepala Dinas --}}
             <div>
                 <x-input-label for="nama_kepala_dinas" :value="__('Nama Kepala Dinas')" />
@@ -117,7 +117,7 @@
                     :value="old('nip', $profileData->nip ?? '')" />
                 <x-input-error class="mt-2" :messages="$errors->get('nip')" />
             </div>
-        @elseif($user->role === 'terlapor')
+        @elseif($user->active_role === 'terlapor')
             {{-- Form untuk Terlapor --}}
             <div>
                 <x-input-label for="nama_terlapor" :value="__('Nama Terlapor')" />

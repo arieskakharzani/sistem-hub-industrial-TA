@@ -59,11 +59,11 @@
 
                 @php
                     $currentUser = auth()->user();
-                    $currentMediator = $currentUser->role === 'mediator' ? $currentUser->mediator : null;
+                    $currentMediator = $currentUser->active_role === 'mediator' ? $currentUser->mediator : null;
                     $isAssignedMediator = $currentMediator && $pengaduan->mediator_id === $currentMediator->mediator_id;
-                    $isKepalaDinas = $currentUser->role === 'kepala_dinas';
+                    $isKepalaDinas = $currentUser->active_role === 'kepala_dinas';
                     $canManageActions = $isAssignedMediator || $isKepalaDinas;
-                    $isViewOnlyMediator = $currentUser->role === 'mediator' && !$isAssignedMediator;
+                    $isViewOnlyMediator = $currentUser->active_role === 'mediator' && !$isAssignedMediator;
                 @endphp
 
                 <!-- View-Only Mode Alert for Non-Assigned Mediators -->
@@ -447,7 +447,7 @@
                                 <h4 class="text-lg font-semibold text-gray-900 mb-4">Kelola Status</h4>
 
                                 <!-- ✅ UPDATED: Assign to Self (only if not assigned and user is mediator) -->
-                                @if (!$pengaduan->mediator_id && $currentUser->role === 'mediator')
+                                @if (!$pengaduan->mediator_id && $currentUser->active_role === 'mediator')
                                     <form method="POST"
                                         action="{{ route('pengaduan.assign', $pengaduan->pengaduan_id) }}"
                                         class="mb-4">
@@ -461,7 +461,7 @@
                                 @endif
 
                                 <!-- ✅ UPDATED: Show assigned info with different messages -->
-                                @if ($pengaduan->mediator_id && !$canManageActions && $currentUser->role === 'mediator')
+                                @if ($pengaduan->mediator_id && !$canManageActions && $currentUser->active_role === 'mediator')
                                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 text-blue-600 mr-2" fill="none"

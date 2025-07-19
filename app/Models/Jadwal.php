@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Jadwal extends Model
 {
@@ -67,9 +68,19 @@ class Jadwal extends Model
     }
 
     //Relasi ke risalah
-    public function risalah(): HasMany
+    public function risalah()
     {
         return $this->hasMany(Risalah::class, 'jadwal_id', 'jadwal_id');
+    }
+
+    public function risalahKlarifikasi()
+    {
+        return $this->hasOne(Risalah::class, 'jadwal_id', 'jadwal_id')->where('jenis_risalah', 'klarifikasi');
+    }
+
+    public function risalahPenyelesaian()
+    {
+        return $this->hasOne(Risalah::class, 'jadwal_id', 'jadwal_id')->where('jenis_risalah', 'penyelesaian');
     }
 
     // Scope untuk filter berdasarkan mediator

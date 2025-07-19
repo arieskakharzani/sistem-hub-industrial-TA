@@ -11,7 +11,9 @@ return new class extends Migration
         Schema::create('risalah', function (Blueprint $table) {
             $table->uuid('risalah_id')->primary();
             $table->uuid('jadwal_id');
+            $table->uuid('dokumen_hi_id')->nullable();
             $table->foreign('jadwal_id')->references('jadwal_id')->on('jadwal')->onDelete('cascade');
+            $table->foreign('dokumen_hi_id')->references('dokumen_hi_id')->on('dokumen_hubungan_industrial')->onDelete('set null');
             $table->enum('jenis_risalah', ['klarifikasi', 'penyelesaian']);
             $table->string('nama_perusahaan');
             $table->string('jenis_usaha');

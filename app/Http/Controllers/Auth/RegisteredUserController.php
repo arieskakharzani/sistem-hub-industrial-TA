@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use App\Models\Pelapor;
+use App\Models\Terlapor;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
@@ -31,27 +32,9 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // dd([
-        //     'method' => $request->method(),
-        //     'all_input_detailed' => $request->all(), // Ini akan show semua field
-        //     'input_keys' => array_keys($request->all()), // Nama field yang diterima
-        //     'has_nama_pelapor' => $request->has('nama_pelapor'),
-        //     'nama_pelapor_value' => $request->get('nama_pelapor'),
-        // ]);
-
-        // echo "<pre>";
-        // echo "=== FULL DEBUG ===\n";
-        // echo "Method: " . $request->method() . "\n";
-        // echo "All Input Keys: " . print_r(array_keys($request->all()), true) . "\n";
-        // echo "All Input Values: " . print_r($request->all(), true) . "\n";
-        // echo "Request URL: " . $request->url() . "\n";
-        // echo "Request Path: " . $request->path() . "\n";
-        // echo "</pre>";
-        // die();
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:100', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:100'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'tempat_lahir' => ['required', 'string', 'max:100'],
             'tanggal_lahir' => ['required', 'date'],
@@ -65,39 +48,83 @@ class RegisteredUserController extends Controller
         DB::beginTransaction();
 
         try {
-            $user = User::create([
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'role' => 'pelapor',
-            ]);
+            // Cek apakah email sudah ada
+            $existingUser = User::where('email', $validated['email'])->first();
 
-            $pelapor = Pelapor::create([
-                'user_id' => $user->user_id,
-                'nama_pelapor' => $validated['name'],
-                'tempat_lahir' => $validated['tempat_lahir'],
-                'tanggal_lahir' => $validated['tanggal_lahir'],
-                'jenis_kelamin' => $validated['jenis_kelamin'],
-                'alamat' => $validated['alamat'],
-                'no_hp' => $validated['no_hp'],
-                'perusahaan' => $validated['perusahaan'],
-                'npk' => $validated['npk'],
-                'email' => $validated['email'],
-            ]);
+            if ($existingUser) {
+                // Jika user sudah ada, tambahkan role pelapor
+                if (!in_array('pelapor', $existingUser->roles)) {
+                    $roles = $existingUser->roles;
+                    $roles[] = 'pelapor';
+                    $existingUser->update([
+                        'roles' => array_unique($roles),
+                        'active_role' => 'pelapor' // Set role aktif ke pelapor
+                    ]);
+                    $user = $existingUser;
+                } else {
+                    throw new \Exception('Anda sudah terdaftar sebagai pelapor.');
+                }
+            } else {
+                // Jika user belum ada, buat user baru
+                $user = User::create([
+                    'email' => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                    'roles' => ['pelapor'],
+                    'active_role' => 'pelapor'
+                ]);
+            }
+
+            // Cek apakah sudah ada data pelapor
+            $existingPelapor = Pelapor::where('email', $validated['email'])->first();
+            
+            if (!$existingPelapor) {
+                // Buat data pelapor baru
+                $pelapor = Pelapor::create([
+                    'user_id' => $user->user_id,
+                    'nama_pelapor' => $validated['name'],
+                    'tempat_lahir' => $validated['tempat_lahir'],
+                    'tanggal_lahir' => $validated['tanggal_lahir'],
+                    'jenis_kelamin' => $validated['jenis_kelamin'],
+                    'alamat' => $validated['alamat'],
+                    'no_hp' => $validated['no_hp'],
+                    'perusahaan' => $validated['perusahaan'],
+                    'npk' => $validated['npk'],
+                    'email' => $validated['email'],
+                ]);
+            } else {
+                // Update data pelapor yang ada
+                $existingPelapor->update([
+                    'user_id' => $user->user_id,
+                    'nama_pelapor' => $validated['name'],
+                    'tempat_lahir' => $validated['tempat_lahir'],
+                    'tanggal_lahir' => $validated['tanggal_lahir'],
+                    'jenis_kelamin' => $validated['jenis_kelamin'],
+                    'alamat' => $validated['alamat'],
+                    'no_hp' => $validated['no_hp'],
+                    'perusahaan' => $validated['perusahaan'],
+                    'npk' => $validated['npk']
+                ]);
+            }
 
             DB::commit();
 
-            event(new Registered($user));
+            // Jika user baru, trigger event registered
+            if (!$existingUser) {
+                event(new Registered($user));
+            }
+
+            // Login dengan role pelapor
             Auth::login($user);
+            session(['active_role' => 'pelapor']);
 
             return redirect(route('dashboard.pelapor', absolute: false));
         } catch (\Exception $e) {
             DB::rollBack();
-
             error_log('Registration failed: ' . $e->getMessage());
 
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['email' => 'Registration failed: ' . $e->getMessage()]);
+                ->withErrors(['email' => $e->getMessage()]);
         }
     }
 }

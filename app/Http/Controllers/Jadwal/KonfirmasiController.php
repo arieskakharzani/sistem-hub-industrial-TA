@@ -18,12 +18,12 @@ class KonfirmasiController extends Controller
     {
         $user = Auth::user();
 
-        if (!in_array($user->role, ['pelapor', 'terlapor'])) {
+        if (!in_array($user->active_role, ['pelapor', 'terlapor'])) {
             abort(403, 'Akses ditolak');
         }
 
         // Ambil jadwal berdasarkan role user
-        if ($user->role === 'pelapor' && $user->pelapor) {
+        if ($user->active_role === 'pelapor' && $user->pelapor) {
             $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($user) {
                     $query->where('pelapor_id', $user->pelapor->pelapor_id);
@@ -31,7 +31,7 @@ class KonfirmasiController extends Controller
                 ->whereIn('status_jadwal', ['dijadwalkan', 'ditunda'])
                 ->orderBy('tanggal', 'asc')
                 ->get();
-        } elseif ($user->role === 'terlapor' && $user->terlapor) {
+        } elseif ($user->active_role === 'terlapor' && $user->terlapor) {
             $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($user) {
                     $query->where('terlapor_id', $user->terlapor->terlapor_id);
@@ -50,7 +50,7 @@ class KonfirmasiController extends Controller
     {
         $user = Auth::user();
 
-        if (!in_array($user->role, ['pelapor', 'terlapor'])) {
+        if (!in_array($user->active_role, ['pelapor', 'terlapor'])) {
             abort(403, 'Akses ditolak');
         }
 
@@ -61,9 +61,9 @@ class KonfirmasiController extends Controller
         $pengaduan = $jadwal->pengaduan;
         $hasAccess = false;
 
-        if ($user->role === 'pelapor' && $user->pelapor) {
+        if ($user->active_role === 'pelapor' && $user->pelapor) {
             $hasAccess = $pengaduan->pelapor_id == $user->pelapor->pelapor_id;
-        } elseif ($user->role === 'terlapor' && $user->terlapor) {
+        } elseif ($user->active_role === 'terlapor' && $user->terlapor) {
             $hasAccess = $pengaduan->terlapor_id == $user->terlapor->terlapor_id;
         }
 
@@ -83,7 +83,7 @@ class KonfirmasiController extends Controller
 
         $user = Auth::user();
 
-        if (!in_array($user->role, ['pelapor', 'terlapor'])) {
+        if (!in_array($user->active_role, ['pelapor', 'terlapor'])) {
             abort(403, 'Akses ditolak');
         }
 
@@ -94,9 +94,9 @@ class KonfirmasiController extends Controller
         $pengaduan = $jadwal->pengaduan;
         $hasAccess = false;
 
-        if ($user->role === 'pelapor' && $user->pelapor) {
+        if ($user->active_role === 'pelapor' && $user->pelapor) {
             $hasAccess = $pengaduan->pelapor_id == $user->pelapor->pelapor_id;
-        } elseif ($user->role === 'terlapor' && $user->terlapor) {
+        } elseif ($user->active_role === 'terlapor' && $user->terlapor) {
             $hasAccess = $pengaduan->terlapor_id == $user->terlapor->terlapor_id;
         }
 
@@ -105,11 +105,11 @@ class KonfirmasiController extends Controller
         }
 
         // Cek apakah sudah pernah konfirmasi
-        if ($user->role === 'pelapor' && $jadwal->konfirmasi_pelapor !== 'pending') {
+        if ($user->active_role === 'pelapor' && $jadwal->konfirmasi_pelapor !== 'pending') {
             return redirect()->back()->with('error', 'Anda sudah melakukan konfirmasi sebelumnya');
         }
 
-        if ($user->role === 'terlapor' && $jadwal->konfirmasi_terlapor !== 'pending') {
+        if ($user->active_role === 'terlapor' && $jadwal->konfirmasi_terlapor !== 'pending') {
             return redirect()->back()->with('error', 'Anda sudah melakukan konfirmasi sebelumnya');
         }
 
@@ -117,7 +117,7 @@ class KonfirmasiController extends Controller
             DB::beginTransaction();
 
             // Update konfirmasi berdasarkan role
-            if ($user->role === 'pelapor') {
+            if ($user->active_role === 'pelapor') {
                 $jadwal->update([
                     'konfirmasi_pelapor' => $request->konfirmasi,
                     'tanggal_konfirmasi_pelapor' => now(),
@@ -150,7 +150,7 @@ class KonfirmasiController extends Controller
                 }
 
                 // Trigger event konfirmasi kehadiran (for standard notification)
-                event(new KonfirmasiKehadiran($jadwal, $user->role, $request->konfirmasi));
+                event(new KonfirmasiKehadiran($jadwal, $user->active_role, $request->konfirmasi));
 
                 // Trigger event reschedule needed (for special handling)
                 event(new JadwalRescheduleNeeded($jadwal, $absentParty, $request->catatan ?? ''));
@@ -162,7 +162,7 @@ class KonfirmasiController extends Controller
                 ]);
             } else {
                 // Normal confirmation - trigger standard event
-                event(new KonfirmasiKehadiran($jadwal, $user->role, $request->konfirmasi));
+                event(new KonfirmasiKehadiran($jadwal, $user->active_role, $request->konfirmasi));
 
                 // Check if both parties have confirmed attendance
                 if ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir()) {
@@ -193,7 +193,7 @@ class KonfirmasiController extends Controller
             Log::error('Error in konfirmasi process', [
                 'error' => $e->getMessage(),
                 'jadwal_id' => $jadwalId,
-                'user_role' => $user->role
+                'user_role' => $user->active_role
             ]);
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan konfirmasi');
         }
@@ -203,7 +203,7 @@ class KonfirmasiController extends Controller
     {
         $user = Auth::user();
 
-        if (!in_array($user->role, ['pelapor', 'terlapor'])) {
+        if (!in_array($user->active_role, ['pelapor', 'terlapor'])) {
             abort(403, 'Akses ditolak');
         }
 
@@ -214,9 +214,9 @@ class KonfirmasiController extends Controller
         $pengaduan = $jadwal->pengaduan;
         $hasAccess = false;
 
-        if ($user->role === 'pelapor' && $user->pelapor) {
+        if ($user->active_role === 'pelapor' && $user->pelapor) {
             $hasAccess = $pengaduan->pelapor_id == $user->pelapor->pelapor_id;
-        } elseif ($user->role === 'terlapor' && $user->terlapor) {
+        } elseif ($user->active_role === 'terlapor' && $user->terlapor) {
             $hasAccess = $pengaduan->terlapor_id == $user->terlapor->terlapor_id;
         }
 
@@ -228,7 +228,7 @@ class KonfirmasiController extends Controller
             DB::beginTransaction();
 
             // Reset konfirmasi berdasarkan role
-            if ($user->role === 'pelapor') {
+            if ($user->active_role === 'pelapor') {
                 $jadwal->update([
                     'konfirmasi_pelapor' => 'pending',
                     'tanggal_konfirmasi_pelapor' => null,

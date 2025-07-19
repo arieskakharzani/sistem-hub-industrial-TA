@@ -132,7 +132,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                                    Pengaduan #{{ $pengaduan->pengaduan_id }}
+                                    Detail Pengaduan
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"

@@ -40,7 +40,7 @@
                         dan Penyelesaian Perselisihan Hubungan Industrial Kab. Bungo</p>
                     <div class="mt-4">
                         <span class="bg-green-400 px-3 py-1 rounded-full text-sm font-medium text-green-900">
-                            Role: {{ ucfirst($user->role) }}
+                            Role: {{ ucfirst($user->active_role) }}
                         </span>
                     </div>
                 </div>

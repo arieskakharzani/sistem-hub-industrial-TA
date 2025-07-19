@@ -33,7 +33,7 @@ class RouteServiceProvider extends ServiceProvider
         // Redirect berdasarkan role
         $this->app->singleton('login.redirect', function ($app) {
             return function ($user) {
-                switch ($user->role) {
+                switch ($user->active_role) {
                     case 'pelapor':
                         // return route('pelapor.dashboard');
                         return route('dashboard');

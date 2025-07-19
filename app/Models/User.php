@@ -19,7 +19,8 @@ class User extends Authenticatable
         'user_id',
         'email',
         'password',
-        'role',
+        'roles',
+        'active_role',
         'is_active',
     ];
 
@@ -28,14 +29,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean', // Tambahkan cast untuk is_active
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+        'roles' => 'array',
+    ];
 
     // Auto-generate UUID saat membuat user baru
     protected static function boot()
@@ -45,6 +44,12 @@ class User extends Authenticatable
         static::creating(function ($model) {
             if (empty($model->user_id)) {
                 $model->user_id = (string) Str::uuid();
+            }
+            if (empty($model->roles)) {
+                $model->roles = ['pelapor'];
+            }
+            if (empty($model->active_role)) {
+                $model->active_role = $model->roles[0];
             }
         });
     }
@@ -87,24 +92,60 @@ class User extends Authenticatable
         return $this->hasOne(KepalaDinas::class, 'user_id', 'user_id');
     }
 
-    // Helper method untuk mendapatkan role
-    public function getRole()
+    // Role management methods
+    public function addRole($role)
     {
-        // Prioritas 1: Cek dari kolom role di tabel users (jika ada)
-        if (isset($this->role) && $this->role) {
-            return $this->role;
+        if (!in_array($role, $this->roles)) {
+            $roles = $this->roles;
+            $roles[] = $role;
+            $this->update(['roles' => $roles]);
         }
-
-        // Prioritas 2: Cek dari relationship (fallback)
-        if ($this->pelapor) return 'pelapor';
-        if ($this->terlapor) return 'terlapor';
-        if ($this->mediator) return 'mediator';
-        if ($this->kepalaDinas) return 'kepala_dinas';
-
-        return null;
     }
 
-    // Helper method untuk mendapatkan profile
+    public function removeRole($role)
+    {
+        if (in_array($role, $this->roles)) {
+            $roles = array_diff($this->roles, [$role]);
+            $this->update(['roles' => array_values($roles)]);
+            
+            // If active role is removed, set to first available role
+            if ($this->active_role === $role && !empty($roles)) {
+                $this->setActiveRole($roles[0]);
+            }
+        }
+    }
+
+    public function setActiveRole($role)
+    {
+        if (in_array($role, $this->roles)) {
+            $this->update(['active_role' => $role]);
+            return true;
+        }
+        return false;
+    }
+
+    public function hasRole($role)
+    {
+        return in_array($role, $this->roles);
+    }
+
+    public function hasAnyRole($roles)
+    {
+        return !empty(array_intersect($this->roles, (array) $roles));
+    }
+
+    public function hasAllRoles($roles)
+    {
+        return !array_diff((array) $roles, $this->roles);
+    }
+
+    // Helper method untuk mendapatkan role aktif
+    public function getRole()
+    {
+        return $this->active_role;
+    }
+
+    // Helper method untuk mendapatkan profile berdasarkan role aktif
     public function getProfile()
     {
         switch ($this->getRole()) {
@@ -131,7 +172,7 @@ class User extends Authenticatable
         // Mapping nama dari berbagai tabel
         if (isset($profile->nama_pelapor)) return $profile->nama_pelapor;  // pelapor
         if (isset($profile->nama_mediator)) return $profile->nama_mediator; // mediator
-        if (isset($profile->nama_kepala_dinas)) return $profile->nama_kepala_dinas; // kepala_dinas (sesuai migration)
+        if (isset($profile->nama_kepala_dinas)) return $profile->nama_kepala_dinas; // kepala_dinas
         if (isset($profile->nama_terlapor)) return $profile->nama_terlapor; // terlapor
 
         return null;
@@ -177,6 +218,14 @@ class User extends Authenticatable
      */
     public function scopeByRole($query, $role)
     {
-        return $query->where('role', $role);
+        return $query->whereJsonContains('roles', $role);
+    }
+
+    /**
+     * Scope untuk user dengan role aktif tertentu
+     */
+    public function scopeByActiveRole($query, $role)
+    {
+        return $query->where('active_role', $role);
     }
 }

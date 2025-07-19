@@ -17,6 +17,7 @@ class Risalah extends Model
     protected $fillable = [
         'risalah_id',
         'jadwal_id',
+        'dokumen_hi_id',
         'jenis_risalah',
         'nama_perusahaan',
         'jenis_usaha',
@@ -43,6 +44,12 @@ class Risalah extends Model
     public function jadwal(): BelongsTo
     {
         return $this->belongsTo(Jadwal::class, 'jadwal_id', 'jadwal_id');
+    }
+
+    //Relasi ke dokumen hubungan industrial (many-to-one)
+    public function dokumenHI(): BelongsTo
+    {
+        return $this->belongsTo(DokumenHubunganIndustrial::class, 'dokumen_hi_id', 'dokumen_hi_id');
     }
 
     //Relasi ke detail klarifikasi

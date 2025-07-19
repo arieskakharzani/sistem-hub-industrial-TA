@@ -12,7 +12,36 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    // Middleware akan dihandle di routes
+    public function roleSelection()
+    {
+        return view('dashboard.role-selection');
+    }
+
+    public function setRole(Request $request)
+    {
+        $user = Auth::user();
+        $role = $request->input('role');
+
+        if (!in_array($role, $user->roles)) {
+            return back()->withErrors(['role' => 'Role tidak valid.']);
+        }
+
+        $user->setActiveRole($role);
+
+        switch ($role) {
+            case 'pelapor':
+                return redirect()->route('dashboard.pelapor');
+            case 'terlapor':
+                return redirect()->route('dashboard.terlapor');
+            case 'mediator':
+                return redirect()->route('dashboard.mediator');
+            case 'kepala_dinas':
+                return redirect()->route('dashboard.kepala-dinas');
+            default:
+                return redirect()->route('dashboard.role-selection')
+                    ->withErrors(['role' => 'Role tidak valid.']);
+        }
+    }
 
     public function pelapor()
     {
@@ -24,7 +53,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // Pastikan user adalah pelapor
-        if ($user->role !== 'pelapor') {
+        if ($user->active_role !== 'pelapor') {
             abort(403, 'Access denied');
         }
 
@@ -79,7 +108,7 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        if ($user->role !== 'terlapor') {
+        if ($user->active_role !== 'terlapor') {
             abort(403, 'Access denied');
         }
 
@@ -130,7 +159,7 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        if ($user->role !== 'mediator') {
+        if ($user->active_role !== 'mediator') {
             abort(403, 'Access denied');
         }
 
@@ -154,7 +183,7 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        if ($user->role !== 'kepala_dinas') {
+        if ($user->active_role !== 'kepala_dinas') {
             abort(403, 'Access denied');
         }
 

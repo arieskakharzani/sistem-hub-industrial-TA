@@ -113,11 +113,13 @@
                         </div>
                         @php
                             $userKonfirmasi =
-                                $user->role === 'pelapor' ? $jadwal->konfirmasi_pelapor : $jadwal->konfirmasi_terlapor;
+                                $user->active_role === 'pelapor'
+                                    ? $jadwal->konfirmasi_pelapor
+                                    : $jadwal->konfirmasi_terlapor;
                         @endphp
                         <div class="text-right">
                             <span
-                                class="inline-block px-4 py-2 rounded-full text-sm font-medium {{ $jadwal->getKonfirmasiBadgeClass($user->role) }} bg-white">
+                                class="inline-block px-4 py-2 rounded-full text-sm font-medium {{ $jadwal->getKonfirmasiBadgeClass($user->active_role) }} bg-white">
                                 {{ ucfirst(str_replace('_', ' ', $userKonfirmasi)) }}
                             </span>
                         </div>
@@ -202,7 +204,7 @@
                                     <div class="border border-gray-200 rounded-lg p-4">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-semibold">Pelapor
-                                                {{ $user->role === 'pelapor' ? '(Anda)' : '' }}</h4>
+                                                {{ $user->active_role === 'pelapor' ? '(Anda)' : '' }}</h4>
                                             <span
                                                 class="px-3 py-1 text-sm rounded-full {{ $jadwal->getKonfirmasiBadgeClass('pelapor') }}">
                                                 {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_pelapor)) }}
@@ -225,7 +227,7 @@
                                     <div class="border border-gray-200 rounded-lg p-4">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-semibold">Terlapor
-                                                {{ $user->role === 'terlapor' ? '(Anda)' : '' }}</h4>
+                                                {{ $user->active_role === 'terlapor' ? '(Anda)' : '' }}</h4>
                                             <span
                                                 class="px-3 py-1 text-sm rounded-full {{ $jadwal->getKonfirmasiBadgeClass('terlapor') }}">
                                                 {{ ucfirst(str_replace('_', ' ', $jadwal->konfirmasi_terlapor)) }}
@@ -371,17 +373,17 @@
                                 <div class="p-6">
                                     <div class="text-center mb-4">
                                         <span
-                                            class="inline-block px-4 py-2 rounded-full text-lg font-semibold {{ $jadwal->getKonfirmasiBadgeClass($user->role) }}">
+                                            class="inline-block px-4 py-2 rounded-full text-lg font-semibold {{ $jadwal->getKonfirmasiBadgeClass($user->active_role) }}">
                                             {{ ucfirst(str_replace('_', ' ', $userKonfirmasi)) }}
                                         </span>
                                     </div>
                                     @php
                                         $userTanggalKonfirmasi =
-                                            $user->role === 'pelapor'
+                                            $user->active_role === 'pelapor'
                                                 ? $jadwal->tanggal_konfirmasi_pelapor
                                                 : $jadwal->tanggal_konfirmasi_terlapor;
                                         $userCatatanKonfirmasi =
-                                            $user->role === 'pelapor'
+                                            $user->active_role === 'pelapor'
                                                 ? $jadwal->catatan_konfirmasi_pelapor
                                                 : $jadwal->catatan_konfirmasi_terlapor;
                                     @endphp

@@ -29,7 +29,7 @@ class ProfileController extends Controller
         $profileData = null;
         $profileName = null;
 
-        switch ($user->role) {
+        switch ($user->active_role) {
             case 'pelapor':
                 $profileData = Pelapor::where('user_id', $user->user_id)->first();
                 $profileName = $profileData->nama_pelapor ?? null;
@@ -96,7 +96,7 @@ class ProfileController extends Controller
      */
     private function updateProfileByRole(ProfileUpdateRequest $request, $user)
     {
-        switch ($user->role) {
+        switch ($user->active_role) {
             case 'pelapor':
                 $this->updatePelaporProfile($request, $user);
                 break;
@@ -235,7 +235,7 @@ class ProfileController extends Controller
      */
     private function deleteRelatedProfile($user)
     {
-        switch ($user->role) {
+        switch ($user->active_role) {
             case 'pelapor':
                 Pelapor::where('user_id', $user->user_id)->delete();
                 break;

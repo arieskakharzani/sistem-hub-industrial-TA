@@ -17,14 +17,16 @@ class UserSeeder extends Seeder
     {
         // Pelapor 1
         $user1 = User::create([
-            'email' => 'pelapor1@example.com',
+            'email' => 'ecakharzani10@gmail.com',
             'password' => Hash::make('password'),
-            'role' => 'pelapor',
+            'roles' => ['pelapor'],
+            'active_role' => 'pelapor',
+            'is_active' => true
         ]);
 
         Pelapor::create([
             'user_id' => $user1->user_id,
-            'nama_pelapor' => 'Ahmad Wijaya',
+            'nama_pelapor' => 'Arieska Kharzani',
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '1990-01-01',
             'jenis_kelamin' => 'Laki-laki',
@@ -32,14 +34,16 @@ class UserSeeder extends Seeder
             'no_hp' => '081234567890',
             'perusahaan' => 'PT Sejahtera Mandiri',
             'npk' => 'EMP001',
-            'email' => 'ahmad.wijaya@company.com',
+            'email' => 'ecakharzani10@gmail.com',
         ]);
 
         // Pelapor 2
         $user2 = User::create([
             'email' => 'pelapor2@example.com',
             'password' => Hash::make('password'),
-            'role' => 'pelapor',
+            'roles' => ['pelapor'],
+            'active_role' => 'pelapor',
+            'is_active' => true
         ]);
 
         Pelapor::create([
@@ -59,7 +63,9 @@ class UserSeeder extends Seeder
         $user3 = User::create([
             'email' => 'pelapor3@example.com',
             'password' => Hash::make('password'),
-            'role' => 'pelapor',
+            'roles' => ['pelapor'],
+            'active_role' => 'pelapor',
+            'is_active' => true
         ]);
 
         Pelapor::create([
@@ -79,7 +85,9 @@ class UserSeeder extends Seeder
         $user4 = User::create([
             'email' => 'pelapor4@example.com',
             'password' => Hash::make('password'),
-            'role' => 'pelapor',
+            'roles' => ['pelapor'],
+            'active_role' => 'pelapor',
+            'is_active' => true
         ]);
 
         Pelapor::create([
@@ -99,7 +107,9 @@ class UserSeeder extends Seeder
         $user5 = User::create([
             'email' => 'pelapor5@example.com',
             'password' => Hash::make('password'),
-            'role' => 'pelapor',
+            'roles' => ['pelapor'],
+            'active_role' => 'pelapor',
+            'is_active' => true
         ]);
 
         Pelapor::create([
@@ -117,38 +127,49 @@ class UserSeeder extends Seeder
 
         // Terlapor
         $userTerlapor = User::create([
-            'email' => 'terlapor@example.com',
+            'email' => 'arieskaeca@gmail.com',
             'password' => Hash::make('password'),
-            'role' => 'terlapor',
+            'roles' => ['terlapor'],
+            'active_role' => 'terlapor',
+            'is_active' => true
         ]);
 
         Terlapor::create([
             'user_id' => $userTerlapor->user_id,
+            'nama_terlapor' => 'PT ABC Technology',
+            'alamat_kantor_cabang' => 'Jl. Teknologi No. 123, Jakarta',
+            'email_terlapor' => 'arieskaeca@gmail.com',
+            'no_hp_terlapor' => '081234567890',
+            'has_account' => true,
+            'is_active' => true
+        ]);
+
+        // Terlapor 2 (untuk kasus lain)
+        $userTerlapor2 = User::create([
+            'email' => 'terlapor@example.com',
+            'password' => Hash::make('password'),
+            'roles' => ['terlapor'],
+            'active_role' => 'terlapor',
+            'is_active' => true
+        ]);
+
+        Terlapor::create([
+            'user_id' => $userTerlapor2->user_id,
             'nama_terlapor' => 'Terlapor User',
             'alamat_kantor_cabang' => 'Terlapor Address',
             'email_terlapor' => 'terlapor@example.com',
             'no_hp_terlapor' => '085678901234',
+            'has_account' => true,
+            'is_active' => true
         ]);
-
-        // $userTerlapor1 = User::create([
-        //     'email' => 'arieskaeca@gmail.com',
-        //     'password' => Hash::make('password'),
-        //     'role' => 'terlapor',
-        // ]);
-
-        // Terlapor::create([
-        //     'user_id' => $userTerlapor1->user_id,
-        //     'nama_terlapor' => 'Arieska Eca',
-        //     'alamat_kantor_cabang' => 'Terlapor Address',
-        //     'email_terlapor' => 'arieskaeca@gmail.com',
-        //     'no_hp_terlapor' => '085678901234',
-        // ]);
 
         // Mediator 1
         $userMediator1 = User::create([
             'email' => 'daarsyaaa@gmail.com',
             'password' => Hash::make('password'),
-            'role' => 'mediator',
+            'roles' => ['mediator'],
+            'active_role' => 'mediator',
+            'is_active' => true
         ]);
 
         Mediator::create([
@@ -161,7 +182,9 @@ class UserSeeder extends Seeder
         $userMediator2 = User::create([
             'email' => 'semuabisa.co@gmail.com',
             'password' => Hash::make('password'),
-            'role' => 'mediator',
+            'roles' => ['mediator'],
+            'active_role' => 'mediator',
+            'is_active' => true
         ]);
 
         Mediator::create([
@@ -174,7 +197,9 @@ class UserSeeder extends Seeder
         $userKepala = User::create([
             'email' => 'kepaladinas@example.com',
             'password' => Hash::make('password'),
-            'role' => 'kepala_dinas',
+            'roles' => ['kepala_dinas'],
+            'active_role' => 'kepala_dinas',
+            'is_active' => true
         ]);
 
         KepalaDinas::create([

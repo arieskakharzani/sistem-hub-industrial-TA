@@ -22,19 +22,17 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
-            abort(403, 'Hanya mediator yang dapat membuat jadwal');
+        if (!$user || $user->active_role !== 'mediator') {
+            abort(403, 'Hanya mediator yang dapat mengakses jadwal');
         }
 
         $mediator = $user->mediator;
-
         if (!$mediator) {
             abort(403, 'Data mediator tidak ditemukan');
         }
 
-        // Ambil jadwal dengan filter 
-        $query = Jadwal::with(['pengaduan.pelapor'])
-            ->byMediator($mediator->mediator_id);
+        // Ambil SEMUA jadwal, bukan hanya milik mediator ini
+        $query = Jadwal::with(['pengaduan.pelapor', 'mediator']);
 
         // Filter berdasarkan jenis jadwal
         if (request('jenis_jadwal')) {
@@ -57,13 +55,14 @@ class JadwalController extends Controller
 
         // Hitung statistik
         $stats = [
-            'total' => Jadwal::byMediator($mediator->mediator_id)->count(),
-            'hari_ini' => Jadwal::byMediator($mediator->mediator_id)->hariIni()->count(),
-            'dijadwalkan' => Jadwal::byMediator($mediator->mediator_id)->byStatus('dijadwalkan')->count(),
-            'selesai' => Jadwal::byMediator($mediator->mediator_id)->byStatus('selesai')->count(),
+            'total' => Jadwal::count(),
+            'hari_ini' => Jadwal::whereDate('tanggal', today())->count(),
+            'dijadwalkan' => Jadwal::byStatus('dijadwalkan')->count(),
+            'selesai' => Jadwal::byStatus('selesai')->count(),
+            'total_saya' => Jadwal::byMediator($mediator->mediator_id)->count(),
         ];
 
-        return view('jadwal.index', compact('jadwalList', 'stats'));
+        return view('jadwal.index', compact('jadwalList', 'stats', 'mediator'));
     }
 
     // Halaman form buat jadwal baru
@@ -71,7 +70,7 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 
@@ -98,7 +97,7 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 
@@ -171,7 +170,7 @@ class JadwalController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 
@@ -191,7 +190,7 @@ class JadwalController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 
@@ -216,7 +215,7 @@ class JadwalController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 
@@ -273,7 +272,7 @@ class JadwalController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 
@@ -326,7 +325,7 @@ class JadwalController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->role === 'mediator') {
+        if (!$user || !$user->active_role === 'mediator') {
             abort(403, 'Hanya mediator yang dapat membuat jadwal');
         }
 

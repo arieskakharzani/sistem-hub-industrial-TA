@@ -49,56 +49,7 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Header Section -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6 border-b border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Daftar Pengaduan</h3>
-                                <p class="text-sm text-gray-600">
-                                    @if (auth()->user()->role === 'mediator')
-                                        Kelola pengaduan Anda dan pantau perkembangan tim
-                                    @else
-                                        Kelola dan pantau semua pengaduan yang masuk
-                                    @endif
-                                </p>
-                            </div>
-                            <div class="flex space-x-4">
-                                <!-- ✅ NEW: Filter mediator untuk kepala dinas -->
-                                @if (auth()->user()->role === 'kepala_dinas')
-                                    <select id="mediatorFilter"
-                                        class="border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                                        <option value="">Semua Mediator</option>
-                                        <option value="unassigned">Belum Ditugaskan</option>
-                                        @php
-                                            $mediators = \App\Models\Mediator::with('user')->get();
-                                        @endphp
-                                        @foreach ($mediators as $mediator)
-                                            <option value="{{ $mediator->mediator_id }}">{{ $mediator->nama_mediator }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                @endif
-
-                                <select id="statusFilter" class="border border-gray-300 rounded-lg px-8 py-2 text-sm">
-                                    <option value="">Semua Status</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="proses">Dalam Proses</option>
-                                    <option value="selesai">Selesai</option>
-                                </select>
-                                <select id="perihalFilter" class="border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                                    <option value="">Semua Perihal</option>
-                                    <option value="Perselisihan Hak">Perselisihan Hak</option>
-                                    <option value="Perselisihan Kepentingan">Perselisihan Kepentingan</option>
-                                    <option value="Perselisihan PHK">Perselisihan PHK</option>
-                                    <option value="Perselisihan antar SP/SB">Perselisihan antar SP/SB</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ✅ UPDATED: Statistics Cards with different data for mediator vs kepala dinas -->
+                <!-- Statistics Cards with different data for mediator vs kepala dinas -->
                 <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
                     @if (auth()->user()->role === 'mediator')
                         <!-- Stats untuk Mediator -->
@@ -116,7 +67,8 @@
                                     <div class="ml-4">
                                         <p class="text-gray-600 text-sm">Total Semua Pengaduan</p>
                                         <p class="text-2xl font-bold text-gray-900">
-                                            {{ $stats['total_semua_pengaduan'] ?? ($stats['total_kasus_saya'] ?? 0) }}</p>
+                                            {{ $stats['total_semua_pengaduan'] ?? ($stats['total_kasus_saya'] ?? 0) }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -212,8 +164,7 @@
                                     </div>
                                     <div class="ml-4">
                                         <p class="text-gray-600 text-sm">Kasus Aktif</p>
-                                        <p class="text-2xl font-bold text-gray-900">{{ $stats['kasus_aktif'] ?? 0 }}
-                                        </p>
+                                        <p class="text-2xl font-bold text-gray-900">{{ $stats['kasus_aktif'] ?? 0 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -258,49 +209,42 @@
                         </div>
                     @endif
                 </div>
-                <br>
 
                 <!-- Main Content -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
                     @if (isset($pengaduans) && $pengaduans->count() > 0)
-                        <!-- ✅ UPDATED: Table with new Mediator column and conditional actions -->
+                        <!-- Table with new Status Akun Terlapor column -->
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            No
-                                        </th>
+                                            No</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Pelapor
-                                        </th>
+                                            Pelapor</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Perihal
-                                        </th>
+                                            Perihal</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Pihak Terlapor
-                                        </th>
-                                        <!-- ✅ NEW: Kolom Mediator -->
+                                            Pihak Terlapor</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Mediator
-                                        </th>
+                                            Status Akun Terlapor</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
-                                        </th>
+                                            Mediator</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal Laporan
-                                        </th>
+                                            Status</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi
-                                        </th>
+                                            Tanggal Laporan</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -308,46 +252,59 @@
                                         @php
                                             $currentUser = auth()->user();
                                             $currentMediator =
-                                                $currentUser->role === 'mediator' ? $currentUser->mediator : null;
+                                                $currentUser->active_role === 'mediator'
+                                                    ? $currentUser->mediator
+                                                    : null;
                                             $isAssignedToCurrentUser =
                                                 $currentMediator &&
                                                 $pengaduan->mediator_id === $currentMediator->mediator_id;
                                             $isUnassigned = !$pengaduan->mediator_id;
                                             $canTakeAction =
-                                                $isAssignedToCurrentUser || $currentUser->role === 'kepala_dinas';
+                                                $isAssignedToCurrentUser ||
+                                                $currentUser->active_role === 'kepala_dinas';
+
+                                            $existingTerlapor = \App\Models\Terlapor::where(
+                                                'email_terlapor',
+                                                $pengaduan->email_terlapor,
+                                            )
+                                                ->whereHas('user')
+                                                ->first();
                                         @endphp
 
-                                        <tr class="hover:bg-gray-50" data-status="{{ $pengaduan->status }}"
-                                            data-perihal="{{ $pengaduan->perihal }}"
-                                            data-mediator="{{ $pengaduan->mediator_id ?? 'unassigned' }}">
+                                        <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ ($pengaduans->currentPage() - 1) * $pengaduans->perPage() + $index + 1 }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $pengaduan->pelapor->nama_pelapor ?? 'N/A' }}
-                                                </div>
+                                                    {{ $pengaduan->pelapor->nama_pelapor ?? 'N/A' }}</div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ $pengaduan->pelapor->email ?? 'N/A' }}
-                                                </div>
+                                                    {{ $pengaduan->pelapor->email ?? 'N/A' }}</div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">
-                                                    {{ $pengaduan->perihal }}
-                                                </div>
-                                                <div class="text-xs text-gray-500">
-                                                    Masa Kerja: {{ $pengaduan->masa_kerja }}
-                                                </div>
+                                                <div class="text-sm text-gray-900">{{ $pengaduan->perihal }}</div>
+                                                <div class="text-xs text-gray-500">Masa Kerja:
+                                                    {{ $pengaduan->masa_kerja }}</div>
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm text-gray-900 max-w-xs">
-                                                    {{ $pengaduan->nama_terlapor ?? 'N/A' }}
-                                                </div>
+                                                    {{ $pengaduan->nama_terlapor ?? 'N/A' }}</div>
                                                 <div class="text-xs text-gray-500">
-                                                    {{ $pengaduan->email_terlapor ?? 'N/A' }}
-                                                </div>
+                                                    {{ $pengaduan->email_terlapor ?? 'N/A' }}</div>
                                             </td>
-                                            <!-- ✅ NEW: Kolom Mediator dengan indicators -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @if ($existingTerlapor)
+                                                    <span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        Sudah Terdaftar
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        Belum Ada Akun
+                                                    </span>
+                                                @endif
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @if ($pengaduan->mediator)
                                                     <div class="flex items-center">
@@ -368,7 +325,7 @@
                                                     <div class="flex items-center">
                                                         <span class="text-sm text-gray-500 italic">Belum
                                                             ditugaskan</span>
-                                                        @if ($currentUser->role === 'mediator')
+                                                        @if ($currentUser->active_role === 'mediator')
                                                             <span
                                                                 class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                                                                 Dapat Diambil
@@ -412,8 +369,45 @@
                                                         {{ $canTakeAction ? 'Kelola' : 'Lihat' }}
                                                     </a>
 
-                                                    <!-- ✅ NEW: Ambil button untuk pengaduan yang belum diambil -->
-                                                    @if ($isUnassigned && $currentUser->role === 'mediator')
+                                                    <!-- Aksi untuk terlapor yang sudah terdaftar -->
+                                                    @if ($existingTerlapor)
+                                                        @php
+                                                            $notificationSent =
+                                                                $pengaduan->terlapor_id ===
+                                                                $existingTerlapor->terlapor_id;
+                                                        @endphp
+                                                        @if ($notificationSent)
+                                                            <span class="inline-flex items-center text-gray-500">
+                                                                <svg class="w-4 h-4 mr-1" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M5 13l4 4L19 7"></path>
+                                                                </svg>
+                                                                Notifikasi Terkirim
+                                                            </span>
+                                                        @else
+                                                            <form method="POST"
+                                                                action="{{ route('pengaduan.notify-existing-terlapor', $pengaduan) }}"
+                                                                class="inline">
+                                                                @csrf
+                                                                <button type="submit"
+                                                                    class="text-blue-600 hover:text-blue-900">
+                                                                    <svg class="w-4 h-4 inline mr-1" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                                                        </path>
+                                                                    </svg>
+                                                                    Kirim Notifikasi
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    @endif
+
+                                                    <!-- Ambil button untuk pengaduan yang belum diambil -->
+                                                    @if ($isUnassigned && $currentUser->active_role === 'mediator')
                                                         <form method="POST"
                                                             action="{{ route('pengaduan.assign', $pengaduan->pengaduan_id) }}"
                                                             class="inline">
@@ -432,7 +426,7 @@
                                                         </form>
                                                     @endif
 
-                                                    <!-- ✅ UPDATED: Quick status buttons hanya untuk yang authorized -->
+                                                    <!-- Quick status buttons hanya untuk yang authorized -->
                                                     @if ($canTakeAction)
                                                         @if ($pengaduan->status === 'pending')
                                                             <button
@@ -462,7 +456,7 @@
                                                                 Selesai
                                                             </button>
                                                         @endif
-                                                    @elseif ($currentUser->role === 'mediator' && !$isUnassigned)
+                                                    @elseif ($currentUser->active_role === 'mediator' && !$isUnassigned)
                                                         <!-- Show disabled message for mediator non-assigned -->
                                                         <span class="text-gray-400 text-xs italic">
                                                             Lihat saja
@@ -510,7 +504,7 @@
             </div>
         </div>
 
-        <!-- ✅ UPDATED: JavaScript for actions and filtering -->
+        <!-- JavaScript for actions and filtering -->
         <script>
             function updateStatus(pengaduanId, newStatus) {
                 const statusText = {
@@ -544,40 +538,6 @@
                     document.body.appendChild(form);
                     form.submit();
                 }
-            }
-
-            // ✅ UPDATED: Enhanced filtering with mediator filter
-            function filterTable() {
-                const statusFilter = document.getElementById('statusFilter').value;
-                const perihalFilter = document.getElementById('perihalFilter').value;
-                const mediatorFilter = document.getElementById('mediatorFilter')?.value || '';
-                const rows = document.querySelectorAll('tbody tr[data-status]');
-
-                rows.forEach(row => {
-                    const rowStatus = row.getAttribute('data-status');
-                    const rowPerihal = row.getAttribute('data-perihal');
-                    const rowMediator = row.getAttribute('data-mediator');
-
-                    const statusMatch = !statusFilter || rowStatus === statusFilter;
-                    const perihalMatch = !perihalFilter || rowPerihal === perihalFilter;
-                    const mediatorMatch = !mediatorFilter || rowMediator === mediatorFilter;
-
-                    if (statusMatch && perihalMatch && mediatorMatch) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }
-
-            // Attach event listeners
-            document.getElementById('statusFilter').addEventListener('change', filterTable);
-            document.getElementById('perihalFilter').addEventListener('change', filterTable);
-
-            // ✅ NEW: Add mediator filter listener for kepala dinas
-            const mediatorFilter = document.getElementById('mediatorFilter');
-            if (mediatorFilter) {
-                mediatorFilter.addEventListener('change', filterTable);
             }
         </script>
     </x-app-layout>

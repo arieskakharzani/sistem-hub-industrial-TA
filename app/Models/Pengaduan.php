@@ -91,6 +91,10 @@ class Pengaduan extends Model
             ->exists();
     }
 
+    public function dokumenHI()
+    {
+        return $this->hasMany(DokumenHubunganIndustrial::class, 'pengaduan_id', 'pengaduan_id');
+    }
 
     /**
      * Scope untuk filter berdasarkan status
@@ -226,5 +230,46 @@ class Pengaduan extends Model
             'proses' => 'Dalam Proses',
             'selesai' => 'Selesai'
         ];
+    }
+
+    /**
+     * Check if this pengaduan has any active mediasi schedule
+     */
+    public function hasActiveMediasiSchedule()
+    {
+        return $this->jadwal()
+            ->where('jenis_jadwal', 'mediasi')
+            ->whereNotIn('status_jadwal', ['selesai', 'dibatalkan'])
+            ->exists();
+    }
+
+    /**
+     * Get the latest mediasi schedule for this pengaduan
+     */
+    public function getLatestMediasiSchedule()
+    {
+        return $this->jadwal()
+            ->where('jenis_jadwal', 'mediasi')
+            ->latest('created_at')
+            ->first();
+    }
+
+    /**
+     * Get the count of completed mediasi sessions
+     */
+    public function getCompletedMediasiSessionsCount()
+    {
+        return $this->jadwal()
+            ->where('jenis_jadwal', 'mediasi')
+            ->where('status_jadwal', 'selesai')
+            ->count();
+    }
+
+    /**
+     * Check if this pengaduan has reached maximum mediasi sessions (3)
+     */
+    public function hasReachedMaxMediasiSessions()
+    {
+        return $this->getCompletedMediasiSessionsCount() >= 3;
     }
 }

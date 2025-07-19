@@ -36,8 +36,9 @@
                 @php
                     // Cari jadwal yang status konfirmasi user-nya masih 'pending'
                     $pendingJadwal = $jadwal->first(function ($item) use ($user) {
-                        return ($user->role === 'pelapor' ? $item->konfirmasi_pelapor : $item->konfirmasi_terlapor) ===
-                            'pending';
+                        return ($user->active_role === 'pelapor'
+                            ? $item->konfirmasi_pelapor
+                            : $item->konfirmasi_terlapor) === 'pending';
                     });
                 @endphp
                 <!-- Info Card: Penjelasan Konfirmasi -->
@@ -119,21 +120,27 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     @php
                         $pendingKonfirmasi = $jadwal
-                            ->where($user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor', 'pending')
+                            ->where(
+                                $user->active_role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
+                                'pending',
+                            )
                             ->count();
                         $sudahKonfirmasi = $jadwal
                             ->where(
-                                $user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
+                                $user->active_role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
                                 '!=',
                                 'pending',
                             )
                             ->count();
                         $akanHadir = $jadwal
-                            ->where($user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor', 'hadir')
+                            ->where(
+                                $user->active_role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
+                                'hadir',
+                            )
                             ->count();
                         $tidakHadir = $jadwal
                             ->where(
-                                $user->role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
+                                $user->active_role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
                                 'tidak_hadir',
                             )
                             ->count();
@@ -217,21 +224,21 @@
                             @foreach ($jadwal as $item)
                                 @php
                                     $userKonfirmasi =
-                                        $user->role === 'pelapor'
+                                        $user->active_role === 'pelapor'
                                             ? $item->konfirmasi_pelapor
                                             : $item->konfirmasi_terlapor;
                                     $userTanggalKonfirmasi =
-                                        $user->role === 'pelapor'
+                                        $user->active_role === 'pelapor'
                                             ? $item->tanggal_konfirmasi_pelapor
                                             : $item->tanggal_konfirmasi_terlapor;
                                     $userCatatanKonfirmasi =
-                                        $user->role === 'pelapor'
+                                        $user->active_role === 'pelapor'
                                             ? $item->catatan_konfirmasi_pelapor
                                             : $item->catatan_konfirmasi_terlapor;
 
-                                    $otherRole = $user->role === 'pelapor' ? 'terlapor' : 'pelapor';
+                                    $otherRole = $user->active_role === 'pelapor' ? 'terlapor' : 'pelapor';
                                     $otherKonfirmasi =
-                                        $user->role === 'pelapor'
+                                        $user->active_role === 'pelapor'
                                             ? $item->konfirmasi_terlapor
                                             : $item->konfirmasi_pelapor;
                                 @endphp
@@ -271,7 +278,7 @@
 
                                         <div class="ml-6 text-right">
                                             <span
-                                                class="inline-block px-3 py-1 text-sm rounded-full {{ $item->getKonfirmasiBadgeClass($user->role) }}">
+                                                class="inline-block px-3 py-1 text-sm rounded-full {{ $item->getKonfirmasiBadgeClass($user->active_role) }}">
                                                 {{ ucfirst(str_replace('_', ' ', $userKonfirmasi)) }}
                                             </span>
                                         </div>
@@ -283,7 +290,7 @@
                                             <h5 class="font-semibold text-gray-800 mb-2">Status Konfirmasi</h5>
                                             <div class="space-y-2 text-sm">
                                                 <div class="flex justify-between items-center">
-                                                    <span>{{ $user->role === 'pelapor' ? 'Pelapor (Anda)' : 'Pelapor' }}:
+                                                    <span>{{ $user->active_role === 'pelapor' ? 'Pelapor (Anda)' : 'Pelapor' }}:
                                                         {{ $item->pengaduan->pelapor->nama_pelapor ?? '-' }}</span>
                                                     <span
                                                         class="px-2 py-1 text-xs rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
@@ -291,7 +298,7 @@
                                                     </span>
                                                 </div>
                                                 <div class="flex justify-between items-center">
-                                                    <span>{{ $user->role === 'terlapor' ? 'Terlapor (Anda)' : 'Terlapor' }}:
+                                                    <span>{{ $user->active_role === 'terlapor' ? 'Terlapor (Anda)' : 'Terlapor' }}:
                                                         {{ $item->pengaduan->nama_terlapor ?? '-' }}</span>
                                                     <span
                                                         class="px-2 py-1 text-xs rounded-full {{ $item->getKonfirmasiBadgeClass('terlapor') }}">

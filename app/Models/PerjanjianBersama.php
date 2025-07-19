@@ -24,7 +24,6 @@ class PerjanjianBersama extends Model
         'perusahaan_pekerja',
         'alamat_pekerja',
         'isi_kesepakatan',
-        'tanggal_berlaku',
         'status_approval',
     ];
 

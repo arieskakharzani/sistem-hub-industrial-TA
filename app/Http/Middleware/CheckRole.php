@@ -41,10 +41,10 @@ class CheckRole
             return redirect()->route('login');
         }
 
-        // Ambil role user
-        $userRole = $user->role ?? null;
+        // Ambil active role user
+        $activeRole = $user->active_role;
 
-        if (!$userRole) {
+        if (!$activeRole) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'success' => false,
@@ -54,18 +54,18 @@ class CheckRole
             abort(403, 'User role not defined');
         }
 
-        // Check if user role matches any of the required roles
+        // Check if user's active role matches any of the required roles
         $hasAccess = false;
         foreach ($roles as $role) {
             // Handle comma separated roles
             if (strpos($role, ',') !== false) {
                 $roleArray = array_map('trim', explode(',', $role));
-                if (in_array($userRole, $roleArray)) {
+                if (in_array($activeRole, $roleArray)) {
                     $hasAccess = true;
                     break;
                 }
             } else {
-                if ($userRole === $role) {
+                if ($activeRole === $role) {
                     $hasAccess = true;
                     break;
                 }
@@ -73,7 +73,7 @@ class CheckRole
         }
 
         if (!$hasAccess) {
-            $errorMessage = 'Unauthorized access - Your role (' . $userRole . ') does not have permission to access this page';
+            $errorMessage = 'Unauthorized access - Your role (' . $activeRole . ') does not have permission to access this page';
 
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([

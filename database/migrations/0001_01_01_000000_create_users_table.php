@@ -12,21 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('tempat_lahir')->nullable();
-            $table->date('tanggal_lahir')->nullable();
-            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
-            $table->string('alamat')->nullable();
-            $table->string('no_hp')->nullable();
-            $table->string('perusahaan')->nullable();
-            $table->string('npk')->nullable();
+            $table->uuid('user_id')->primary();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['pelapor', 'terlapor', 'mediator', 'kepala_dinas'])->default('pelapor');
+            $table->json('roles');  // Hapus default value, akan dihandle di model
+            $table->enum('active_role', ['pelapor', 'terlapor', 'mediator', 'kepala_dinas'])->default('pelapor');
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

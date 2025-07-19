@@ -20,7 +20,43 @@ class RisalahController extends Controller
         return view('risalah.create', compact('jadwal', 'jenis_risalah'));
     }
 
-    // Simpan risalah
+    /**
+     * Handle hasil klarifikasi dan update status pengaduan
+     */
+    private function handleKlarifikasiResult(Jadwal $jadwal, $kesimpulan_klarifikasi)
+    {
+        $pengaduan = $jadwal->pengaduan;
+        
+        if ($kesimpulan_klarifikasi === 'bipartit_lagi') {
+            // Jika hasil klarifikasi adalah bipartit_lagi, 
+            // update status pengaduan menjadi selesai karena akan dilanjutkan secara bipartit
+            $pengaduan->status = 'selesai'; // Kasus selesai di Disnaker, dilanjutkan secara bipartit
+            $pengaduan->save();
+            
+            // Set jadwal klarifikasi sebagai selesai
+            $jadwal->status_jadwal = 'selesai';
+            $jadwal->save();
+            
+            return redirect()->route('pengaduan.show', $pengaduan)
+                ->with('success', 'Kasus selesai dan akan dilanjutkan dengan perundingan Bipartit');
+        } 
+        elseif ($kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi') {
+            // Jika hasil klarifikasi adalah mediasi, status pengaduan tetap proses
+            $pengaduan->status = 'proses'; // Tetap proses karena akan lanjut ke mediasi
+            $pengaduan->save();
+            
+            // Set jadwal klarifikasi sebagai selesai
+            $jadwal->status_jadwal = 'selesai';
+            $jadwal->save();
+            
+            return redirect()->route('jadwal.create', ['pengaduan' => $pengaduan->pengaduan_id, 'jenis' => 'mediasi'])
+                ->with('success', 'Silahkan buat jadwal Mediasi');
+        }
+        
+        return null;
+    }
+
+    // Modifikasi method store untuk menggunakan handleKlarifikasiResult
     public function store(Request $request, $jadwalId, $jenis_risalah)
     {
         if (!in_array($jenis_risalah, ['klarifikasi', 'penyelesaian'])) {
@@ -46,8 +82,22 @@ class RisalahController extends Controller
         ]);
         $data['jadwal_id'] = $jadwal->jadwal_id;
         $data['jenis_risalah'] = $jenis_risalah;
+
+        // Set dokumen_hi_id for penyelesaian risalah
+        if ($jenis_risalah === 'penyelesaian') {
+            $dokumenHI = $jadwal->pengaduan->dokumenHI()->first();
+            if (!$dokumenHI) {
+                $dokumenHI = new \App\Models\DokumenHubunganIndustrial();
+                $dokumenHI->dokumen_hi_id = \Illuminate\Support\Str::uuid();
+                $dokumenHI->pengaduan_id = $jadwal->pengaduan->pengaduan_id;
+                $dokumenHI->save();
+            }
+            $data['dokumen_hi_id'] = $dokumenHI->dokumen_hi_id;
+        }
+
         // Simpan risalah utama
         $risalah = Risalah::create($data);
+        
         // Simpan detail sesuai jenis
         if ($jenis_risalah === 'klarifikasi') {
             DetailKlarifikasi::create([
@@ -56,6 +106,14 @@ class RisalahController extends Controller
                 'arahan_mediator' => $data['arahan_mediator'] ?? null,
                 'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
             ]);
+            
+            // Handle hasil klarifikasi
+            if (isset($data['kesimpulan_klarifikasi'])) {
+                $redirectResponse = $this->handleKlarifikasiResult($jadwal, $data['kesimpulan_klarifikasi']);
+                if ($redirectResponse) {
+                    return $redirectResponse;
+                }
+            }
         } else {
             DetailPenyelesaian::create([
                 'detail_penyelesaian_id' => (string) Str::uuid(),
@@ -63,10 +121,7 @@ class RisalahController extends Controller
                 'kesimpulan_penyelesaian' => $data['kesimpulan_penyelesaian'] ?? null,
             ]);
         }
-        if ($jenis_risalah === 'klarifikasi') {
-            $jadwal->status_jadwal = 'selesai';
-            $jadwal->save();
-        }
+
         return redirect()->route('risalah.show', $risalah)->with('success', 'Risalah berhasil dibuat');
     }
 
@@ -79,7 +134,37 @@ class RisalahController extends Controller
         } else {
             $detail = $risalah->detailPenyelesaian;
         }
-        return view('risalah.show', compact('risalah', 'detail'));
+
+        $dokumen_hi_id = null;
+        $perjanjianBersama = null;
+        $anjuran = null;
+        if ($risalah->jenis_risalah === 'penyelesaian') {
+            // Get or create dokumen_hi for this pengaduan
+            $jadwal = $risalah->jadwal;
+            if ($jadwal && $jadwal->pengaduan) {
+                $dokumenHI = $jadwal->pengaduan->dokumenHI()->first();
+                if (!$dokumenHI) {
+                    // Create new DokumenHI if not exists
+                    $dokumenHI = new \App\Models\DokumenHubunganIndustrial();
+                    $dokumenHI->dokumen_hi_id = \Illuminate\Support\Str::uuid();
+                    $dokumenHI->pengaduan_id = $jadwal->pengaduan->pengaduan_id;
+                    $dokumenHI->save();
+                }
+                $dokumen_hi_id = $dokumenHI->dokumen_hi_id;
+                
+                // Check for existing PB or Anjuran
+                $perjanjianBersama = \App\Models\PerjanjianBersama::where('dokumen_hi_id', $dokumen_hi_id)->first();
+                $anjuran = \App\Models\Anjuran::where('dokumen_hi_id', $dokumen_hi_id)->first();
+            }
+        }
+
+        return view('risalah.show', [
+            'risalah' => $risalah,
+            'detail' => $detail,
+            'dokumen_hi_id' => $dokumen_hi_id,
+            'perjanjianBersama' => $perjanjianBersama,
+            'anjuran' => $anjuran
+        ]);
     }
 
     public function edit(Risalah $risalah)

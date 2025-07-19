@@ -48,7 +48,7 @@ class AkunController extends Controller
             }
 
             // Pastikan user adalah mediator
-            if ($user->role !== 'mediator') {
+            if ($user->active_role !== 'mediator') {
                 abort(403, 'Akses ditolak. Anda bukan mediator.');
             }
 
@@ -187,7 +187,7 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator') {
+            if (!$user || $user->active_role !== 'mediator') {
                 return redirect()->route('mediator.akun.index')->with('error', 'Akses ditolak');
             }
 
@@ -225,8 +225,16 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator' || !$user->mediator) {
-                return redirect()->back()->with('error', 'Akses ditolak atau data mediator tidak ditemukan');
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            }
+
+            if ($user->active_role !== 'mediator') {
+                abort(403, 'Akses ditolak. Anda bukan mediator.');
+            }
+
+            if (!$user->mediator) {
+                return redirect()->route('dashboard')->with('error', 'Data mediator tidak ditemukan.');
             }
 
             // Cek apakah pengaduan sudah terhubung dengan terlapor lain (jika ada pengaduan_id)
@@ -245,44 +253,41 @@ class AkunController extends Controller
                 'email' => $request->email_terlapor,
                 'email_terlapor' => $request->email_terlapor,
                 'no_hp_terlapor' => $request->no_hp_terlapor,
-                'pengaduan_id' => $request->pengaduan_id, // Tambahkan pengaduan_id
+                'pengaduan_id' => $request->pengaduan_id,
             ];
 
-            // Buat akun terlapor melalui service
+            // Buat akun terlapor
             $result = $this->terlaporService->createTerlaporAccount($data, $user->mediator->mediator_id);
 
-            // Jika ada pengaduan_id, update pengaduan untuk menghubungkan dengan terlapor
-            if ($request->pengaduan_id && isset($result['terlapor'])) {
-                try {
-                    $pengaduan = Pengaduan::findOrFail($request->pengaduan_id);
-                    $pengaduan->update(['terlapor_id' => $result['terlapor']->terlapor_id]);
-
-                    Log::info("Pengaduan #{$request->pengaduan_id} berhasil dihubungkan dengan terlapor #{$result['terlapor']->terlapor_id}");
-                } catch (\Exception $e) {
-                    Log::error('Error linking pengaduan to terlapor: ' . $e->getMessage());
-                    // Tidak perlu gagalkan proses, karena akun terlapor sudah berhasil dibuat
-                }
+            // Handle berbagai status hasil
+            switch ($result['status']) {
+                case 'existing_pelapor_updated':
+                    $message = 'Email sudah terdaftar sebagai pelapor. Role terlapor telah ditambahkan ke akun yang sama.';
+                    break;
+                case 'existing_updated':
+                    $message = 'Akun terlapor berhasil diperbarui.';
+                    break;
+                case 'new_created':
+                    $message = 'Akun terlapor berhasil dibuat. Password sementara telah dikirim ke email terlapor.';
+                    break;
+                default:
+                    $message = 'Akun terlapor berhasil dibuat/diperbarui.';
             }
 
-            // Tentukan pesan sukses dan redirect destination
-            $successMessage = 'Akun terlapor berhasil dibuat. Password sementara: ' . $result['temporary_password'];
-
+            // Jika ada pengaduan_id, redirect ke halaman pengaduan
             if ($request->pengaduan_id) {
-                $successMessage .= ' Akun telah terhubung dengan pengaduan #' . $request->pengaduan_id . '.';
-
-                // Redirect ke detail akun terlapor yang baru dibuat
-                return redirect()->route('mediator.akun.show', $result['terlapor']->terlapor_id)
-                    ->with('success', $successMessage);
-            } else {
-                // Redirect ke index akun
-                return redirect()->route('mediator.akun.index')
-                    ->with('success', $successMessage);
+                return redirect()->route('pengaduan.show', $request->pengaduan_id)
+                    ->with('success', $message);
             }
+
+            // Jika tidak ada pengaduan_id, redirect ke halaman detail terlapor
+            return redirect()->route('mediator.akun.show', $result['terlapor']->terlapor_id)
+                ->with('success', $message);
+
         } catch (\Exception $e) {
             Log::error('Error in AkunController@store: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Gagal membuat akun: ' . $e->getMessage())
-                ->withInput();
+            return redirect()->back()->withInput()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -293,7 +298,7 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator' || !$user->mediator) {
+            if (!$user || $user->active_role !== 'mediator' || !$user->mediator) {
                 return redirect()->route('mediator.akun.index')->with('error', 'Akses ditolak');
             }
 
@@ -322,7 +327,7 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator') {
+            if (!$user || $user->active_role !== 'mediator') {
                 return redirect()->route('mediator.akun.index')->with('error', 'Akses ditolak');
             }
 
@@ -349,40 +354,46 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator' || !$user->mediator) {
-                return response()->json(['message' => 'Akses ditolak'], 403);
-            }
-
-            // Cari terlapor tanpa filter mediator
-            $terlapor = Terlapor::with('user')->where('terlapor_id', $id)->first();
-
-            if (!$terlapor) {
-                return response()->json(['message' => 'Terlapor tidak ditemukan'], 404);
+            if (!$user || $user->active_role !== 'mediator') {
+                return response()->json(['error' => 'Akses ditolak'], 403);
             }
 
             DB::beginTransaction();
 
-            // Update status terlapor
-            $terlapor->update(['status' => 'inactive']);
-
-            // Update status user jika ada
+            $terlapor = Terlapor::with('user')->findOrFail($id);
+            
+            // Update user status
             if ($terlapor->user) {
-                $terlapor->user->update(['is_active' => false]);
+                // Jika user memiliki role terlapor saja, nonaktifkan user
+                if (count($terlapor->user->roles) === 1) {
+                    $terlapor->user->update(['is_active' => false]);
+                } else {
+                    // Jika multi-role, hapus role terlapor
+                    $roles = array_diff($terlapor->user->roles, ['terlapor']);
+                    $terlapor->user->update([
+                        'roles' => array_values($roles),
+                        'active_role' => $roles[0] ?? null
+                    ]);
+                }
             }
+
+            // Update terlapor status
+            $terlapor->update([
+                'is_active' => false,
+                'has_account' => false
+            ]);
 
             DB::commit();
 
-            // Log aktivitas dengan informasi siapa yang menonaktifkan
-            Log::info("Terlapor #{$id} deactivated by mediator #" . $user->mediator->mediator_id, [
-                'terlapor_id' => $id,
-                'original_creator' => $terlapor->created_by_mediator_id,
-                'deactivated_by' => $user->mediator->mediator_id
+            return response()->json([
+                'message' => 'Akun terlapor berhasil dinonaktifkan',
+                'terlapor' => $terlapor
             ]);
 
-            return response()->json(['message' => 'Akun terlapor berhasil dinonaktifkan'], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error in AkunController@deactivate: ' . $e->getMessage());
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -393,40 +404,44 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator' || !$user->mediator) {
-                return response()->json(['message' => 'Akses ditolak'], 403);
-            }
-
-            // Cari terlapor tanpa filter mediator
-            $terlapor = Terlapor::with('user')->where('terlapor_id', $id)->first();
-
-            if (!$terlapor) {
-                return response()->json(['message' => 'Terlapor tidak ditemukan'], 404);
+            if (!$user || $user->active_role !== 'mediator') {
+                return response()->json(['error' => 'Akses ditolak'], 403);
             }
 
             DB::beginTransaction();
 
-            // Update status terlapor
-            $terlapor->update(['status' => 'active']);
-
-            // Update status user jika ada
+            $terlapor = Terlapor::with('user')->findOrFail($id);
+            
+            // Update user status
             if ($terlapor->user) {
+                // Aktifkan user
                 $terlapor->user->update(['is_active' => true]);
+                
+                // Tambahkan role terlapor jika belum ada
+                if (!in_array('terlapor', $terlapor->user->roles)) {
+                    $roles = $terlapor->user->roles;
+                    $roles[] = 'terlapor';
+                    $terlapor->user->update(['roles' => $roles]);
+                }
             }
+
+            // Update terlapor status
+            $terlapor->update([
+                'is_active' => true,
+                'has_account' => true
+            ]);
 
             DB::commit();
 
-            // Log aktivitas dengan informasi siapa yang mengaktifkan
-            Log::info("Terlapor #{$id} activated by mediator #" . $user->mediator->mediator_id, [
-                'terlapor_id' => $id,
-                'original_creator' => $terlapor->created_by_mediator_id,
-                'activated_by' => $user->mediator->mediator_id
+            return response()->json([
+                'message' => 'Akun terlapor berhasil diaktifkan',
+                'terlapor' => $terlapor
             ]);
 
-            return response()->json(['message' => 'Akun terlapor berhasil diaktifkan'], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error in AkunController@activate: ' . $e->getMessage());
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -437,25 +452,43 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator') {
-                return response()->json(['message' => 'Akses ditolak'], 403);
+            if (!$user || $user->active_role !== 'mediator') {
+                return response()->json(['error' => 'Akses ditolak'], 403);
             }
 
             DB::beginTransaction();
 
             $pelapor = Pelapor::with('user')->findOrFail($id);
-
+            
+            // Update user status
             if ($pelapor->user) {
-                $pelapor->user->update(['is_active' => false]);
-                Log::info("Pelapor account {$id} deactivated by mediator {$user->id}");
+                // Jika user memiliki role pelapor saja, nonaktifkan user
+                if (count($pelapor->user->roles) === 1) {
+                    $pelapor->user->update(['is_active' => false]);
+                } else {
+                    // Jika multi-role, hapus role pelapor
+                    $roles = array_diff($pelapor->user->roles, ['pelapor']);
+                    $pelapor->user->update([
+                        'roles' => array_values($roles),
+                        'active_role' => $roles[0] ?? null
+                    ]);
+                }
             }
 
+            // Update pelapor status
+            $pelapor->update(['is_active' => false]);
+
             DB::commit();
-            return response()->json(['message' => 'Akun pelapor berhasil dinonaktifkan'], 200);
+
+            return response()->json([
+                'message' => 'Akun pelapor berhasil dinonaktifkan',
+                'pelapor' => $pelapor
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in AkunController@deactivatePelapor: ' . $e->getMessage());
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -466,25 +499,41 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator') {
-                return response()->json(['message' => 'Akses ditolak'], 403);
+            if (!$user || $user->active_role !== 'mediator') {
+                return response()->json(['error' => 'Akses ditolak'], 403);
             }
 
             DB::beginTransaction();
 
             $pelapor = Pelapor::with('user')->findOrFail($id);
-
+            
+            // Update user status
             if ($pelapor->user) {
+                // Aktifkan user
                 $pelapor->user->update(['is_active' => true]);
-                Log::info("Pelapor account {$id} activated by mediator {$user->id}");
+                
+                // Tambahkan role pelapor jika belum ada
+                if (!in_array('pelapor', $pelapor->user->roles)) {
+                    $roles = $pelapor->user->roles;
+                    $roles[] = 'pelapor';
+                    $pelapor->user->update(['roles' => $roles]);
+                }
             }
 
+            // Update pelapor status
+            $pelapor->update(['is_active' => true]);
+
             DB::commit();
-            return response()->json(['message' => 'Akun pelapor berhasil diaktifkan'], 200);
+
+            return response()->json([
+                'message' => 'Akun pelapor berhasil diaktifkan',
+                'pelapor' => $pelapor
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in AkunController@activatePelapor: ' . $e->getMessage());
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -495,7 +544,7 @@ class AkunController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user || $user->role !== 'mediator' || !$user->mediator) {
+            if (!$user || $user->active_role !== 'mediator' || !$user->mediator) {
                 return response()->json(['message' => 'Akses ditolak'], 403);
             }
 

@@ -41,7 +41,7 @@
                         Perselisihan Hubungan Industrial Kab. Bungo</p>
                     <div class="mt-4">
                         <span class="bg-purple-400 px-3 py-1 rounded-full text-sm font-medium text-purple-900">
-                            Role: {{ ucfirst(str_replace('_', ' ', $user->role)) }}
+                            Role: {{ ucfirst(str_replace('_', ' ', $user->active_role)) }}
                         </span>
                     </div>
                 </div>

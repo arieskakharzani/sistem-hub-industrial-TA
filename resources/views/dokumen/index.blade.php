@@ -37,11 +37,27 @@
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h4 class="text-lg font-semibold">Daftar Dokumen</h4>
-                        <button
+                        <div class="mb-6">
+                            <form method="GET" action="" class="flex items-center gap-4">
+                                <label for="jenis_dokumen" class="font-medium">Filter Jenis Dokumen:</label>
+                                <select name="jenis_dokumen" id="jenis_dokumen" class="border rounded p-2"
+                                    onchange="this.form.submit()">
+                                    <option value="Semua"{{ empty($filter) || $filter == 'Semua' ? ' selected' : '' }}>
+                                        Semua
+                                    </option>
+                                    @foreach ($jenisDokumenList as $jenis)
+                                        <option value="{{ $jenis }}"{{ $filter == $jenis ? ' selected' : '' }}>
+                                            {{ $jenis }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </div>
+                        <!--<button
                             class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
                             + Tambah Dokumen
-                        </button>
+                        </button> -->
                     </div>
+
 
                     <!-- Table -->
                     <div class="overflow-x-auto">
@@ -53,301 +69,201 @@
                                         No</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        ID Dokumen</th>
-                                    <th
-                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Jenis Dokumen</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Nomor Dokumen</th>
+                                        Tanggal</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tanggal Dokumen</th>
+                                        Nama Perusahaan</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Dibuat</th>
+                                        Nama Pekerja</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Dibuat Oleh</th>
                                     <th
                                         class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">DOC001</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span
-                                            class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                                            Surat Panggilan
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">SP/001/2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">15 Jan 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">20 Jan 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-3 p-1 rounded"
-                                            title="Lihat Detail">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-900 p-1 rounded"
-                                            title="Hapus Dokumen">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">2</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">DOC002</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span
-                                            class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                            Perjanjian Bersama
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">PB/002/2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">18 Jan 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">22 Jan 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-3 p-1 rounded"
-                                            title="Lihat Detail">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-900 p-1 rounded"
-                                            title="Hapus Dokumen">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">3</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">DOC003</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span
-                                            class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-                                            Anjuran Tertulis
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">AT/003/2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">25 Jan 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">28 Jan 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-3 p-1 rounded"
-                                            title="Lihat Detail">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-900 p-1 rounded"
-                                            title="Hapus Dokumen">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">4</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">DOC004</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span
-                                            class="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                                            Risalah Penyelesaian
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">RM/004/2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">01 Feb 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">03 Feb 2025</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-3 p-1 rounded"
-                                            title="Lihat Detail">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-900 p-1 rounded"
-                                            title="Hapus Dokumen">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
+                                @forelse ($pagedDokumenList as $index => $dokumen)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ ($pagedDokumenList->currentPage() - 1) * $pagedDokumenList->perPage() + $index + 1 }}
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <span
+                                                class="px-2 py-1 text-xs font-medium rounded-full {{ $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ? 'bg-purple-100 text-purple-800' : ($dokumen->jenis_dokumen == 'Risalah Penyelesaian' ? 'bg-pink-100 text-pink-800' : ($dokumen->jenis_dokumen == 'Perjanjian Bersama' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')) }}">{{ $dokumen->jenis_dokumen }}</span>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $dokumen->tanggal_dokumen ? \Carbon\Carbon::parse($dokumen->tanggal_dokumen)->format('d M Y') : '-' }}
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $dokumen->pihak_pengusaha }}</td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $dokumen->pihak_pekerja }}</td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $dokumen->jadwal && $dokumen->jadwal->mediator && $dokumen->jadwal->mediator->nama_mediator ? $dokumen->jadwal->mediator->nama_mediator : '-' }}
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            @if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
+                                                <a href="{{ route('risalah.show', $dokumen->id) }}"
+                                                    class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                            @elseif ($dokumen->jenis_dokumen == 'Perjanjian Bersama')
+                                                <a href="{{ route('dokumen.perjanjian-bersama.show', $dokumen->id) }}"
+                                                    class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                                <a href="{{ route('dokumen.perjanjian-bersama.pdf', $dokumen->id) }}"
+                                                    target="_blank" class="text-green-600 hover:text-green-900">Cetak
+                                                    PDF</a>
+                                            @elseif ($dokumen->jenis_dokumen == 'Anjuran')
+                                                <a href="{{ route('dokumen.anjuran.show', $dokumen->id) }}"
+                                                    class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                                <a href="{{ route('dokumen.anjuran.pdf', $dokumen->id) }}"
+                                                    target="_blank" class="text-green-600 hover:text-green-900">Cetak
+                                                    PDF</a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-8 text-gray-500">Belum ada dokumen.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-4">{{ $pagedDokumenList->withQueryString()->links() }}</div>
+                </div>
+                <br>
 
-                    <!-- Pagination -->
-                    <div class="flex items-center justify-between mt-4">
-                        <div class="text-sm text-gray-500">
-                            Menampilkan 1-4 dari 4 data
+                {{-- Tabel Buku Register Perselisihan --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold">Buku Register Perselisihan</h4>
                         </div>
-                        <div class="flex space-x-1">
-                            <button
-                                class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-500 cursor-not-allowed">
-                                Previous
-                            </button>
-                            <button class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-primary text-white">
-                                1
-                            </button>
-                            <button
-                                class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-500 cursor-not-allowed">
-                                Next
-                            </button>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            No</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nomor Register</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tanggal Register</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Pengaduan</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Catatan</th>
+                                        <th
+                                            class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse ($registerList as $index => $register)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ ($registerList->currentPage() - 1) * $registerList->perPage() + $index + 1 }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $register->nomor_register }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $register->tanggal_register ? \Carbon\Carbon::parse($register->tanggal_register)->format('d M Y') : '-' }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $register->pengaduan->perihal ?? '-' }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $register->catatan ?? '-' }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                <a href="#"
+                                                    class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                                <a href="#" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-gray-500">Belum ada
+                                                register.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            <div class="mt-4">{{ $registerList->withQueryString()->links() }}</div>
                         </div>
                     </div>
                 </div>
-
-                <br>
-                {{-- Quick Actions --}}
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h4 class="text-lg font-semibold mb-4">Generate Dokumen</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Surat Panggilan Sidang</p>
-                                <p class="text-sm text-gray-600">Generate surat panggilan sidang pihak-pihak berselisih
-                                </p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Risalah Penyelesaian</p>
-                                <p class="text-sm text-gray-600">Generate risalah penyelesaian</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Risalah Penyelesaian</p>
-                                <p class="text-sm text-gray-600">Generate risalah penyelesaian</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Perjanjian Bersama</p>
-                                <p class="text-sm text-gray-600">Generate perjanjian bersama</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Anjuran Tertulis</p>
-                                <p class="text-sm text-gray-600">Generate perjanjian tertulis</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Buku Registrasi Perselisihan</p>
-                                <p class="text-sm text-gray-600">Daftarkan perselisihan</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
-                            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Laporan Hasil Mediasi</p>
-                                <p class="text-sm text-gray-600">Buat Laporan</p>
-                            </div>
-                        </a>
-
+                {{-- Tabel Laporan Hasil Mediasi (placeholder) --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold">Laporan Hasil Mediasi</h4>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            No</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nomor Laporan</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tanggal</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Pengaduan</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Catatan</th>
+                                        <th
+                                            class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse ($laporanList as $index => $laporan)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ ($laporanList->currentPage() - 1) * $laporanList->perPage() + $index + 1 }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $laporan->nomor_laporan }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $laporan->tanggal ? \Carbon\Carbon::parse($laporan->tanggal)->format('d M Y') : '-' }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $laporan->pengaduan->perihal ?? '-' }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $laporan->catatan ?? '-' }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                <a href="#"
+                                                    class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                                <a href="#"
+                                                    class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-gray-500">Belum ada
+                                                laporan.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            <div class="mt-4">{{ $laporanList->withQueryString()->links() }}</div>
+                        </div>
                     </div>
                 </div>
             </div>

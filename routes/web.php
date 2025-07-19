@@ -11,6 +11,8 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController;
 use App\Http\Controllers\Notifikasi\NotificationController;
 use App\Http\Controllers\Risalah\RisalahController;
+use App\Http\Controllers\Dokumen\DokumenController;
+use App\Http\Controllers\Role\RoleController;
 
 
 Route::get('/', function () {
@@ -43,8 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
 
         $user = Auth::user();
+        $role = $user->active_role;
 
-        switch ($user->role) {
+        switch ($role) {
             case 'pelapor':
                 return redirect()->route('dashboard.pelapor');
             case 'terlapor':
@@ -54,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             case 'kepala_dinas':
                 return redirect()->route('dashboard.kepala-dinas');
             default:
-                abort(403, 'Role tidak valid: ' . $user->role);
+                abort(403, 'Role tidak valid: ' . $role);
         }
     })->name('dashboard');
 });
@@ -91,6 +94,11 @@ Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')
     Route::post('/{pengaduan:pengaduan_id}/update-status', [PengaduanController::class, 'updateStatus'])->name('updateStatus');
     Route::post('/{pengaduan:pengaduan_id}/assign', [PengaduanController::class, 'assign'])->name('assign');
 });
+
+// Route untuk notifikasi pengaduan baru ke terlapor yang sudah ada
+Route::post('/pengaduan/{pengaduan}/notify-existing-terlapor', [PengaduanController::class, 'notifyExistingTerlapor'])
+    ->name('pengaduan.notify-existing-terlapor')
+    ->middleware(['auth', 'role:mediator']);
 
 // Routes untuk jadwal
 Route::middleware(['auth', 'verified'])->prefix('jadwal')->name('jadwal.')->group(function () {
@@ -164,22 +172,24 @@ Route::middleware(['auth', 'verified'])->prefix('penyelesaian')->name('penyelesa
     })->name('anjuran-tertulis');
 });
 
-// Routes untuk laporan mediasi
-Route::middleware(['auth', 'verified'])->prefix('mediasi')->name('mediasi.')->group(function () {
-    Route::get('/', function () {
-        return view('mediasi.laporan');
-    })->name('laporan');
-});
 
-// Routes untuk kelola surat/dokumen
+// Routes untuk kelola dokumen
 Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->group(function () {
-    Route::get('/', function () {
-        return view('dokumen.index');
-    })->name('index');
+    Route::get('/', [DokumenController::class, 'dokumenIndex'])->name('index');
+    // Perjanjian Bersama
+    Route::get('/perjanjian-bersama/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'create'])->name('perjanjian-bersama.create');
+    Route::post('/perjanjian-bersama/store', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'store'])->name('perjanjian-bersama.store');
+    Route::get('/perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'show'])->name('perjanjian-bersama.show');
+    // Anjuran
+    Route::get('/anjuran/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'create'])->name('anjuran.create');
+    Route::post('/anjuran/store', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'store'])->name('anjuran.store');
+    Route::get('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
+    Route::get('/perjanjian-bersama/{id}/pdf', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'cetakPdf'])->name('perjanjian-bersama.pdf');
+    Route::get('/anjuran/{id}/pdf', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'cetakPdf'])->name('anjuran.pdf');
 });
 
 // Route untuk mediator mengelola akun terlapor dan pelapor
-Route::middleware(['auth', 'role:mediator'])->prefix('mediator')->name('mediator.')->group(function () {
+Route::middleware(['auth', 'verified', 'check.role:mediator'])->prefix('mediator')->name('mediator.')->group(function () {
     Route::prefix('akun')->name('akun.')->group(function () {
         // Route utama untuk halaman kelola akun (terlapor & pelapor)
         Route::get('/', [AkunController::class, 'index'])->name('index');
@@ -188,8 +198,8 @@ Route::middleware(['auth', 'role:mediator'])->prefix('mediator')->name('mediator
         Route::get('/create/{pengaduan_id?}', [AkunController::class, 'create'])->name('create');
         Route::get('/{id}', [AkunController::class, 'show'])->name('show');
         Route::post('/store', [AkunController::class, 'store'])->name('store');
-        Route::patch('{id}/deactivate', [AkunController::class, 'deactivate'])->name('deactivate');
-        Route::patch('{id}/activate', [AkunController::class, 'activate'])->name('activate');
+        Route::patch('/{id}/deactivate', [AkunController::class, 'deactivate'])->name('deactivate');
+        Route::patch('/{id}/activate', [AkunController::class, 'activate'])->name('activate');
 
         // Route untuk pelapor
         Route::prefix('pelapor')->name('pelapor.')->group(function () {
@@ -197,15 +207,6 @@ Route::middleware(['auth', 'role:mediator'])->prefix('mediator')->name('mediator
             Route::patch('/{id}/activate', [AkunController::class, 'activatePelapor'])->name('activate');
             Route::patch('/{id}/deactivate', [AkunController::class, 'deactivatePelapor'])->name('deactivate');
         });
-
-        // Route untuk AJAX calls (sesuai dengan JavaScript di view)
-        // Terlapor AJAX routes
-        Route::post('/{id}/activate', [AkunController::class, 'activate'])->name('ajax.activate');
-        Route::post('/{id}/deactivate', [AkunController::class, 'deactivate'])->name('ajax.deactivate');
-
-        // Pelapor AJAX routes
-        Route::post('/pelapor/{id}/activate', [AkunController::class, 'activatePelapor'])->name('pelapor.ajax.activate');
-        Route::post('/pelapor/{id}/deactivate', [AkunController::class, 'deactivatePelapor'])->name('pelapor.ajax.deactivate');
     });
 });
 
@@ -236,6 +237,32 @@ Route::middleware('auth')->group(function () {
 Route::get('/debug/email-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEmail']);
 Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEventOnly']);
 Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);
+
+// Role Selection Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/role-selection', [RoleController::class, 'showSelection'])->name('role.selection');
+    Route::post('/role-switch', [RoleController::class, 'switch'])->name('role.switch');
+});
+
+// Routes untuk role selection
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard/role-selection', [DashboardController::class, 'roleSelection'])
+        ->name('dashboard.role-selection');
+    Route::post('/dashboard/set-role', [DashboardController::class, 'setRole'])
+        ->name('dashboard.set-role');
+});
+
+// Route risalah
+Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->group(function () {
+    Route::get('/create/{jadwal}/{jenis_risalah}', [RisalahController::class, 'create'])->name('create');
+    Route::post('/store/{jadwal}/{jenis_risalah}', [RisalahController::class, 'store'])->name('store');
+    Route::get('/{risalah}', [RisalahController::class, 'show'])->name('show');
+    Route::get('/{risalah}/edit', [RisalahController::class, 'edit'])->name('edit');
+    Route::put('/{risalah}', [RisalahController::class, 'update'])->name('update');
+    Route::get('/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('pdf');
+    Route::get('/{risalah}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
+    Route::get('/{risalah}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
+});
 
 // Route untuk debugging auth
 // Route::get('/debug-auth', function () {
@@ -296,15 +323,4 @@ Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestControlle
 
 require __DIR__ . '/auth.php';
 
-Route::get('risalah/create/{jadwal}/{jenis_risalah}', [RisalahController::class, 'create'])->name('risalah.create');
-Route::post('risalah/store/{jadwal}/{jenis_risalah}', [RisalahController::class, 'store'])->name('risalah.store');
-Route::get('risalah/{risalah}', [RisalahController::class, 'show'])->name('risalah.show');
-Route::get('risalah/{risalah}/edit', [RisalahController::class, 'edit'])->name('risalah.edit');
-Route::put('risalah/{risalah}', [RisalahController::class, 'update'])->name('risalah.update');
-Route::get('risalah/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('risalah.pdf');
 
-// Route risalah
-Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->group(function () {
-    Route::get('/{risalah}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
-    Route::get('/{risalah}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
-});

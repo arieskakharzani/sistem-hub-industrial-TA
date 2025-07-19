@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['pelapor', 'terlapor', 'mediator', 'kepala_dinas'])->default('pelapor');
+            $table->json('roles'); // Remove default value
+            $table->string('active_role')->nullable(); // Add active role field
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Detail Akun Terlapor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -21,6 +22,34 @@
                     }
                 }
             }
+        }
+
+        // Fungsi untuk menangani aktivasi/deaktivasi akun
+        function handleAccountStatus(action, id) {
+            if (!confirm('Yakin ingin ' + (action === 'activate' ? 'mengaktifkan' : 'menonaktifkan') + ' akun ini?')) {
+                return;
+            }
+
+            $.ajax({
+                url: `/mediator/akun/${id}/${action}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json'
+                },
+                data: {
+                    _method: 'PATCH'
+                },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseJSON);
+                    alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error || xhr.responseJSON?.message ||
+                        'Unknown error'));
+                }
+            });
         }
     </script>
 </head>
@@ -198,38 +227,27 @@
                             <!-- Action Button -->
                             <div class="mt-6 pt-4 border-t border-gray-200">
                                 @if (isset($terlapor->user) && $terlapor->status === 'active' && $terlapor->user->is_active)
-                                    <form action="{{ route('mediator.akun.deactivate', $terlapor->terlapor_id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Yakin ingin menonaktifkan akun ini?\nAkun yang dinonaktifkan tidak akan bisa login ke sistem.')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit"
-                                            class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636">
-                                                </path>
-                                            </svg>
-                                            Nonaktifkan Akun
-                                        </button>
-                                    </form>
+                                    <button onclick="handleAccountStatus('deactivate', '{{ $terlapor->terlapor_id }}')"
+                                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636">
+                                            </path>
+                                        </svg>
+                                        Nonaktifkan Akun
+                                    </button>
                                 @else
-                                    <form action="{{ route('mediator.akun.activate', $terlapor->terlapor_id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Yakin ingin mengaktifkan akun ini?\nAkun yang diaktifkan akan bisa login ke sistem.')">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit"
-                                            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            Aktifkan Akun
-                                        </button>
-                                    </form>
+                                    <button class="bg-green-600 hover:bg-green-700"
+                                        onclick="handleAccountStatus('activate', '{{ $terlapor->terlapor_id }}')"
+                                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Aktifkan Akun
+                                    </button>
                                 @endif
                             </div>
                         </div>

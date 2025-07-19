@@ -17,7 +17,7 @@ class NotificationController extends Controller
         $user = Auth::user();
 
         // Hanya mediator yang bisa lihat notifikasi pengaduan
-        if ($user->role !== 'mediator') {
+        if ($user->active_role !== 'mediator') {
             abort(403, 'Access denied');
         }
 
@@ -38,7 +38,7 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'mediator') {
+        if ($user->active_role !== 'mediator') {
             return response()->json(['count' => 0]);
         }
 
@@ -54,7 +54,7 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'mediator') {
+        if ($user->active_role !== 'mediator') {
             return response()->json(['notifications' => []]);
         }
 

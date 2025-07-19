@@ -48,4 +48,9 @@ class BukuRegisterPerselisihan extends Model
     {
         return $this->belongsTo(DokumenHubunganIndustrial::class, 'dokumen_hi_id', 'dokumen_hi_id');
     }
+
+    public function pengaduan()
+    {
+        return $this->dokumenHI ? $this->dokumenHI->pengaduan() : null;
+    }
 }

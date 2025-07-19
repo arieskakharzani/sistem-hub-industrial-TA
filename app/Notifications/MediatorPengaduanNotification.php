@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\DatabaseMessage;
 
-class PengaduanBaruNotification extends Notification implements ShouldQueue
+class MediatorPengaduanNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

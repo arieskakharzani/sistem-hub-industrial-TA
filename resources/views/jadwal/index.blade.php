@@ -216,6 +216,10 @@
                                                 Sidang Ke-
                                             </th>
                                             <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Mediator
+                                            </th>
+                                            <th
                                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                                                 Aksi
                                             </th>
@@ -223,6 +227,9 @@
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($jadwalList as $jadwal)
+                                            @php
+                                                $isMine = $jadwal->mediator_id === $mediator->mediator_id;
+                                            @endphp
                                             <tr class="hover:bg-gray-50">
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">
@@ -264,30 +271,44 @@
                                                         {{ $jadwal->sidang_ke ?? '-' }}
                                                     </div>
                                                 </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        {{ $jadwal->mediator->nama_mediator ?? '-' }}
+                                                        @if ($isMine)
+                                                            <span
+                                                                class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Anda</span>
+                                                        @endif
+                                                    </div>
+                                                </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <div class="flex justify-end space-x-2">
-                                                        <a href="{{ route('jadwal.show', $jadwal) }}"
-                                                            class="text-blue-600 hover:text-blue-900">
-                                                            Lihat
-                                                        </a>
-                                                        @if (!in_array($jadwal->status_jadwal, ['selesai', 'dibatalkan']))
-                                                            <a href="{{ route('jadwal.edit', $jadwal) }}"
-                                                                class="text-yellow-600 hover:text-yellow-900">
-                                                                Edit
+                                                        @if ($isMine)
+                                                            <a href="{{ route('jadwal.show', $jadwal) }}"
+                                                                class="text-blue-600 hover:text-blue-900">
+                                                                Lihat
                                                             </a>
-                                                        @endif
-                                                        @if (in_array($jadwal->status_jadwal, ['dijadwalkan', 'ditunda']))
-                                                            <form method="POST"
-                                                                action="{{ route('jadwal.destroy', $jadwal) }}"
-                                                                class="inline"
-                                                                onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit"
-                                                                    class="text-red-600 hover:text-red-900">
-                                                                    Hapus
-                                                                </button>
-                                                            </form>
+                                                            @if (!in_array($jadwal->status_jadwal, ['selesai', 'dibatalkan']))
+                                                                <a href="{{ route('jadwal.edit', $jadwal) }}"
+                                                                    class="text-yellow-600 hover:text-yellow-900">
+                                                                    Edit
+                                                                </a>
+                                                            @endif
+                                                            @if (in_array($jadwal->status_jadwal, ['dijadwalkan', 'ditunda']))
+                                                                <form method="POST"
+                                                                    action="{{ route('jadwal.destroy', $jadwal) }}"
+                                                                    class="inline"
+                                                                    onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="text-red-600 hover:text-red-900">
+                                                                        Hapus
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-gray-400 text-xs italic">Mode lihat
+                                                                saja</span>
                                                         @endif
                                                     </div>
                                                 </td>

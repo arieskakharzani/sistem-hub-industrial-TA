@@ -30,6 +30,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kelola Akun</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -43,6 +44,58 @@
                 }
             }
         }
+
+        // Fungsi untuk menangani aktivasi/deaktivasi akun
+        function handleAccountStatus(type, action, id) {
+            if (!confirm('Yakin ingin ' + (action === 'activate' ? 'mengaktifkan' : 'menonaktifkan') + ' akun ini?')) {
+                return;
+            }
+
+            const url = type === 'pelapor' ?
+                `/mediator/akun/pelapor/${id}/${action}` :
+                `/mediator/akun/${id}/${action}`;
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json'
+                },
+                data: {
+                    _method: 'PATCH'
+                },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseJSON);
+                    alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error || xhr.responseJSON?.message ||
+                        'Unknown error'));
+                }
+            });
+        }
+
+        // Fungsi untuk menangani tab switching
+        $(document).ready(function() {
+            // Set tab pertama sebagai active
+            $('.tab-button:first').addClass('border-blue-500 text-blue-600');
+            $('#pelapor-tab').show();
+            $('#terlapor-tab').hide();
+
+            // Handle tab clicks
+            $('.tab-button').click(function() {
+                $('.tab-button').removeClass('border-blue-500 text-blue-600').addClass(
+                    'border-transparent text-gray-500');
+                $(this).removeClass('border-transparent text-gray-500').addClass(
+                    'border-blue-500 text-blue-600');
+
+                const tab = $(this).data('tab');
+                $('.tab-content').hide();
+                $(`#${tab}-tab`).show();
+            });
+        });
     </script>
 </head>
 
@@ -416,11 +469,11 @@
 
                                                     @if (isset($pelapor->user) && $pelapor->user->is_active)
                                                         <button
-                                                            onclick="togglePelaporStatus({{ $pelapor->pelapor_id }}, 'deactivate')"
+                                                            onclick="handleAccountStatus('pelapor', 'deactivate', '{{ $pelapor->pelapor_id }}')"
                                                             class="text-red-600 hover:text-red-900">Nonaktifkan</button>
                                                     @else
                                                         <button
-                                                            onclick="togglePelaporStatus({{ $pelapor->pelapor_id }}, 'activate')"
+                                                            onclick="handleAccountStatus('pelapor', 'activate', '{{ $pelapor->pelapor_id }}')"
                                                             class="text-green-600 hover:text-green-900">Aktifkan</button>
                                                     @endif
                                                 </td>
@@ -659,11 +712,11 @@
 
                                                     @if (isset($terlapor->user) && ($terlapor->status ?? '') === 'active' && $terlapor->user->is_active)
                                                         <button
-                                                            onclick="toggleStatus({{ $terlapor->terlapor_id }}, 'deactivate')"
+                                                            onclick="handleAccountStatus('terlapor', 'deactivate', '{{ $terlapor->terlapor_id }}')"
                                                             class="text-red-600 hover:text-red-900">Nonaktifkan</button>
                                                     @else
                                                         <button
-                                                            onclick="toggleStatus({{ $terlapor->terlapor_id }}, 'activate')"
+                                                            onclick="handleAccountStatus('terlapor', 'activate', '{{ $terlapor->terlapor_id }}')"
                                                             class="text-green-600 hover:text-green-900">Aktifkan</button>
                                                     @endif
                                                 </td>
