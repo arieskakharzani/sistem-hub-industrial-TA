@@ -39,8 +39,12 @@ class PerjanjianBersamaController extends Controller
             'alamat_pekerja' => 'required|string',
             'isi_kesepakatan' => 'required|string',
         ]);
+
         $perjanjian = PerjanjianBersama::create($data);
-        return redirect()->route('risalah.show', ['risalah' => $request->input('risalah_id')])->with('success', 'Perjanjian Bersama berhasil dibuat.');
+        
+        // Redirect ke halaman detail perjanjian bersama
+        return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
+            ->with('success', 'Perjanjian Bersama berhasil dibuat.');
     }
 
     public function show($id)
@@ -49,10 +53,49 @@ class PerjanjianBersamaController extends Controller
         return view('dokumen.show-perjanjian-bersama', compact('perjanjian'));
     }
 
+    public function edit($id)
+    {
+        $perjanjian = PerjanjianBersama::findOrFail($id);
+        return view('dokumen.edit-perjanjian-bersama', compact('perjanjian'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $perjanjian = PerjanjianBersama::findOrFail($id);
+        
+        $data = $request->validate([
+            'nama_pengusaha' => 'required|string',
+            'jabatan_pengusaha' => 'required|string',
+            'perusahaan_pengusaha' => 'required|string',
+            'alamat_pengusaha' => 'required|string',
+            'nama_pekerja' => 'required|string',
+            'jabatan_pekerja' => 'required|string',
+            'perusahaan_pekerja' => 'required|string',
+            'alamat_pekerja' => 'required|string',
+            'isi_kesepakatan' => 'required|string',
+        ]);
+
+        $perjanjian->update($data);
+        
+        return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
+            ->with('success', 'Perjanjian Bersama berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $perjanjian = PerjanjianBersama::findOrFail($id);
+        $dokumenHiId = $perjanjian->dokumen_hi_id;
+        
+        $perjanjian->delete();
+        
+        return redirect()->route('dokumen.index')
+            ->with('success', 'Perjanjian Bersama berhasil dihapus.');
+    }
+
     public function cetakPdf($id)
     {
         $perjanjian = PerjanjianBersama::findOrFail($id);
-        $pdf = Pdf::loadView('dokumen.show-perjanjian-bersama', compact('perjanjian'));
-        return $pdf->download('perjanjian-bersama.pdf');
+        $pdf = Pdf::loadView('dokumen.pdf.perjanjian-bersama', compact('perjanjian'));
+        return $pdf->stream('perjanjian-bersama.pdf');
     }
 } 

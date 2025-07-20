@@ -7,18 +7,16 @@
     <style>
         body {
             font-family: "Times New Roman", Times, serif;
-            font-size: 12px;
-            background: #fff;
-            color: #222;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 40px;
         }
 
         .judul {
-            font-size: 16px;
-            font-weight: bold;
             text-align: center;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 30px;
         }
 
         .subjudul {
@@ -33,42 +31,69 @@
         }
 
         .table-risalah td {
+            padding: 8px 5px;
             vertical-align: top;
-            padding: 2px 4px;
         }
 
-        .nomor {
-            width: 22px;
+        .table-risalah .nomor {
+            width: 5%;
+            font-size: 12pt;
         }
 
-        .label {
-            width: 220px;
+        .table-risalah .label {
+            width: 25%;
+            font-size: 12pt;
         }
 
-        .colon {
-            width: 10px;
+        .table-risalah .colon {
+            width: 3%;
+            font-size: 12pt;
         }
 
-        .keterangan {
-            font-size: 10px;
-            color: #444;
-            margin-top: 6px;
+        .keterangan-text {
+            color: #666;
+            font-size: 11pt;
+            font-style: italic;
+            margin-top: 10px;
+            display: block;
+            line-height: 1.4;
         }
 
-        .ttd {
-            margin-top: 40px;
+        .ttd-section {
+            margin-top: 10px;
+            margin-right: 30px;
             text-align: right;
         }
 
-        .ttd .nama {
-            margin-top: 60px;
-            text-decoration: underline;
+        .ttd-section p {
+            margin-top: 0px;
+        }
+
+        .ttd-content {
+            display: inline-block;
+            text-align: right;
+        }
+
+        .ttd-section p {
+            margin-top: 0px;
+        }
+
+        .ttd-nama {
+            font-weight: bold;
+            margin-top: 10px;
+            /* Sesuaikan jarak untuk tanda tangan */
+            font-size: 12pt;
+        }
+
+        .ttd-nip {
+            font-size: 11pt;
+            margin-top: 5px;
         }
     </style>
 </head>
 
 <body>
-    <div class="judul">RISALAH {{ $risalah->jenis_risalah }} PERSELISIHAN<br>HUBUNGAN INDUSTRIAL</div>
+    <div class="judul">RISALAH {{ strtoupper($risalah->jenis_risalah) }} PERSELISIHAN<br>HUBUNGAN INDUSTRIAL</div>
     <table class="table-risalah">
         <tr>
             <td class="nomor">1.</td>
@@ -104,10 +129,8 @@
             <td class="nomor">6.</td>
             <td class="label">Tanggal dan Tempat Perundingan</td>
             <td class="colon">:</td>
-            <td>{{ $risalah->tanggal_perundingan }}, {{ $risalah->tempat_perundingan }}</td>
-        </tr>
-        <tr>
-            <td colspan="4">&nbsp;</td>
+            <td>{{ $risalah->tanggal_perundingan ? \Carbon\Carbon::parse($risalah->tanggal_perundingan)->translatedFormat('d F Y') : '' }},
+                {{ $risalah->tempat_perundingan }}</td>
         </tr>
         <tr>
             <td class="nomor">7.</td>
@@ -127,7 +150,6 @@
             <td class="colon">:</td>
             <td>{{ $risalah->pendapat_pengusaha }}</td>
         </tr>
-
         @if ($risalah->jenis_risalah === 'klarifikasi')
             <tr>
                 <td class="nomor">10.</td>
@@ -147,31 +169,28 @@
                     @else
                         {{ $risalah->detailKlarifikasi->kesimpulan_klarifikasi }}
                     @endif
-
+                    <span class="keterangan-text">
+                        Keterangan: dalam membuat Kesimpulan atau hasil klarifikasi agar ditegaskan penyelesaian
+                        perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit; atau
+                        b)
+                        sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau c)
+                        sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.
+                    </span>
                 </td>
-                <td colspan="3" class="keterangan">
-                    Keterangan: dalam membuat Kesimpulan atau hasil klarifikasi agar ditegaskan penyelesaian
-                    perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit; atau b)
-                    sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau c)
-                    sepakat
-                    akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.
-                </td>
-            </tr>
-        @endif
-        @if ($risalah->jenis_risalah === 'penyelesaian')
-            <tr>
-                <td class="nomor">10.</td>
-                <td class="label">Kesimpulan atau Hasil Perundingan</td>
-                <td class="colon">:</td>
-                <td>{{ $risalah->detailPenyelesaian->kesimpulan_penyelesaian }}</td>
             </tr>
         @endif
     </table>
-    <div class="ttd">
-        <div>Muara Bungo, {{ \Carbon\Carbon::parse($risalah->tanggal_perundingan)->translatedFormat('d F Y') }}</div>
-        <div class="mt-4">Mediator Hubungan Industrial,</div>
-        <div class="nama">{{ $risalah->jadwal->mediator->nama_mediator ?? '-' }}</div>
-        <div class="text-sm">NIP: {{ $risalah->jadwal->mediator->nip ?? '-' }}</div>
+
+    <div class="ttd-section">
+        <p>Muara Bungo,
+            {{ $risalah->tanggal_perundingan ? \Carbon\Carbon::parse($risalah->tanggal_perundingan)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+        </p>
+        <div class="ttd-content">
+            <p>Mediator Hubungan Industrial,</p>
+            <br><br><br>
+            <p class="ttd-nama">{{ $risalah->jadwal->mediator->nama_mediator ?? '-' }}</p>
+            <p class="ttd-nip">NIP. {{ $risalah->jadwal->mediator->nip ?? '-' }}</p>
+        </div>
     </div>
 </body>
 

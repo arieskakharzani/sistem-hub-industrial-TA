@@ -28,12 +28,14 @@ class JadwalNotificationService
                 'mediator'
             ]);
 
-            Log::info('🔍 Getting recipients for jadwal', [
+            Log::info('🔍 [DEBUG] Getting recipients for jadwal', [
                 'jadwal_id' => $jadwal->jadwal_id,
                 'pengaduan_id' => $jadwal->pengaduan_id,
-                'nama_terlapor' => $jadwal->pengaduan->nama_terlapor ?? 'not found',
-                'terlapor_id' => $jadwal->pengaduan->terlapor_id ?? 'not found',
-                'email_terlapor_field' => $jadwal->pengaduan->email_terlapor ?? 'not found'
+                'pengaduan_loaded' => $jadwal->pengaduan ? 'yes' : 'no',
+                'pelapor_loaded' => $jadwal->pengaduan->pelapor ? 'yes' : 'no',
+                'terlapor_loaded' => $jadwal->pengaduan->terlapor ? 'yes' : 'no',
+                'pelapor_email' => $jadwal->pengaduan->pelapor->email ?? 'not found',
+                'terlapor_email' => $jadwal->pengaduan->terlapor->email_terlapor ?? $jadwal->pengaduan->email_terlapor ?? 'not found'
             ]);
 
             // Add Pelapor as recipient
@@ -47,48 +49,53 @@ class JadwalNotificationService
                     'type' => 'Pelapor'
                 ];
 
-                Log::info('✅ Pelapor recipient added', [
+                Log::info('✅ [DEBUG] Pelapor recipient added', [
                     'name' => $pelapor->nama_pelapor,
                     'email' => $pelapor->email
                 ]);
             } else {
-                Log::warning('❌ Pelapor data incomplete', [
+                Log::warning('❌ [DEBUG] Pelapor data incomplete', [
                     'pelapor_exists' => $pelapor ? 'yes' : 'no',
-                    'email_exists' => $pelapor?->email ? 'yes' : 'no'
+                    'email_exists' => $pelapor?->email ? 'yes' : 'no',
+                    'pelapor_data' => $pelapor ? json_encode($pelapor->toArray()) : 'null'
                 ]);
             }
 
-            // Add Terlapor as recipient - dengan multiple fallback methods
-            $terlaporData = $this->getTerlaporData($jadwal);
-            if ($terlaporData) {
+            // Add Terlapor as recipient
+            $terlapor = $jadwal->pengaduan->terlapor;
+            $email_terlapor = $terlapor?->email_terlapor ?? $jadwal->pengaduan->email_terlapor;
+
+            if ($email_terlapor) {
                 $recipients[] = [
-                    'name' => $terlaporData['name'],
-                    'email' => $terlaporData['email'],
+                    'name' => $terlapor?->nama_terlapor ?? $jadwal->pengaduan->nama_terlapor,
+                    'email' => $email_terlapor,
                     'role' => 'terlapor',
-                    'user' => null,
+                    'user' => $terlapor?->user ?? null,
                     'type' => 'Terlapor'
                 ];
 
-                Log::info('✅ Terlapor recipient added', [
-                    'name' => $terlaporData['name'],
-                    'email' => $terlaporData['email']
+                Log::info('✅ [DEBUG] Terlapor recipient added', [
+                    'name' => $terlapor?->nama_terlapor ?? $jadwal->pengaduan->nama_terlapor,
+                    'email' => $email_terlapor
                 ]);
             } else {
-                Log::warning('❌ Terlapor email not found', [
-                    'jadwal_id' => $jadwal->jadwal_id,
-                    'nama_terlapor' => $jadwal->pengaduan->nama_terlapor ?? 'not found'
+                Log::warning('❌ [DEBUG] Terlapor email not found', [
+                    'terlapor_exists' => $terlapor ? 'yes' : 'no',
+                    'terlapor_data' => $terlapor ? json_encode($terlapor->toArray()) : 'null',
+                    'pengaduan_email_terlapor' => $jadwal->pengaduan->email_terlapor ?? 'not found'
                 ]);
             }
 
-            Log::info('📊 Total recipients found', [
+            Log::info('📊 [DEBUG] Total recipients found', [
                 'jadwal_id' => $jadwal->jadwal_id,
                 'recipients_count' => count($recipients),
                 'recipients' => array_map(function ($r) {
                     return $r['role'] . ': ' . $r['email'];
                 }, $recipients)
             ]);
+
         } catch (\Exception $e) {
-            Log::error('❌ Error getting recipients for jadwal notification', [
+            Log::error('❌ [DEBUG] Error getting recipients', [
                 'jadwal_id' => $jadwal->jadwal_id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()

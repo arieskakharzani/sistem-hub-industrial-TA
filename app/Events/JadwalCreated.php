@@ -11,6 +11,7 @@ class JadwalCreated
     use Dispatchable, SerializesModels;
 
     public $jadwal;
+    public $eventType = 'created';
 
     public function __construct(Jadwal $jadwal)
     {

@@ -14,6 +14,15 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Alpine.js Store -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('notifications', {
+                open: false
+            })
+        })
+    </script>
 </head>
 
 <body class="font-sans antialiased">
@@ -21,21 +30,17 @@
         @include('layouts.navigation')
 
         <!-- Page Heading -->
-        @isset($header)
+        @if (isset($header))
             <header class="bg-white shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
-        @endisset
+        @endif
 
         <!-- Page Content -->
         <main>
-            @hasSection('content')
-                @yield('content')
-            @else
-                {{ $slot ?? '' }}
-            @endif
+            {{ $slot }}
         </main>
     </div>
 </body>

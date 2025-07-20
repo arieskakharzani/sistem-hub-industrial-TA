@@ -49,7 +49,7 @@ class RisalahController extends Controller
             $jadwal->status_jadwal = 'selesai';
             $jadwal->save();
             
-            return redirect()->route('jadwal.create', ['pengaduan' => $pengaduan->pengaduan_id, 'jenis' => 'mediasi'])
+            return redirect()->route('risalah.show', ['pengaduan' => $pengaduan->pengaduan_id, 'jenis' => 'mediasi'])
                 ->with('success', 'Silahkan buat jadwal Mediasi');
         }
         
@@ -245,5 +245,17 @@ class RisalahController extends Controller
         }
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('risalah.pdf', compact('risalah', 'detail'));
         return $pdf->stream('Risalah-'.$risalah->jenis_risalah.'-'.$risalah->risalah_id.'.pdf');
+    }
+
+    public function destroy($id)
+    {
+        $risalah = Risalah::findOrFail($id);
+        $dokumenHiId = $risalah->dokumen_hi_id;
+        
+        // Delete the risalah
+        $risalah->delete();
+        
+        return redirect()->route('dokumen.index')
+            ->with('success', 'Risalah berhasil dihapus.');
     }
 }

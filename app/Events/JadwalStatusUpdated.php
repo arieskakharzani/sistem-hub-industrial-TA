@@ -12,8 +12,9 @@ class JadwalStatusUpdated
 
     public $jadwal;
     public $oldStatus;
+    public $eventType = 'status_updated';
 
-    public function __construct(Jadwal $jadwal, $oldStatus)
+    public function __construct(Jadwal $jadwal, string $oldStatus)
     {
         $this->jadwal = $jadwal;
         $this->oldStatus = $oldStatus;

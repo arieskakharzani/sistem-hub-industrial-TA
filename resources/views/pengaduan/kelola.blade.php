@@ -455,6 +455,30 @@
                                                                 </svg>
                                                                 Selesai
                                                             </button>
+                                                            <button
+                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'ditunda')"
+                                                                class="text-orange-600 hover:text-orange-900 transition-colors ml-2">
+                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                    </path>
+                                                                </svg>
+                                                                Tunda
+                                                            </button>
+                                                            <button
+                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'dibatalkan')"
+                                                                class="text-red-600 hover:text-red-900 transition-colors ml-2">
+                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M6 18L18 6M6 6l12 12">
+                                                                    </path>
+                                                                </svg>
+                                                                Batalkan
+                                                            </button>
                                                         @endif
                                                     @elseif ($currentUser->active_role === 'mediator' && !$isUnassigned)
                                                         <!-- Show disabled message for mediator non-assigned -->
@@ -506,37 +530,45 @@
 
         <!-- JavaScript for actions and filtering -->
         <script>
-            function updateStatus(pengaduanId, newStatus) {
+            function updateStatus(jadwalId, newStatus) {
                 const statusText = {
-                    'proses': 'Dalam Proses',
-                    'selesai': 'Selesai'
+                    'dijadwalkan': 'Dijadwalkan',
+                    'berlangsung': 'Berlangsung',
+                    'selesai': 'Selesai',
+                    'ditunda': 'Ditunda',
+                    'dibatalkan': 'Dibatalkan'
                 };
 
                 if (confirm(`Apakah Anda yakin ingin mengubah status menjadi "${statusText[newStatus]}"?`)) {
-                    // Create form and submit
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `/pengaduan/${pengaduanId}/update-status`;
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('status_jadwal', newStatus);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-                    // Add CSRF token
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-                    if (csrfToken) {
-                        const csrfInput = document.createElement('input');
-                        csrfInput.type = 'hidden';
-                        csrfInput.name = '_token';
-                        csrfInput.value = csrfToken.getAttribute('content');
-                        form.appendChild(csrfInput);
-                    }
-
-                    // Add status input
-                    const statusInput = document.createElement('input');
-                    statusInput.type = 'hidden';
-                    statusInput.name = 'status';
-                    statusInput.value = newStatus;
-                    form.appendChild(statusInput);
-
-                    document.body.appendChild(form);
-                    form.submit();
+                    // Send AJAX request
+                    fetch(`/jadwal/${jadwalId}/update-status`, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success message
+                                alert(data.message);
+                                // Reload page to show updated status
+                                window.location.reload();
+                            } else {
+                                // Show error message
+                                alert(data.message || 'Terjadi kesalahan saat mengupdate status');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat mengupdate status');
+                        });
                 }
             }
         </script>

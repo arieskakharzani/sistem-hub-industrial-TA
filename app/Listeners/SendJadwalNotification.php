@@ -8,15 +8,18 @@ use App\Events\JadwalUpdated;
 use App\Events\JadwalStatusUpdated;
 use App\Events\JadwalRescheduleNeeded;
 use App\Models\Jadwal;
-use App\Notifications\JadwalNotification;
+use App\Mail\JadwalNotificationMail;
 use App\Services\JadwalNotificationService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendJadwalNotification
+class SendJadwalNotification implements ShouldQueue
 {
-    // use InteractsWithQueue;
+    use InteractsWithQueue;
+
+    public $tries = 3; // Jumlah percobaan jika gagal
+    public $timeout = 60; // Timeout dalam detik
 
     protected $notificationService;
 
@@ -27,7 +30,7 @@ class SendJadwalNotification
 
     /**
      * Handle jadwal created/updated events
-     * ONLY sends EMAIL to pelapor and terlapor (no in-app notifications)
+     * Sends EMAIL to pelapor and terlapor
      */
     public function handle($event)
     {
@@ -37,24 +40,29 @@ class SendJadwalNotification
         ]);
 
         try {
+            // Load necessary relationships
+            $jadwal = $event->jadwal;
+            $jadwal->load(['pengaduan.pelapor.user', 'pengaduan.terlapor', 'mediator.user']);
+
             Log::info('🔔 [JADWAL EMAIL] Processing jadwal notification', [
-                'jadwal_id' => $event->jadwal->jadwal_id,
-                'event_type' => $event->eventType ?? null
+                'jadwal_id' => $jadwal->jadwal_id,
+                'event_type' => $event->eventType ?? 'unknown',
+                'jenis_jadwal' => $jadwal->jenis_jadwal
             ]);
 
-            // Get recipients (pelapor and terlapor only)
-            $recipients = $this->notificationService->getRecipients($event->jadwal);
+            // Get recipients (pelapor and terlapor)
+            $recipients = $this->notificationService->getRecipients($jadwal);
 
             if (empty($recipients)) {
                 Log::warning('❌ [JADWAL EMAIL] No recipients found for jadwal notification', [
-                    'jadwal_id' => $event->jadwal->jadwal_id,
-                    'event_type' => $event->eventType ?? null
+                    'jadwal_id' => $jadwal->jadwal_id,
+                    'event_type' => $event->eventType ?? 'unknown'
                 ]);
                 return;
             }
 
             Log::info('👥 [JADWAL EMAIL] Recipients found', [
-                'jadwal_id' => $event->jadwal->jadwal_id,
+                'jadwal_id' => $jadwal->jadwal_id,
                 'recipients_count' => count($recipients),
                 'recipients' => array_map(function ($r) {
                     return [
@@ -68,32 +76,31 @@ class SendJadwalNotification
             $emailsSent = 0;
             $errors = [];
 
-            // Send ONLY EMAIL to pelapor and terlapor
+            // Send email to each recipient
             foreach ($recipients as $recipient) {
                 try {
                     Log::info('📧 [JADWAL EMAIL] Sending email', [
-                        'jadwal_id' => $event->jadwal->jadwal_id,
+                        'jadwal_id' => $jadwal->jadwal_id,
                         'to' => $recipient['email'],
                         'role' => $recipient['role'],
-                        'event_type' => $event->eventType ?? null
+                        'event_type' => $event->eventType ?? 'unknown'
                     ]);
 
                     // Send email using mailable
                     Mail::to($recipient['email'])
-                        ->send(new JadwalNotification(
-                            $event->jadwal,
+                        ->queue(new JadwalNotificationMail(
+                            $jadwal,
                             $recipient,
-                            $event->eventType ?? null,
+                            $event->eventType ?? 'unknown',
                             $this->getEventData($event)
                         ));
 
                     $emailsSent++;
 
-                    Log::info('✅ [JADWAL EMAIL] Email sent successfully', [
-                        'jadwal_id' => $event->jadwal->jadwal_id,
+                    Log::info('✅ [JADWAL EMAIL] Email queued successfully', [
+                        'jadwal_id' => $jadwal->jadwal_id,
                         'recipient_email' => $recipient['email'],
-                        'recipient_role' => $recipient['role'],
-                        'event_type' => $event->eventType ?? null
+                        'recipient_role' => $recipient['role']
                     ]);
                 } catch (\Exception $emailError) {
                     $errors[] = [
@@ -101,8 +108,8 @@ class SendJadwalNotification
                         'error' => $emailError->getMessage()
                     ];
 
-                    Log::error('❌ [JADWAL EMAIL] Failed to send email to recipient', [
-                        'jadwal_id' => $event->jadwal->jadwal_id,
+                    Log::error('❌ [JADWAL EMAIL] Failed to queue email to recipient', [
+                        'jadwal_id' => $jadwal->jadwal_id,
                         'recipient_email' => $recipient['email'],
                         'recipient_role' => $recipient['role'],
                         'error' => $emailError->getMessage()
@@ -112,19 +119,18 @@ class SendJadwalNotification
 
             // Log final summary
             Log::info('📊 [JADWAL EMAIL] Notification summary', [
-                'jadwal_id' => $event->jadwal->jadwal_id,
-                'event_type' => $event->eventType ?? null,
+                'jadwal_id' => $jadwal->jadwal_id,
+                'event_type' => $event->eventType ?? 'unknown',
                 'total_recipients' => count($recipients),
-                'emails_sent' => $emailsSent,
-                'in_app_notifications' => 0, // No in-app for this event
+                'emails_queued' => $emailsSent,
                 'errors_count' => count($errors),
                 'errors' => $errors
             ]);
 
-            // If there are errors but some emails were sent, log as warning
+            // If there are errors but some emails were queued, log as warning
             if (count($errors) > 0 && $emailsSent > 0) {
-                Log::warning('⚠️ [JADWAL EMAIL] Some emails failed to send', [
-                    'jadwal_id' => $event->jadwal->jadwal_id,
+                Log::warning('⚠️ [JADWAL EMAIL] Some emails failed to queue', [
+                    'jadwal_id' => $jadwal->jadwal_id,
                     'successful' => $emailsSent,
                     'failed' => count($errors)
                 ]);
@@ -132,12 +138,12 @@ class SendJadwalNotification
 
             // If all emails failed, throw exception to trigger retry
             if ($emailsSent === 0 && count($recipients) > 0) {
-                throw new \Exception('All email notifications failed to send');
+                throw new \Exception('All email notifications failed to queue');
             }
         } catch (\Exception $e) {
-            Log::error('❌ [JADWAL EMAIL] Failed to send jadwal mediation notification', [
-                'jadwal_id' => $event->jadwal->jadwal_id,
-                'event_type' => $event->eventType ?? null,
+            Log::error('❌ [JADWAL EMAIL] Failed to send jadwal notification', [
+                'jadwal_id' => $event->jadwal->jadwal_id ?? 'unknown',
+                'event_type' => $event->eventType ?? 'unknown',
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

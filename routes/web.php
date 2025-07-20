@@ -180,12 +180,22 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     Route::get('/perjanjian-bersama/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'create'])->name('perjanjian-bersama.create');
     Route::post('/perjanjian-bersama/store', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'store'])->name('perjanjian-bersama.store');
     Route::get('/perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'show'])->name('perjanjian-bersama.show');
+    Route::get('/perjanjian-bersama/{id}/edit', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'edit'])->name('perjanjian-bersama.edit');
+    Route::put('/perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'update'])->name('perjanjian-bersama.update');
+    Route::delete('/perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'destroy'])->name('perjanjian-bersama.destroy');
+    Route::get('/perjanjian-bersama/{id}/pdf', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'cetakPdf'])->name('perjanjian-bersama.pdf');
+
     // Anjuran
     Route::get('/anjuran/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'create'])->name('anjuran.create');
     Route::post('/anjuran/store', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'store'])->name('anjuran.store');
     Route::get('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
-    Route::get('/perjanjian-bersama/{id}/pdf', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'cetakPdf'])->name('perjanjian-bersama.pdf');
+    Route::get('/anjuran/{id}/edit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'edit'])->name('anjuran.edit');
+    Route::put('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'update'])->name('anjuran.update');
+    Route::delete('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'destroy'])->name('anjuran.destroy');
     Route::get('/anjuran/{id}/pdf', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'cetakPdf'])->name('anjuran.pdf');
+
+    // Risalah
+    Route::delete('/risalah/{id}', [\App\Http\Controllers\Risalah\RisalahController::class, 'destroy'])->name('risalah.destroy');
 });
 
 // Route untuk mediator mengelola akun terlapor dan pelapor
@@ -226,6 +236,14 @@ Route::middleware(['auth', 'verified', 'check.role:mediator'])->prefix('notifica
     Route::post('/clear-all', [NotificationController::class, 'clearAll'])->name('clear-all');
 });
 
+// Notification routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+});
+
 // Profile routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -252,16 +270,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('dashboard.set-role');
 });
 
-// Route risalah
+// Risalah Routes
 Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->group(function () {
     Route::get('/create/{jadwal}/{jenis_risalah}', [RisalahController::class, 'create'])->name('create');
     Route::post('/store/{jadwal}/{jenis_risalah}', [RisalahController::class, 'store'])->name('store');
     Route::get('/{risalah}', [RisalahController::class, 'show'])->name('show');
     Route::get('/{risalah}/edit', [RisalahController::class, 'edit'])->name('edit');
     Route::put('/{risalah}', [RisalahController::class, 'update'])->name('update');
+    Route::delete('/{risalah}', [RisalahController::class, 'destroy'])->name('destroy');
     Route::get('/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('pdf');
     Route::get('/{risalah}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
     Route::get('/{risalah}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
+});
+
+// Route untuk testing email
+Route::get('/test-email', function () {
+    try {
+        Mail::to('ecakharzani10@gmail.com')->queue(new \App\Mail\TestMail());
+        return 'Email test telah dikirim ke antrian. Silakan cek email Anda dalam beberapa saat.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
 });
 
 // Route untuk debugging auth

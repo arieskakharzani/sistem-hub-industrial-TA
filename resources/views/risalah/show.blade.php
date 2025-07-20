@@ -218,7 +218,7 @@
                             <a href="{{ route('dokumen.perjanjian-bersama.show', $perjanjianBersama->perjanjian_bersama_id) }}"
                                 class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow font-semibold transition">Lihat
                                 Perjanjian Bersama</a>
-                        @else
+                        @elseif (!$anjuran)
                             <a href="{{ route('dokumen.perjanjian-bersama.create', ['dokumen_hi_id' => $dokumen_hi_id]) }}"
                                 class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow font-semibold transition">Buat
                                 Perjanjian Bersama</a>
@@ -228,7 +228,7 @@
                             <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}"
                                 class="inline-block bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded shadow font-semibold transition">Lihat
                                 Anjuran</a>
-                        @else
+                        @elseif (!$perjanjianBersama)
                             <a href="{{ route('dokumen.anjuran.create', ['dokumen_hi_id' => $dokumen_hi_id]) }}"
                                 class="inline-block bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded shadow font-semibold transition">Buat
                                 Anjuran</a>

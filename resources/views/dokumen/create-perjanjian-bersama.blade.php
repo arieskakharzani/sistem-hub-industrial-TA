@@ -139,7 +139,7 @@
                         Batal
                     </a>
                     <button type="submit"
-                        class="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium transition-all duration-300">
+                        class="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-all duration-300">
                         Simpan Perjanjian Bersama
                     </button>
                 </div>

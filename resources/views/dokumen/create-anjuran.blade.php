@@ -20,11 +20,94 @@
                 @csrf
                 <input type="hidden" name="dokumen_hi_id" value="{{ $dokumen_hi_id }}">
 
+                <!-- Data Pengusaha -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Data Pengusaha</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Nama Pengusaha
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="nama_pengusaha" value="{{ old('nama_pengusaha') }}"
+                                placeholder="Masukkan nama pengusaha" required
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Jabatan Pengusaha
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="jabatan_pengusaha" value="{{ old('jabatan_pengusaha') }}"
+                                required placeholder="Masukkan jabatan pengusaha"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                            @error('jabatan_pengusaha')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Perusahaan
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="perusahaan_pengusaha" value="{{ $risalah->nama_perusahaan }}"
+                                readonly class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Alamat
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="alamat_pengusaha" value="{{ $risalah->alamat_perusahaan }}"
+                                readonly class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Pekerja -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Data Pekerja</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Nama Pekerja
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="nama_pekerja" value="{{ $risalah->nama_pekerja }}" readonly
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Jabatan Pekerja
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="jabatan_pekerja" value="{{ old('jabatan_pekerja') }}" required
+                                placeholder="Masukkan jabatan pekerja"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                            @error('jabatan_pekerja')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Alamat
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" name="alamat_pekerja" value="{{ $risalah->alamat_pekerja }}" readonly
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Keterangan Para Pihak -->
                 <div class="space-y-6">
                     <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Keterangan Para
-                        Pihak
-                    </h3>
+                        Pihak</h3>
                     <div class="space-y-6">
                         <div class="space-y-2">
                             <label class="flex items-center text-sm font-medium text-gray-700">
@@ -35,6 +118,9 @@
                                 placeholder="Tuliskan keterangan dari pihak pekerja terkait perselisihan"
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('keterangan_pekerja') }}</textarea>
                             <p class="text-xs text-gray-500 italic">Jelaskan posisi dan argumen dari pihak pekerja</p>
+                            @error('keterangan_pekerja')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="space-y-2">
@@ -46,6 +132,9 @@
                                 placeholder="Tuliskan keterangan dari pihak pengusaha terkait perselisihan"
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('keterangan_pengusaha') }}</textarea>
                             <p class="text-xs text-gray-500 italic">Jelaskan posisi dan argumen dari pihak pengusaha</p>
+                            @error('keterangan_pengusaha')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -53,8 +142,7 @@
                 <!-- Pertimbangan dan Anjuran -->
                 <div class="space-y-6">
                     <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Pertimbangan dan
-                        Anjuran
-                    </h3>
+                        Anjuran</h3>
                     <div class="space-y-6">
                         <div class="space-y-2">
                             <label class="flex items-center text-sm font-medium text-gray-700">
@@ -66,6 +154,9 @@
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('pertimbangan_hukum') }}</textarea>
                             <p class="text-xs text-gray-500 italic">Cantumkan dasar hukum dan pertimbangan yang relevan
                             </p>
+                            @error('pertimbangan_hukum')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="space-y-2">
@@ -78,6 +169,9 @@
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('isi_anjuran') }}</textarea>
                             <p class="text-xs text-gray-500 italic">Jelaskan dengan detail anjuran yang diberikan untuk
                                 menyelesaikan perselisihan</p>
+                            @error('isi_anjuran')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>

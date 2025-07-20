@@ -12,6 +12,7 @@ class JadwalUpdated
 
     public $jadwal;
     public $oldData;
+    public $eventType = 'updated';
 
     public function __construct(Jadwal $jadwal, array $oldData)
     {

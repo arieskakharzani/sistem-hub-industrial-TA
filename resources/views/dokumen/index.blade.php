@@ -105,24 +105,52 @@
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $dokumen->pihak_pekerja }}</td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $dokumen->jadwal && $dokumen->jadwal->mediator && $dokumen->jadwal->mediator->nama_mediator ? $dokumen->jadwal->mediator->nama_mediator : '-' }}
+                                            @if ($dokumen->jenis_dokumen == 'Perjanjian Bersama' || $dokumen->jenis_dokumen == 'Anjuran')
+                                                {{ $dokumen->dokumenHI->risalah->first()->jadwal->mediator->nama_mediator ?? '-' }}
+                                            @elseif($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
+                                                {{ $dokumen->jadwal->mediator->nama_mediator ?? '-' }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
                                             @if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
                                                 <a href="{{ route('risalah.show', $dokumen->id) }}"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
+                                                <form action="{{ route('risalah.destroy', $dokumen->id) }}"
+                                                    method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus risalah ini?')">
+                                                        Hapus
+                                                    </button>
+                                                </form>
                                             @elseif ($dokumen->jenis_dokumen == 'Perjanjian Bersama')
                                                 <a href="{{ route('dokumen.perjanjian-bersama.show', $dokumen->id) }}"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
-                                                <a href="{{ route('dokumen.perjanjian-bersama.pdf', $dokumen->id) }}"
-                                                    target="_blank" class="text-green-600 hover:text-green-900">Cetak
-                                                    PDF</a>
+                                                <form
+                                                    action="{{ route('dokumen.perjanjian-bersama.destroy', $dokumen->id) }}"
+                                                    method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus perjanjian bersama ini?')">
+                                                        Hapus
+                                                    </button>
+                                                </form>
                                             @elseif ($dokumen->jenis_dokumen == 'Anjuran')
                                                 <a href="{{ route('dokumen.anjuran.show', $dokumen->id) }}"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
-                                                <a href="{{ route('dokumen.anjuran.pdf', $dokumen->id) }}"
-                                                    target="_blank" class="text-green-600 hover:text-green-900">Cetak
-                                                    PDF</a>
+                                                <form action="{{ route('dokumen.anjuran.destroy', $dokumen->id) }}"
+                                                    method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus anjuran ini?')">
+                                                        Hapus
+                                                    </button>
+                                                </form>
                                             @endif
                                         </td>
                                     </tr>
