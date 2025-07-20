@@ -29,6 +29,15 @@ class Risalah extends Model
         'pokok_masalah',
         'pendapat_pekerja',
         'pendapat_pengusaha',
+        'ttd_mediator',
+        'tanggal_ttd_mediator',
+        'signature_mediator'
+    ];
+
+    protected $casts = [
+        'tanggal_perundingan' => 'datetime',
+        'ttd_mediator' => 'boolean',
+        'tanggal_ttd_mediator' => 'datetime'
     ];
 
     protected static function boot()
@@ -62,5 +71,19 @@ class Risalah extends Model
     public function detailPenyelesaian(): HasOne
     {
         return $this->hasOne(DetailPenyelesaian::class, 'risalah_id', 'risalah_id');
+    }
+
+    // Helper method untuk tanda tangan
+    public function isSignedByMediator(): bool
+    {
+        return $this->ttd_mediator;
+    }
+
+    public function getSignatureStatus(): string
+    {
+        if ($this->isSignedByMediator()) {
+            return 'Sudah ditandatangani oleh Mediator';
+        }
+        return 'Menunggu tanda tangan Mediator';
     }
 }

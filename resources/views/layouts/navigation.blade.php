@@ -66,13 +66,13 @@
                     </div>
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('dokumen.index')" :active="request()->routeIs('mediasi.laporan')">
+                        <x-nav-link :href="route('dokumen.index')" :active="request()->routeIs('dokumen.index')">
                             {{ __('Kelola Dokumen HI') }}
                         </x-nav-link>
                     </div>
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('mediator.akun.index')" :active="request()->routeIs('mediasi.laporan')">
+                        <x-nav-link :href="route('mediator.akun.index')" :active="request()->routeIs('mediator.akun.index')">
                             {{ __('Manajemen Akun') }}
                         </x-nav-link>
                     </div>
@@ -88,11 +88,11 @@
                             {{ __('Penyelesaian HI') }}
                         </x-nav-link>
                     </div>
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('mediasi.laporan')" :active="request()->routeIs('mediasi.laporan')">
+                    {{-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href=#>
                             {{ __('Laporan') }}
                         </x-nav-link>
-                    </div>
+                    </div> --}}
                 @endif
             </div>
 

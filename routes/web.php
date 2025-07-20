@@ -13,6 +13,7 @@ use App\Http\Controllers\Notifikasi\NotificationController;
 use App\Http\Controllers\Risalah\RisalahController;
 use App\Http\Controllers\Dokumen\DokumenController;
 use App\Http\Controllers\Role\RoleController;
+use App\Http\Controllers\Penyelesaian\PenyelesaianController;
 
 
 Route::get('/', function () {
@@ -158,20 +159,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Routes untuk penyelesaian
-Route::middleware(['auth', 'verified'])->prefix('penyelesaian')->name('penyelesaian.')->group(function () {
-    Route::get('/', function () {
-        return view('penyelesaian.index');
-    })->name('index');
-
-    Route::get('/perjanjian-bersama', function () {
-        return view('penyelesaian.perjanjian-bersama');
-    })->name('perjanjian-bersama');
-
-    Route::get('/anjuran-tertulis', function () {
-        return view('penyelesaian.anjuran-tertulis');
-    })->name('anjuran-tertulis');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('penyelesaian')->name('penyelesaian.')->group(function () {
+        Route::get('/', [PenyelesaianController::class, 'index'])->name('index');
+        Route::post('/sign-document', [PenyelesaianController::class, 'signDocument'])->name('sign-document');
+        Route::post('/publish-anjuran/{anjuran}', [PenyelesaianController::class, 'publishAnjuran'])->name('publish-anjuran');
+    });
 });
 
+// Penyelesaian - finalize dokumen (kirim final)
+Route::middleware(['auth', 'verified'])->post('/penyelesaian/finalize', [PenyelesaianController::class, 'finalizeDocument'])->name('penyelesaian.finalize');
 
 // Routes untuk kelola dokumen
 Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->group(function () {
@@ -351,5 +348,3 @@ Route::get('/test-email', function () {
 // });
 
 require __DIR__ . '/auth.php';
-
-

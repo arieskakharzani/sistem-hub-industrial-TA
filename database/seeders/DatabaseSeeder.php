@@ -9,11 +9,10 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
+    public function run()
     {
-            $this->call([
-            UserSeeder::class, // Seeder utama untuk data awal
-            MultiRoleTestSeeder::class, // Seeder untuk testing multi-role
+        $this->call([
+            TestingSeeder::class
         ]);
     }
 }

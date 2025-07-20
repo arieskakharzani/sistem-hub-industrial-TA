@@ -26,34 +26,35 @@ class RisalahController extends Controller
     private function handleKlarifikasiResult(Jadwal $jadwal, $kesimpulan_klarifikasi)
     {
         $pengaduan = $jadwal->pengaduan;
-        
+
         if ($kesimpulan_klarifikasi === 'bipartit_lagi') {
-            // Jika hasil klarifikasi adalah bipartit_lagi, 
-            // update status pengaduan menjadi selesai karena akan dilanjutkan secara bipartit
-            $pengaduan->status = 'selesai'; // Kasus selesai di Disnaker, dilanjutkan secara bipartit
-            $pengaduan->save();
-            
-            // Set jadwal klarifikasi sebagai selesai
-            $jadwal->status_jadwal = 'selesai';
-            $jadwal->save();
-            
-            return redirect()->route('pengaduan.show', $pengaduan)
-                ->with('success', 'Kasus selesai dan akan dilanjutkan dengan perundingan Bipartit');
-        } 
-        elseif ($kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi') {
+            // DULU: Status langsung selesai
+            // $pengaduan->status = 'selesai';
+            // $pengaduan->save();
+            // $jadwal->status_jadwal = 'selesai';
+            // $jadwal->save();
+            // return redirect()->route('pengaduan.show', $pengaduan)
+            //     ->with('success', 'Kasus selesai dan akan dilanjutkan dengan perundingan Bipartit');
+
+            // SEKARANG: Status tetap 'proses', update catatan jika perlu
+            // Status akan diubah ke 'selesai' setelah dokumen ditandatangani dan didistribusikan
+            // Bisa tambahkan catatan internal jika ingin menandai kasus bipartit_lagi
+            // Contoh:
+            // $pengaduan->catatan_mediator = 'Kesimpulan klarifikasi: bipartit_lagi';
+            // $pengaduan->save();
+        } else {
             // Jika hasil klarifikasi adalah mediasi, status pengaduan tetap proses
             $pengaduan->status = 'proses'; // Tetap proses karena akan lanjut ke mediasi
             $pengaduan->save();
-            
             // Set jadwal klarifikasi sebagai selesai
             $jadwal->status_jadwal = 'selesai';
             $jadwal->save();
-            
             return redirect()->route('risalah.show', ['pengaduan' => $pengaduan->pengaduan_id, 'jenis' => 'mediasi'])
                 ->with('success', 'Silahkan buat jadwal Mediasi');
         }
-        
-        return null;
+        // Untuk bipartit_lagi, tetap redirect ke detail risalah/halaman pengaduan tanpa mengubah status
+        return redirect()->route('risalah.show', $jadwal->risalah()->latest()->first())
+            ->with('success', 'Kesimpulan klarifikasi: bipartit_lagi. Status akan selesai setelah dokumen ditandatangani dan didistribusikan.');
     }
 
     // Modifikasi method store untuk menggunakan handleKlarifikasiResult
@@ -97,7 +98,7 @@ class RisalahController extends Controller
 
         // Simpan risalah utama
         $risalah = Risalah::create($data);
-        
+
         // Simpan detail sesuai jenis
         if ($jenis_risalah === 'klarifikasi') {
             DetailKlarifikasi::create([
@@ -106,7 +107,7 @@ class RisalahController extends Controller
                 'arahan_mediator' => $data['arahan_mediator'] ?? null,
                 'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
             ]);
-            
+
             // Handle hasil klarifikasi
             if (isset($data['kesimpulan_klarifikasi'])) {
                 $redirectResponse = $this->handleKlarifikasiResult($jadwal, $data['kesimpulan_klarifikasi']);
@@ -151,7 +152,7 @@ class RisalahController extends Controller
                     $dokumenHI->save();
                 }
                 $dokumen_hi_id = $dokumenHI->dokumen_hi_id;
-                
+
                 // Check for existing PB or Anjuran
                 $perjanjianBersama = \App\Models\PerjanjianBersama::where('dokumen_hi_id', $dokumen_hi_id)->first();
                 $anjuran = \App\Models\Anjuran::where('dokumen_hi_id', $dokumen_hi_id)->first();
@@ -244,17 +245,17 @@ class RisalahController extends Controller
             $detail = $risalah->detailPenyelesaian;
         }
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('risalah.pdf', compact('risalah', 'detail'));
-        return $pdf->stream('Risalah-'.$risalah->jenis_risalah.'-'.$risalah->risalah_id.'.pdf');
+        return $pdf->stream('Risalah-' . $risalah->jenis_risalah . '-' . $risalah->risalah_id . '.pdf');
     }
 
     public function destroy($id)
     {
         $risalah = Risalah::findOrFail($id);
         $dokumenHiId = $risalah->dokumen_hi_id;
-        
+
         // Delete the risalah
         $risalah->delete();
-        
+
         return redirect()->route('dokumen.index')
             ->with('success', 'Risalah berhasil dihapus.');
     }

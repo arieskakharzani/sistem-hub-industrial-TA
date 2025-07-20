@@ -176,6 +176,17 @@
                         <div class="mt-12">&nbsp;</div>
                     </div>
                 </div>
+                @if ($risalah->isSignedByMediator())
+                    <form method="POST" action="{{ route('penyelesaian.finalize') }}" class="mt-8 text-center">
+                        @csrf
+                        <input type="hidden" name="document_type" value="risalah">
+                        <input type="hidden" name="document_id" value="{{ $risalah->risalah_id }}">
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all duration-200">
+                            Kirim Final ke Para Pihak & Selesaikan Kasus
+                        </button>
+                    </form>
+                @endif
                 <div class="mt-8 flex gap-4">
                     <a href="{{ route('risalah.edit', $risalah) }}"
                         class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow font-semibold transition">Edit</a>

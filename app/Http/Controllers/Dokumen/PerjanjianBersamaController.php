@@ -12,16 +12,16 @@ class PerjanjianBersamaController extends Controller
 {
     public function create($dokumen_hi_id)
     {
-        $dokumenHI = DokumenHubunganIndustrial::with(['risalah' => function($query) {
+        $dokumenHI = DokumenHubunganIndustrial::with(['risalah' => function ($query) {
             $query->where('jenis_risalah', 'penyelesaian');
         }])->findOrFail($dokumen_hi_id);
-        
+
         $risalah = $dokumenHI->risalah->first();
-        
+
         if (!$risalah) {
             return redirect()->back()->with('error', 'Data risalah penyelesaian tidak ditemukan.');
         }
-        
+
         return view('dokumen.create-perjanjian-bersama', compact('dokumen_hi_id', 'risalah'));
     }
 
@@ -41,7 +41,13 @@ class PerjanjianBersamaController extends Controller
         ]);
 
         $perjanjian = PerjanjianBersama::create($data);
-        
+
+        // Kirim notifikasi ke terlapor untuk tanda tangan
+        $pengaduan = $perjanjian->dokumenHI->pengaduan;
+        $terlaporUser = $pengaduan && $pengaduan->terlapor ? $pengaduan->terlapor->user : null;
+        if ($terlaporUser) {
+            $terlaporUser->notify(new \App\Notifications\PerjanjianBersamaNeedsTerlaporSignatureNotification($perjanjian));
+        }
         // Redirect ke halaman detail perjanjian bersama
         return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
             ->with('success', 'Perjanjian Bersama berhasil dibuat.');
@@ -62,7 +68,7 @@ class PerjanjianBersamaController extends Controller
     public function update(Request $request, $id)
     {
         $perjanjian = PerjanjianBersama::findOrFail($id);
-        
+
         $data = $request->validate([
             'nama_pengusaha' => 'required|string',
             'jabatan_pengusaha' => 'required|string',
@@ -76,7 +82,7 @@ class PerjanjianBersamaController extends Controller
         ]);
 
         $perjanjian->update($data);
-        
+
         return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
             ->with('success', 'Perjanjian Bersama berhasil diperbarui.');
     }
@@ -85,9 +91,9 @@ class PerjanjianBersamaController extends Controller
     {
         $perjanjian = PerjanjianBersama::findOrFail($id);
         $dokumenHiId = $perjanjian->dokumen_hi_id;
-        
+
         $perjanjian->delete();
-        
+
         return redirect()->route('dokumen.index')
             ->with('success', 'Perjanjian Bersama berhasil dihapus.');
     }
@@ -98,4 +104,4 @@ class PerjanjianBersamaController extends Controller
         $pdf = Pdf::loadView('dokumen.pdf.perjanjian-bersama', compact('perjanjian'));
         return $pdf->stream('perjanjian-bersama.pdf');
     }
-} 
+}
