@@ -46,23 +46,30 @@
         }
 
         .table-risalah .colon {
-            width: 3%;
+            width: 40px;
             font-size: 12pt;
+            text-align: right;
         }
 
         .keterangan-text {
             color: #666;
             font-size: 11pt;
             font-style: italic;
-            margin-top: 10px;
+            margin-top: 18px;
             display: block;
             line-height: 1.4;
+            text-align: justify;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 10px;
         }
 
         .ttd-section {
             margin-top: 10px;
             margin-right: 30px;
             text-align: right;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .ttd-section p {
@@ -72,6 +79,8 @@
         .ttd-content {
             display: inline-block;
             text-align: right;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .ttd-section p {
@@ -155,27 +164,33 @@
                 <td class="nomor">10.</td>
                 <td class="label">Arahan Mediator</td>
                 <td class="colon">:</td>
-                <td>{{ $risalah->detailKlarifikasi->arahan_mediator }}</td>
+                <td>{{ optional($risalah->detailKlarifikasi)->arahan_mediator }}</td>
             </tr>
             <tr>
                 <td class="nomor">11.</td>
                 <td class="label">Kesimpulan atau Hasil Klarifikasi</td>
                 <td class="colon">:</td>
                 <td>
-                    @if ($risalah->detailKlarifikasi->kesimpulan_klarifikasi === 'bipartit_lagi')
+                    @if (optional($risalah->detailKlarifikasi)->kesimpulan_klarifikasi === 'bipartit_lagi')
                         Perundingan Bipartit
-                    @elseif($risalah->detailKlarifikasi->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
+                    @elseif(optional($risalah->detailKlarifikasi)->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
                         Lanjut ke Tahap Mediasi
                     @else
-                        {{ $risalah->detailKlarifikasi->kesimpulan_klarifikasi }}
+                        {{ optional($risalah->detailKlarifikasi)->kesimpulan_klarifikasi }}
                     @endif
-                    <span class="keterangan-text">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="keterangan-text" style="margin-top:24px">
                         Keterangan: dalam membuat Kesimpulan atau hasil klarifikasi agar ditegaskan penyelesaian
-                        perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit; atau
-                        b)
-                        sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau c)
+                        perselisihannya. Ada 3 alternatif, yaitu <br>a) sepakat untuk melakukan perundingan bipartit;
+                        atau
+                        <br>b) sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama;
+                        atau
+                        <br>c)
                         sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.
-                    </span>
+                    </div>
                 </td>
             </tr>
         @endif
@@ -187,9 +202,16 @@
         </p>
         <div class="ttd-content">
             <p>Mediator Hubungan Industrial,</p>
-            <br><br><br>
-            <p class="ttd-nama">{{ $risalah->jadwal->mediator->nama_mediator ?? '-' }}</p>
-            <p class="ttd-nip">NIP. {{ $risalah->jadwal->mediator->nip ?? '-' }}</p>
+            @if ($risalah->signature_mediator)
+                <br>
+                <img src="{{ public_path('storage/signatures/' . $risalah->signature_mediator) }}"
+                    alt="Tanda Tangan Mediator"
+                    style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
+            @else
+                <br><br><br>
+            @endif
+            <p class="ttd-nama">{{ optional(optional($risalah->jadwal)->mediator)->nama_mediator ?? '-' }}</p>
+            <p class="ttd-nip">NIP. {{ optional(optional($risalah->jadwal)->mediator)->nip ?? '-' }}</p>
         </div>
     </div>
 </body>

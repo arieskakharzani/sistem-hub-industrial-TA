@@ -59,15 +59,16 @@
                             {{ __('Kelola Jadwal') }}
                         </x-nav-link>
                     </div>
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('penyelesaian.index')" :active="request()->routeIs('penyelesaian.index')">
-                            {{ __('Penyelesaian HI') }}
-                        </x-nav-link>
-                    </div>
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('dokumen.index')" :active="request()->routeIs('dokumen.index')">
                             {{ __('Kelola Dokumen HI') }}
+                        </x-nav-link>
+                    </div>
+
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('penyelesaian.index')" :active="request()->routeIs('penyelesaian.index')">
+                            {{ __('Penyelesaian HI') }}
                         </x-nav-link>
                     </div>
 

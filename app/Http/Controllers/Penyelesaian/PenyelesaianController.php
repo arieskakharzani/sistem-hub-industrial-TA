@@ -24,71 +24,337 @@ class PenyelesaianController extends Controller
         $user = Auth::user();
         $role = $user->active_role;
 
-        // Ambil dokumen yang perlu ditandatangani berdasarkan role
-        $dokumenPending = [];
+        $filter = request('jenis_dokumen');
+        $jenisDokumenList = ['Risalah Klarifikasi', 'Risalah Penyelesaian', 'Perjanjian Bersama', 'Anjuran'];
 
-        if ($role === 'mediator') {
-            // Risalah yang perlu ditandatangani mediator
-            $risalahPending = Risalah::where('ttd_mediator', false)
-                ->whereHas('jadwal', function ($q) use ($user) {
-                    $q->where('mediator_id', $user->mediator->mediator_id);
-                })->get();
+        // --- Dokumen Pending (perlu ditandatangani user aktif) ---
+        $risalahPending = collect();
+        $perjanjianPending = collect();
+        $anjuranPending = collect();
 
-            // Perjanjian Bersama yang perlu ditandatangani mediator
-            $perjanjianPending = PerjanjianBersama::where('ttd_mediator', false)
-                ->where(function ($q) {
-                    $q->where('ttd_pekerja', true)
-                        ->where('ttd_pengusaha', true);
-                })
-                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($user) {
-                    $q->where('mediator_id', $user->mediator->mediator_id);
-                })->get();
-
-            // Anjuran yang perlu ditandatangani mediator
-            $anjuranPending = Anjuran::where('ttd_mediator', false)
-                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($user) {
-                    $q->where('mediator_id', $user->mediator->mediator_id);
-                })->get();
-
-            $dokumenPending = [
-                'risalah' => $risalahPending,
-                'perjanjian_bersama' => $perjanjianPending,
-                'anjuran' => $anjuranPending
-            ];
-        } elseif ($role === 'kepala_dinas') {
-            // Anjuran yang perlu diapprove kepala dinas
-            $anjuranPending = Anjuran::where('ttd_kepala_dinas', false)
-                ->where('ttd_mediator', true)
-                ->where('kepala_dinas_id', $user->kepalaDinas->kepala_dinas_id)
-                ->get();
-
-            $dokumenPending = [
-                'anjuran' => $anjuranPending
-            ];
-        } elseif ($role === 'pelapor') {
-            // Perjanjian Bersama yang perlu ditandatangani pelapor
-            $perjanjianPending = PerjanjianBersama::where('ttd_pekerja', false)
-                ->whereHas('dokumenHI.risalah.jadwal.pengaduan', function ($q) use ($user) {
-                    $q->where('pelapor_id', $user->pelapor->pelapor_id);
-                })->get();
-
-            $dokumenPending = [
-                'perjanjian_bersama' => $perjanjianPending
-            ];
-        } elseif ($role === 'terlapor') {
-            // Perjanjian Bersama yang perlu ditandatangani terlapor (setelah pelapor)
-            $perjanjianPending = PerjanjianBersama::where('ttd_pengusaha', false)
+        if ($role === 'mediator' && $user->mediator) {
+            $mediatorId = $user->mediator->mediator_id;
+            $risalahPending = Risalah::with(['jadwal.mediator'])
+                ->where('ttd_mediator', false)
+                ->whereHas('jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', false)
                 ->where('ttd_pekerja', true)
-                ->whereHas('dokumenHI.risalah.jadwal.pengaduan', function ($q) use ($user) {
-                    $q->where('terlapor_id', $user->terlapor->terlapor_id);
-                })->get();
-
-            $dokumenPending = [
-                'perjanjian_bersama' => $perjanjianPending
-            ];
+                ->where('ttd_pengusaha', true)
+                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+            $anjuranPending = Anjuran::with(['dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', false)
+                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+        } elseif ($role === 'pelapor' && $user->pelapor) {
+            $pelaporId = $user->pelapor->pelapor_id;
+            // Pelapor hanya bisa menandatangani perjanjian bersama, risalahPending dikosongkan
+            $risalahPending = collect();
+            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_pekerja', false)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+        } elseif ($role === 'terlapor' && $user->terlapor) {
+            $terlaporId = $user->terlapor->terlapor_id;
+            // Terlapor tidak boleh menandatangani risalah, kosongkan risalahPending
+            $risalahPending = collect();
+            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_pengusaha', false)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+        } elseif ($role === 'kepala_dinas' && $user->kepalaDinas) {
+            $kepalaDinasId = $user->kepalaDinas->kepala_dinas_id;
+            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->where('ttd_kepala_dinas', false)
+                ->where('kepala_dinas_id', $kepalaDinasId);
         }
 
-        return view('penyelesaian.index', compact('dokumenPending'));
+        // Filter by jenis dokumen (optional)
+        if ($filter === 'Risalah Klarifikasi') {
+            $risalahPending = $risalahPending->where('jenis_risalah', 'klarifikasi');
+        } elseif ($filter === 'Risalah Penyelesaian') {
+            $risalahPending = $risalahPending->where('jenis_risalah', 'penyelesaian');
+        }
+        if ($filter === 'Perjanjian Bersama') {
+            // no-op
+        } elseif ($filter && !in_array($filter, ['Perjanjian Bersama', 'Semua', null])) {
+            $perjanjianPending = $perjanjianPending->whereRaw('1=0');
+        }
+        if ($filter === 'Anjuran') {
+            // no-op
+        } elseif ($filter && !in_array($filter, ['Anjuran', 'Semua', null])) {
+            $anjuranPending = $anjuranPending->whereRaw('1=0');
+        }
+
+        // Terapkan filter jenis dokumen pada semua query
+        if ($filter && $filter !== 'Semua') {
+            if ($filter === 'Perjanjian Bersama') {
+                if (isset($perjanjianPending) && $perjanjianPending instanceof \Illuminate\Database\Eloquent\Builder) {
+                    // ok
+                } else {
+                    $perjanjianPending = collect();
+                }
+                if (isset($perjanjianSignedByUser) && $perjanjianSignedByUser instanceof \Illuminate\Database\Eloquent\Builder) {
+                    // ok
+                } else {
+                    $perjanjianSignedByUser = collect();
+                }
+                if (isset($perjanjianSigned) && $perjanjianSigned instanceof \Illuminate\Database\Eloquent\Builder) {
+                    // ok
+                } else {
+                    $perjanjianSigned = collect();
+                }
+            } else {
+                $perjanjianPending = collect();
+                $perjanjianSignedByUser = collect();
+                $perjanjianSigned = collect();
+            }
+        }
+
+        // Ambil data dan pastikan hanya model, tanpa nested collection
+        $risalahPending = $risalahPending instanceof \Illuminate\Database\Eloquent\Builder ? $risalahPending->get() : collect();
+        $perjanjianPending = $perjanjianPending instanceof \Illuminate\Database\Eloquent\Builder ? $perjanjianPending->get() : collect();
+        $anjuranPending = $anjuranPending instanceof \Illuminate\Database\Eloquent\Builder ? $anjuranPending->get() : collect();
+        // FILTER & FLATTEN EKSTRA KETAT
+        $risalahPending = collect($risalahPending)->flatten(1)->filter(fn($item) => $item instanceof \App\Models\Risalah)->values();
+        $perjanjianPending = collect($perjanjianPending)->flatten(1)->filter(fn($item) => $item instanceof \App\Models\PerjanjianBersama)->values();
+        $anjuranPending = collect($anjuranPending)->flatten(1)->filter(fn($item) => $item instanceof \App\Models\Anjuran)->values();
+        // LOG DEBUG
+        \Log::info('DEBUG risalahPending', [
+            'type' => gettype($risalahPending),
+            'is_collection' => $risalahPending instanceof \Illuminate\Support\Collection,
+            'first_type' => $risalahPending->first() ? get_class($risalahPending->first()) : null,
+            'has_nested' => $risalahPending->contains(fn($item) => $item instanceof \Illuminate\Support\Collection),
+        ]);
+
+        $dokumenPending = [
+            'risalah' => $risalahPending,
+            'perjanjian_bersama' => $perjanjianPending,
+            'anjuran' => $anjuranPending
+        ];
+
+        // --- Dokumen Signed/Final (sudah ditandatangani semua pihak) ---
+        $risalahSigned = collect();
+        $perjanjianSigned = collect();
+        $anjuranSigned = collect();
+        if ($role === 'mediator' && $user->mediator) {
+            $mediatorId = $user->mediator->mediator_id;
+            $risalahSignedQ = Risalah::with(['jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->whereHas('jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->where('ttd_pekerja', true)
+                ->where('ttd_pengusaha', true)
+                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->where('ttd_kepala_dinas', true)
+                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+        } elseif ($role === 'pelapor' && $user->pelapor) {
+            $pelaporId = $user->pelapor->pelapor_id;
+            $risalahSignedQ = Risalah::with(['jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->whereHas('jadwal.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_pekerja', true)
+                ->where('ttd_pengusaha', true)
+                ->where('ttd_mediator', true)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_kepala_dinas', true)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+        } elseif ($role === 'terlapor' && $user->terlapor) {
+            $terlaporId = $user->terlapor->terlapor_id;
+            $risalahSignedQ = Risalah::with(['jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->whereHas('jadwal.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_pekerja', true)
+                ->where('ttd_pengusaha', true)
+                ->where('ttd_mediator', true)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_kepala_dinas', true)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+        } elseif ($role === 'kepala_dinas' && $user->kepalaDinas) {
+            $kepalaDinasId = $user->kepalaDinas->kepala_dinas_id;
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_kepala_dinas', true)
+                ->where('kepala_dinas_id', $kepalaDinasId);
+        }
+        // Terapkan filter pada query builder sebelum get()
+        if ($filter === 'Risalah Klarifikasi') {
+            if (isset($risalahSignedQ)) $risalahSignedQ = $risalahSignedQ->where('jenis_risalah', 'klarifikasi');
+        } elseif ($filter === 'Risalah Penyelesaian') {
+            if (isset($risalahSignedQ)) $risalahSignedQ = $risalahSignedQ->where('jenis_risalah', 'penyelesaian');
+        }
+        if ($filter && !in_array($filter, ['Risalah Klarifikasi', 'Risalah Penyelesaian', 'Semua', null])) {
+            $risalahSignedQ = null;
+        }
+        if ($filter && $filter !== 'Perjanjian Bersama' && $filter !== 'Semua' && $filter !== null) {
+            $perjanjianSignedQ = null;
+        }
+        if ($filter && $filter !== 'Anjuran' && $filter !== 'Semua' && $filter !== null) {
+            $anjuranSignedQ = null;
+        }
+        $risalahSigned = isset($risalahSignedQ) ? $risalahSignedQ->get()->filter(fn($item) => $item instanceof \App\Models\Risalah)->values() : collect();
+        $perjanjianSigned = isset($perjanjianSignedQ) ? $perjanjianSignedQ->get()->filter(fn($item) => $item instanceof \App\Models\PerjanjianBersama)->values() : collect();
+        $anjuranSigned = isset($anjuranSignedQ) ? $anjuranSignedQ->get()->filter(fn($item) => $item instanceof \App\Models\Anjuran)->values() : collect();
+        $dokumenSigned = [
+            'risalah' => $risalahSigned,
+            'perjanjian_bersama' => $perjanjianSigned,
+            'anjuran' => $anjuranSigned
+        ];
+
+        // --- Dokumen Sudah Ditandatangani User (tapi belum final) ---
+        $risalahSignedByUser = collect();
+        $perjanjianSignedByUser = collect();
+        $anjuranSignedByUser = collect();
+        if ($role === 'pelapor' && $user->pelapor) {
+            $pelaporId = $user->pelapor->pelapor_id;
+            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_pekerja', true)
+                ->where(function ($q) {
+                    $q->where('ttd_pengusaha', false)->orWhere('ttd_mediator', false);
+                })
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->where('ttd_kepala_dinas', false)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
+                    $q->where('pelapor_id', $pelaporId);
+                });
+        } elseif ($role === 'terlapor' && $user->terlapor) {
+            $terlaporId = $user->terlapor->terlapor_id;
+            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_pengusaha', true)
+                ->where(function ($q) {
+                    $q->where('ttd_pekerja', false)->orWhere('ttd_mediator', false);
+                })
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+                ->where('ttd_mediator', true)
+                ->where('ttd_kepala_dinas', false)
+                ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
+                    $q->where('terlapor_id', $terlaporId);
+                });
+        }
+        // Terapkan filter pada query builder sebelum get()
+        if ($filter === 'Risalah Klarifikasi') {
+            if (isset($risalahSignedByUserQ)) $risalahSignedByUserQ = $risalahSignedByUserQ->where('jenis_risalah', 'klarifikasi');
+        } elseif ($filter === 'Risalah Penyelesaian') {
+            if (isset($risalahSignedByUserQ)) $risalahSignedByUserQ = $risalahSignedByUserQ->where('jenis_risalah', 'penyelesaian');
+        }
+        if ($filter && !in_array($filter, ['Risalah Klarifikasi', 'Risalah Penyelesaian', 'Semua', null])) {
+            $risalahSignedByUserQ = null;
+        }
+        if ($filter && $filter !== 'Perjanjian Bersama' && $filter !== 'Semua' && $filter !== null) {
+            $perjanjianSignedByUserQ = null;
+        }
+        if ($filter && $filter !== 'Anjuran' && $filter !== 'Semua' && $filter !== null) {
+            $anjuranSignedByUserQ = null;
+        }
+        $risalahSignedByUser = isset($risalahSignedByUserQ) ? $risalahSignedByUserQ->get()->filter(fn($item) => $item instanceof \App\Models\Risalah)->values() : collect();
+        $perjanjianSignedByUser = isset($perjanjianSignedByUserQ) ? $perjanjianSignedByUserQ->get()->filter(fn($item) => $item instanceof \App\Models\PerjanjianBersama)->values() : collect();
+        $anjuranSignedByUser = isset($anjuranSignedByUserQ) ? $anjuranSignedByUserQ->get()->filter(fn($item) => $item instanceof \App\Models\Anjuran)->values() : collect();
+        $dokumenSignedByUser = [
+            'risalah' => $risalahSignedByUser,
+            'perjanjian_bersama' => $perjanjianSignedByUser,
+            'anjuran' => $anjuranSignedByUser
+        ];
+
+        // Filter by jenis dokumen (optional) UNTUK SIGNED-BY-USER
+        if ($filter === 'Risalah Klarifikasi') {
+            if (isset($risalahSignedByUser) && $risalahSignedByUser instanceof \Illuminate\Database\Eloquent\Builder) {
+                $risalahSignedByUser = $risalahSignedByUser->where('jenis_risalah', 'klarifikasi');
+            } else {
+                $risalahSignedByUser = collect();
+            }
+        } elseif ($filter === 'Risalah Penyelesaian') {
+            if (isset($risalahSignedByUser) && $risalahSignedByUser instanceof \Illuminate\Database\Eloquent\Builder) {
+                $risalahSignedByUser = $risalahSignedByUser->where('jenis_risalah', 'penyelesaian');
+            } else {
+                $risalahSignedByUser = collect();
+            }
+        }
+        if ($filter === 'Perjanjian Bersama') {
+            // no-op
+        } elseif ($filter && !in_array($filter, ['Perjanjian Bersama', 'Semua', null])) {
+            $perjanjianSignedByUser = collect();
+        }
+        if ($filter === 'Anjuran') {
+            // no-op
+        } elseif ($filter && !in_array($filter, ['Anjuran', 'Semua', null])) {
+            $anjuranSignedByUser = collect();
+        }
+
+        // Filter by jenis dokumen (optional) UNTUK FINAL
+        if ($filter === 'Risalah Klarifikasi') {
+            if (isset($risalahSigned) && $risalahSigned instanceof \Illuminate\Database\Eloquent\Builder) {
+                $risalahSigned = $risalahSigned->where('jenis_risalah', 'klarifikasi');
+            } else {
+                $risalahSigned = collect();
+            }
+        } elseif ($filter === 'Risalah Penyelesaian') {
+            if (isset($risalahSigned) && $risalahSigned instanceof \Illuminate\Database\Eloquent\Builder) {
+                $risalahSigned = $risalahSigned->where('jenis_risalah', 'penyelesaian');
+            } else {
+                $risalahSigned = collect();
+            }
+        }
+        if ($filter === 'Perjanjian Bersama') {
+            // no-op
+        } elseif ($filter && !in_array($filter, ['Perjanjian Bersama', 'Semua', null])) {
+            $perjanjianSigned = collect();
+        }
+        if ($filter === 'Anjuran') {
+            // no-op
+        } elseif ($filter && !in_array($filter, ['Anjuran', 'Semua', null])) {
+            $anjuranSigned = collect();
+        }
+
+        return view('penyelesaian.index', compact('dokumenPending', 'dokumenSigned', 'dokumenSignedByUser', 'jenisDokumenList', 'filter'));
     }
 
     public function signDocument(Request $request)

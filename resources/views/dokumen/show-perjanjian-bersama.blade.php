@@ -96,10 +96,18 @@
                     <div class="grid md:grid-cols-2 gap-8 mb-8">
                         <div class="text-center">
                             <p class="font-medium mb-20">Pihak Pengusaha,</p>
+                            @if ($perjanjian->signature_pengusaha)
+                                <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pengusaha) }}"
+                                    alt="Tanda Tangan Pengusaha" class="max-h-24 mx-auto mb-2">
+                            @endif
                             <p class="font-medium">({{ $perjanjian->nama_pengusaha }})</p>
                         </div>
                         <div class="text-center">
                             <p class="font-medium mb-20">Pihak Pekerja/Buruh/SP/SB,</p>
+                            @if ($perjanjian->signature_pekerja)
+                                <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pekerja) }}"
+                                    alt="Tanda Tangan Pekerja" class="max-h-24 mx-auto mb-2">
+                            @endif
                             <p class="font-medium">({{ $perjanjian->nama_pekerja }})</p>
                         </div>
                     </div>
@@ -108,6 +116,10 @@
                     <div class="text-center">
                         <p class="font-medium mb-2">Menyaksikan</p>
                         <p class="font-medium mb-20">Mediator Hubungan Industrial,</p>
+                        @if ($perjanjian->signature_mediator)
+                            <img src="{{ asset('storage/signatures/' . $perjanjian->signature_mediator) }}"
+                                alt="Tanda Tangan Mediator" class="max-h-24 mx-auto mb-2">
+                        @endif
                         <p class="font-medium">........................................</p>
                         <p class="text-gray-600">NIP. ........................................</p>
                     </div>

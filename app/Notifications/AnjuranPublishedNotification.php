@@ -26,13 +26,18 @@ class AnjuranPublishedNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
+        $actionUrl = url('/anjuran/' . $this->anjuran->anjuran_id);
+        $finalDocuments = [
+            ['label' => 'Anjuran', 'url' => $actionUrl],
+        ];
         return (new MailMessage)
             ->subject('Anjuran Telah Diterbitkan')
-            ->greeting("Yth. {$notifiable->name},")
-            ->line('Dokumen Anjuran untuk kasus Anda telah diterbitkan.')
-            ->line('Silahkan login ke sistem untuk melihat isi Anjuran tersebut.')
-            ->action('Lihat Anjuran', url("/anjuran/{$this->anjuran->anjuran_id}"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.dokumen-siap-final', [
+                'mediator' => $notifiable,
+                'documentTypeLabel' => 'Anjuran',
+                'finalDocuments' => $finalDocuments,
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
@@ -43,4 +48,4 @@ class AnjuranPublishedNotification extends Notification implements ShouldQueue
             'action_url' => "/anjuran/{$this->anjuran->anjuran_id}",
         ];
     }
-} 
+}

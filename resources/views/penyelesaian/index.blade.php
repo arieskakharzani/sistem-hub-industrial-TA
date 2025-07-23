@@ -1,276 +1,103 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Penyelesaian Hubungan Industrial') }}
-        </h2>
-    </x-slot>
+<!DOCTYPE html>
+<html lang="en">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Penyelesaian Hubungan Industrial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#0000AB',
+                        'primary-light': '#3333CC',
+                        'primary-lighter': '#6666DD',
+                        'primary-dark': '#000088'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
 
-            <!-- Risalah Section -->
-            @if (isset($dokumenPending['risalah']) && $dokumenPending['risalah']->count() > 0)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4">Risalah Yang Perlu Ditandatangani</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            No</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Jenis</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($dokumenPending['risalah'] as $index => $risalah)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">{{ $index + 1 }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ ucfirst($risalah->jenis_risalah) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $risalah->created_at->format('d/m/Y') }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    Menunggu Tanda Tangan
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <button
-                                                    onclick="showPreviewModal('preview-risalah-{{ $risalah->risalah_id }}')"
-                                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                                    Preview & Tanda Tangan
-                                                </button>
-                                            </td>
-                                        </tr>
+<body>
+    <x-app-layout>
+        <x-slot name="header">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Penyelesaian Hubungan Industrial') }}
+            </h2>
+            <p class="text-gray-600 text-sm">Berikut adalah daftar dokumen yang perlu ditandatangani dan yang telah
+                selesai ditandatangani oleh mediator maupun pihak lain.</p>
+        </x-slot>
 
-                                        <!-- Preview Modal for Risalah -->
-                                        <x-document-preview-modal :id="'preview-risalah-' . $risalah->risalah_id" :title="'Preview Risalah ' . ucfirst($risalah->jenis_risalah)">
-                                            <x-document-preview.risalah :risalah="$risalah" />
-
-                                            <div class="mt-8 border-t pt-4">
-                                                <h4 class="font-semibold mb-4">Tanda Tangan Digital Mediator:</h4>
-                                                <form id="signature-form-risalah-{{ $risalah->risalah_id }}"
-                                                    action="{{ route('penyelesaian.sign-document') }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="document_type" value="risalah">
-                                                    <input type="hidden" name="document_id"
-                                                        value="{{ $risalah->risalah_id }}">
-                                                    <x-signature-pad :id="'signature-pad-risalah-' . $risalah->risalah_id" />
-                                                </form>
-                                            </div>
-
-                                            <x-slot name="actions">
-                                                <button type="submit"
-                                                    form="signature-form-risalah-{{ $risalah->risalah_id }}"
-                                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                                    Tanda Tangani Dokumen
-                                                </button>
-                                            </x-slot>
-                                        </x-document-preview-modal>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                @if (session('success'))
+                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                        {{ session('success') }}
                     </div>
-                </div>
-            @endif
+                @endif
 
-            <!-- Perjanjian Bersama Section -->
-            @if (isset($dokumenPending['perjanjian_bersama']) && $dokumenPending['perjanjian_bersama']->count() > 0)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4">Perjanjian Bersama Yang Perlu Ditandatangani</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            No</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nomor Perjanjian</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($dokumenPending['perjanjian_bersama'] as $index => $perjanjian)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">{{ $index + 1 }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $perjanjian->nomor_perjanjian ?? '-' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $perjanjian->created_at->format('d/m/Y') }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    {{ $perjanjian->getSignatureStatus() }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <button
-                                                    onclick="showPreviewModal('preview-pb-{{ $perjanjian->perjanjian_bersama_id }}')"
-                                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                                    Preview & Tanda Tangan
-                                                </button>
-                                            </td>
-                                        </tr>
 
-                                        <!-- Preview Modal for Perjanjian Bersama -->
-                                        <x-document-preview-modal :id="'preview-pb-' . $perjanjian->perjanjian_bersama_id" :title="'Preview Perjanjian Bersama'">
-                                            <x-document-preview.perjanjian-bersama :perjanjian="$perjanjian" />
 
-                                            <div class="mt-8 border-t pt-4">
-                                                <h4 class="font-semibold mb-4">Tanda Tangan Digital
-                                                    {{ auth()->user()->active_role === 'pelapor' ? 'Pekerja' : (auth()->user()->active_role === 'terlapor' ? 'Pengusaha' : 'Mediator') }}:
-                                                </h4>
-                                                <form id="signature-form-pb-{{ $perjanjian->perjanjian_bersama_id }}"
-                                                    action="{{ route('penyelesaian.sign-document') }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="document_type"
-                                                        value="perjanjian_bersama">
-                                                    <input type="hidden" name="document_id"
-                                                        value="{{ $perjanjian->perjanjian_bersama_id }}">
-                                                    <x-signature-pad :id="'signature-pad-pb-' . $perjanjian->perjanjian_bersama_id" />
-                                                </form>
-                                            </div>
-
-                                            <x-slot name="actions">
-                                                <button type="submit"
-                                                    form="signature-form-pb-{{ $perjanjian->perjanjian_bersama_id }}"
-                                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                                    Tanda Tangani Dokumen
-                                                </button>
-                                            </x-slot>
-                                        </x-document-preview-modal>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="mb-6">
+                        <form method="GET" action="" class="flex items-center gap-4">
+                            <label for="jenis_dokumen" class="block text-sm font-medium text-gray-700">Filter Jenis
+                                Dokumen:</label>
+                            <select name="jenis_dokumen" id="jenis_dokumen" onchange="this.form.submit()"
+                                class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200">
+                                <option value="">Semua</option>
+                                <option value="Risalah Klarifikasi"
+                                    {{ request('jenis_dokumen') == 'Risalah Klarifikasi' ? 'selected' : '' }}>Risalah
+                                    Klarifikasi</option>
+                                <option value="Risalah Penyelesaian"
+                                    {{ request('jenis_dokumen') == 'Risalah Penyelesaian' ? 'selected' : '' }}>Risalah
+                                    Penyelesaian</option>
+                                <option value="Perjanjian Bersama"
+                                    {{ request('jenis_dokumen') == 'Perjanjian Bersama' ? 'selected' : '' }}>Perjanjian
+                                    Bersama</option>
+                                <option value="Anjuran" {{ request('jenis_dokumen') == 'Anjuran' ? 'selected' : '' }}>
+                                    Anjuran</option>
+                            </select>
+                        </form>
                     </div>
+                    <h3 class="text-lg font-semibold mb-4 mt-8">Dokumen yang Belum Ditandatangani</h3>
+                    @include('penyelesaian.partials.tabel-pending', ['pending' => $dokumenPending])
+
+                    <h3 class="text-lg font-semibold mb-4 mt-8">Dokumen yang Sudah Ditandatangani Anda (Menunggu Pihak
+                        Lain)</h3>
+                    @include('penyelesaian.partials.tabel-signed-by-user', [
+                        'signedByUser' => $dokumenSignedByUser,
+                    ])
+
+                    <h3 class="text-lg font-semibold mb-4 mt-8">Dokumen Final (Sudah Ditandatangani Semua Pihak)</h3>
+                    @include('penyelesaian.partials.tabel-final', ['final' => $dokumenSigned])
                 </div>
-            @endif
-
-            <!-- Anjuran Section -->
-            @if (isset($dokumenPending['anjuran']) && $dokumenPending['anjuran']->count() > 0)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4">Anjuran Yang Perlu Ditandatangani</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            No</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nomor Anjuran</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($dokumenPending['anjuran'] as $index => $anjuran)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">{{ $index + 1 }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $anjuran->nomor_anjuran ?? '-' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $anjuran->created_at->format('d/m/Y') }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    {{ $anjuran->getSignatureStatus() }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <button
-                                                    onclick="showPreviewModal('preview-anjuran-{{ $anjuran->anjuran_id }}')"
-                                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                                    Preview & Tanda Tangan
-                                                </button>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Preview Modal for Anjuran -->
-                                        <x-document-preview-modal :id="'preview-anjuran-' . $anjuran->anjuran_id" :title="'Preview Anjuran'">
-                                            <x-document-preview.anjuran :anjuran="$anjuran" />
-
-                                            <div class="mt-8 border-t pt-4">
-                                                <h4 class="font-semibold mb-4">Tanda Tangan Digital
-                                                    {{ auth()->user()->active_role === 'kepala_dinas' ? 'Kepala Dinas' : 'Mediator' }}:
-                                                </h4>
-                                                <form id="signature-form-anjuran-{{ $anjuran->anjuran_id }}"
-                                                    action="{{ route('penyelesaian.sign-document') }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="document_type" value="anjuran">
-                                                    <input type="hidden" name="document_id"
-                                                        value="{{ $anjuran->anjuran_id }}">
-                                                    <x-signature-pad :id="'signature-pad-anjuran-' . $anjuran->anjuran_id" />
-                                                </form>
-                                            </div>
-
-                                            <x-slot name="actions">
-                                                <button type="submit"
-                                                    form="signature-form-anjuran-{{ $anjuran->anjuran_id }}"
-                                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                                    Tanda Tangani Dokumen
-                                                </button>
-                                            </x-slot>
-                                        </x-document-preview-modal>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            @if (
-                (!isset($dokumenPending['risalah']) || $dokumenPending['risalah']->count() === 0) &&
-                    (!isset($dokumenPending['perjanjian_bersama']) || $dokumenPending['perjanjian_bersama']->count() === 0) &&
-                    (!isset($dokumenPending['anjuran']) || $dokumenPending['anjuran']->count() === 0))
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <p class="text-gray-500 text-center">Tidak ada dokumen yang perlu ditandatangani saat ini.</p>
-                    </div>
-                </div>
-            @endif
+            </div>
         </div>
-    </div>
-</x-app-layout>
+    </x-app-layout>
+
+    <script>
+        function showPreviewModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closePreviewModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+    </script>
+</body>
+
+</html>

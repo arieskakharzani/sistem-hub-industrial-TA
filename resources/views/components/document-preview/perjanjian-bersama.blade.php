@@ -4,19 +4,19 @@
     <!-- Header -->
     <div class="text-center mb-6">
         <h1 class="text-xl font-bold">PERJANJIAN BERSAMA</h1>
-        <h2 class="text-lg">Nomor: {{ $perjanjian->nomor_perjanjian }}</h2>
+        {{-- <h2 class="text-lg">Nomor: {{ $perjanjian->nomor_perjanjian }}</h2> --}}
     </div>
 
     <!-- Content -->
-    <div class="space-y-4">
+    <div class="space-y-4 text-justify">
         <div>
             <p>Pada hari ini
                 {{ $perjanjian->tanggal_perjanjian ? $perjanjian->tanggal_perjanjian->isoFormat('dddd, D MMMM Y') : '' }}
                 telah tercapai kesepakatan antara:</p>
 
-            <div class="mt-4 ml-4">
+            <div class="mt-6">
                 <p class="font-bold">PIHAK PERTAMA:</p>
-                <div class="ml-4">
+                <div class="mt-2">
                     <p>Nama: {{ $perjanjian->nama_pengusaha }}</p>
                     <p>Jabatan: {{ $perjanjian->jabatan_pengusaha }}</p>
                     <p>Perusahaan: {{ $perjanjian->perusahaan_pengusaha }}</p>
@@ -24,9 +24,9 @@
                 </div>
             </div>
 
-            <div class="mt-4 ml-4">
+            <div class="mt-6">
                 <p class="font-bold">PIHAK KEDUA:</p>
-                <div class="ml-4">
+                <div class="mt-2">
                     <p>Nama: {{ $perjanjian->nama_pekerja }}</p>
                     <p>Jabatan: {{ $perjanjian->jabatan_pekerja }}</p>
                     <p>Perusahaan: {{ $perjanjian->perusahaan_pekerja }}</p>
@@ -50,7 +50,7 @@
                     <p class="text-center">PIHAK KEDUA,</p>
                     <div class="h-32 flex items-center justify-center">
                         @if ($perjanjian->signature_pekerja)
-                            <img src="{{ Storage::url('signatures/' . $perjanjian->signature_pekerja) }}"
+                            <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pekerja) }}"
                                 alt="Tanda Tangan Pekerja" class="max-h-24">
                         @endif
                     </div>
@@ -61,7 +61,7 @@
                     <p class="text-center">PIHAK PERTAMA,</p>
                     <div class="h-32 flex items-center justify-center">
                         @if ($perjanjian->signature_pengusaha)
-                            <img src="{{ Storage::url('signatures/' . $perjanjian->signature_pengusaha) }}"
+                            <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pengusaha) }}"
                                 alt="Tanda Tangan Pengusaha" class="max-h-24">
                         @endif
                     </div>
@@ -74,12 +74,22 @@
                 <p>Mediator Hubungan Industrial</p>
                 <div class="h-32 flex items-center justify-center">
                     @if ($perjanjian->signature_mediator)
-                        <img src="{{ Storage::url('signatures/' . $perjanjian->signature_mediator) }}"
+                        <img src="{{ asset('storage/signatures/' . $perjanjian->signature_mediator) }}"
                             alt="Tanda Tangan Mediator" class="max-h-24">
                     @endif
                 </div>
-                <p class="font-bold">{{ $perjanjian->dokumenHI->risalah->jadwal->mediator->nama_mediator }}</p>
-                <p>NIP. {{ $perjanjian->dokumenHI->risalah->jadwal->mediator->nip }}</p>
+                @php
+                    $risalahItem =
+                        isset($perjanjian->dokumenHI) &&
+                        $perjanjian->dokumenHI->risalah instanceof \Illuminate\Support\Collection
+                            ? $perjanjian->dokumenHI->risalah->first()
+                            : $perjanjian->dokumenHI->risalah;
+                @endphp
+                <p class="text-center font-bold">
+                    {{ optional(optional(optional($perjanjian->dokumenHI)->pengaduan)->mediator)->nama_mediator ?? '-' }}
+                </p>
+                <p class="text-center">NIP.
+                    {{ optional(optional(optional($perjanjian->dokumenHI)->pengaduan)->mediator)->nip ?? '-' }}</p>
             </div>
         </div>
     </div>

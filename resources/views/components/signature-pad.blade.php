@@ -24,6 +24,10 @@
 
 @push('scripts')
     <script>
+        if (!window.__signaturePadInitialized) {
+            window.__signaturePadInitialized = true;
+            window.clearSignature = clearSignature;
+        }
         document.addEventListener('DOMContentLoaded', function() {
             initSignaturePad('{{ $id }}');
         });
@@ -125,6 +129,7 @@
                 });
             }
         }
+        window.initSignaturePad = initSignaturePad;
 
         function clearSignature(canvasId) {
             const canvas = document.getElementById(canvasId);

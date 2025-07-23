@@ -23,9 +23,11 @@ return new class extends Migration
             $table->text('keterangan_pengusaha');
             $table->text('pertimbangan_hukum');
             $table->text('isi_anjuran');
+            $table->uuid('kepala_dinas_id')->nullable();
             $table->timestamps();
 
             $table->foreign('dokumen_hi_id')->references('dokumen_hi_id')->on('dokumen_hubungan_industrial')->onDelete('cascade');
+            $table->foreign('kepala_dinas_id')->references('kepala_dinas_id')->on('kepala_dinas')->onDelete('cascade');
         });
     }
 

@@ -100,6 +100,10 @@
                         <div class="text-center">
                             <p class="font-medium mb-2">Mengetahui</p>
                             <p class="font-medium mb-20">Kepala Dinas,</p>
+                            @if ($anjuran->signature_kepala_dinas)
+                                <img src="{{ asset('storage/signatures/' . $anjuran->signature_kepala_dinas) }}"
+                                    alt="Tanda Tangan Kepala Dinas" class="max-h-24 mx-auto mb-2">
+                            @endif
                             <p class="font-medium">
                                 (.........)
                             </p>
@@ -108,11 +112,17 @@
                         </div>
                         <div class="text-center">
                             <p class="font-medium mb-2">Mediator Hubungan Industrial,</p>
+                            @if ($anjuran->signature_mediator)
+                                <img src="{{ asset('storage/signatures/' . $anjuran->signature_mediator) }}"
+                                    alt="Tanda Tangan Mediator" class="max-h-24 mx-auto mb-2">
+                            @endif
                             <p class="font-medium mb-20">&nbsp;</p>
                             <p class="font-medium">
-                                ({{ $anjuran->dokumenHI->risalah->first()->jadwal->mediator->nama_mediator }})</p>
+                                ({{ optional(optional($anjuran->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }})
+                            </p>
                             <p class="text-gray-600">NIP.
-                                {{ $anjuran->dokumenHI->risalah->first()->jadwal->mediator->nip }}</p>
+                                {{ optional(optional($anjuran->dokumenHI->risalah->first())->jadwal)->mediator->nip ?? '-' }}
+                            </p>
                         </div>
                     </div>
                     @if ($anjuran->isFullySigned())

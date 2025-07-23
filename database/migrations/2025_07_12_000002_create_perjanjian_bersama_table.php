@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('perusahaan_pekerja');
             $table->string('alamat_pekerja');
             $table->text('isi_kesepakatan');
+            $table->string('nomor_perjanjian')->nullable();
+            $table->date('tanggal_perjanjian')->nullable();
             $table->enum('status_approval', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu');
             $table->timestamps();
             $table->foreign('dokumen_hi_id')->references('dokumen_hi_id')->on('dokumen_hubungan_industrial')->onDelete('cascade');

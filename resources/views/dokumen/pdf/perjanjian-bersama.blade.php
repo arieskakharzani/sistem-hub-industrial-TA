@@ -143,12 +143,20 @@
             <div class="signature-row">
                 <div class="signature-box">
                     <p>Pihak Pengusaha,</p>
-                    <div class="signature-line"></div>
+                    @if ($perjanjian->signature_pengusaha)
+                        <img src="{{ public_path('storage/signatures/' . $perjanjian->signature_pengusaha) }}"
+                            alt="Tanda Tangan Pengusaha"
+                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
+                    @endif
                     <p>({{ $perjanjian->nama_pengusaha }})</p>
                 </div>
                 <div class="signature-box">
                     <p>Pihak Pekerja/Buruh/SP/SB,</p>
-                    <div class="signature-line"></div>
+                    @if ($perjanjian->signature_pekerja)
+                        <img src="{{ public_path('storage/signatures/' . $perjanjian->signature_pekerja) }}"
+                            alt="Tanda Tangan Pekerja"
+                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
+                    @endif
                     <p>({{ $perjanjian->nama_pekerja }})</p>
                 </div>
             </div>
@@ -157,9 +165,15 @@
         <div class="mediator-signature">
             <p>Menyaksikan</p>
             <p>Mediator Hubungan Industrial,</p>
-            <div class="signature-line"></div>
-            <p>({{ $perjanjian->dokumenHI->risalah->first()->jadwal->mediator->nama_mediator }})</p>
-            <p>NIP. {{ $perjanjian->dokumenHI->risalah->first()->jadwal->mediator->nip }}</p>
+            @if ($perjanjian->signature_mediator)
+                <img src="{{ public_path('storage/signatures/' . $perjanjian->signature_mediator) }}"
+                    alt="Tanda Tangan Mediator"
+                    style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
+            @endif
+            <p>({{ optional(optional($perjanjian->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }})
+            </p>
+            <p>NIP. {{ optional(optional($perjanjian->dokumenHI->risalah->first())->jadwal)->mediator->nip ?? '-' }}
+            </p>
         </div>
     </div>
 </body>

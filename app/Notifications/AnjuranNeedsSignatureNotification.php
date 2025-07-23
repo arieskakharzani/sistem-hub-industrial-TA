@@ -26,13 +26,17 @@ class AnjuranNeedsSignatureNotification extends Notification implements ShouldQu
 
     public function toMail($notifiable)
     {
+        $actionUrl = url('/penyelesaian');
         return (new MailMessage)
             ->subject('Anjuran Memerlukan Tanda Tangan Anda')
-            ->greeting("Yth. {$notifiable->name},")
-            ->line('Terdapat dokumen Anjuran yang memerlukan tanda tangan Anda.')
-            ->line('Silahkan login ke sistem untuk menandatangani dokumen tersebut.')
-            ->action('Tanda Tangani Dokumen', url("/penyelesaian"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.tanda-tangan-dibutuhkan', [
+                'user' => $notifiable,
+                'documentTypeLabel' => 'Anjuran',
+                'perihal' => $this->anjuran->dokumenHI->pengaduan->perihal ?? '-',
+                'namaPekerja' => $this->anjuran->nama_pekerja ?? '-',
+                'namaPengusaha' => $this->anjuran->nama_pengusaha ?? '-',
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
@@ -43,4 +47,4 @@ class AnjuranNeedsSignatureNotification extends Notification implements ShouldQu
             'action_url' => '/penyelesaian',
         ];
     }
-} 
+}

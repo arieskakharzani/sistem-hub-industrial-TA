@@ -106,7 +106,7 @@
                                             {{ $dokumen->pihak_pekerja }}</td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             @if ($dokumen->jenis_dokumen == 'Perjanjian Bersama' || $dokumen->jenis_dokumen == 'Anjuran')
-                                                {{ $dokumen->dokumenHI->risalah->first()->jadwal->mediator->nama_mediator ?? '-' }}
+                                                {{ optional(optional($dokumen->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }}
                                             @elseif($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
                                                 {{ $dokumen->jadwal->mediator->nama_mediator ?? '-' }}
                                             @else

@@ -161,15 +161,26 @@
                 <div class="signature-box">
                     <p>Mengetahui</p>
                     <p>Kepala Dinas,</p>
-                    <div class="signature-line"></div>
+                    @if ($anjuran->signature_kepala_dinas)
+                        <img src="{{ public_path('storage/signatures/' . $anjuran->signature_kepala_dinas) }}"
+                            alt="Tanda Tangan Kepala Dinas"
+                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
+                    @endif
                     <p>(...................)</p>
                     <p>NIP. ---------------------</p>
                 </div>
                 <div class="signature-box">
                     <p>Mediator Hubungan Industrial,</p>
-                    <div class="signature-line"></div>
-                    <p>({{ $anjuran->dokumenHI->risalah->first()->jadwal->mediator->nama_mediator }})</p>
-                    <p>NIP. {{ $anjuran->dokumenHI->risalah->first()->jadwal->mediator->nip }}</p>
+                    @if ($anjuran->signature_mediator)
+                        <img src="{{ public_path('storage/signatures/' . $anjuran->signature_mediator) }}"
+                            alt="Tanda Tangan Mediator"
+                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
+                    @endif
+                    <p>({{ optional(optional($anjuran->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }})
+                    </p>
+                    <p>NIP.
+                        {{ optional(optional($anjuran->dokumenHI->risalah->first())->jadwal)->mediator->nip ?? '-' }}
+                    </p>
                 </div>
             </div>
         </div>

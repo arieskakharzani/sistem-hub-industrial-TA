@@ -27,24 +27,28 @@ class RisalahSignedNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $jenis = $this->risalah->jenis === 'klarifikasi' ? 'Klarifikasi' : 'Penyelesaian';
-        
+        $actionUrl = url('/risalah/' . $this->risalah->risalah_id);
+        $finalDocuments = [
+            ['label' => 'Risalah ' . $jenis, 'url' => $actionUrl],
+        ];
         return (new MailMessage)
             ->subject("Risalah {$jenis} Telah Ditandatangani")
-            ->greeting("Yth. {$notifiable->name},")
-            ->line("Risalah {$jenis} untuk kasus Anda telah ditandatangani oleh mediator.")
-            ->line("Silahkan login ke sistem untuk melihat detail risalah tersebut.")
-            ->action('Lihat Risalah', url("/risalah/{$this->risalah->risalah_id}"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.dokumen-siap-final', [
+                'mediator' => $notifiable,
+                'documentTypeLabel' => 'Risalah ' . $jenis,
+                'finalDocuments' => $finalDocuments,
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
     {
         $jenis = $this->risalah->jenis === 'klarifikasi' ? 'Klarifikasi' : 'Penyelesaian';
-        
+
         return [
             'title' => "Risalah {$jenis} Telah Ditandatangani",
             'message' => "Risalah {$jenis} untuk kasus Anda telah ditandatangani oleh mediator.",
             'action_url' => "/risalah/{$this->risalah->risalah_id}",
         ];
     }
-} 
+}

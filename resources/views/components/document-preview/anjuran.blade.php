@@ -3,18 +3,17 @@
 <div class="bg-white p-8 text-black">
     <!-- Header -->
     <div class="text-center mb-6">
-        <h1 class="text-xl font-bold">ANJURAN TERTULIS</h1>
-        <h2 class="text-lg">Nomor: {{ $anjuran->nomor_anjuran }}</h2>
+        <h1 class="text-xl font-bold">ANJURAN</h1>
     </div>
 
     <!-- Content -->
-    <div class="space-y-4">
+    <div class="space-y-4 text-justify">
         <div>
             <p>Memperhatikan hasil mediasi antara:</p>
 
-            <div class="mt-4 ml-4">
+            <div class="mt-6">
                 <p class="font-bold">PIHAK PERTAMA (PENGUSAHA):</p>
-                <div class="ml-4">
+                <div class="mt-2">
                     <p>Nama: {{ $anjuran->nama_pengusaha }}</p>
                     <p>Jabatan: {{ $anjuran->jabatan_pengusaha }}</p>
                     <p>Perusahaan: {{ $anjuran->perusahaan_pengusaha }}</p>
@@ -22,9 +21,9 @@
                 </div>
             </div>
 
-            <div class="mt-4 ml-4">
+            <div class="mt-6">
                 <p class="font-bold">PIHAK KEDUA (PEKERJA):</p>
-                <div class="ml-4">
+                <div class="mt-2">
                     <p>Nama: {{ $anjuran->nama_pekerja }}</p>
                     <p>Jabatan: {{ $anjuran->jabatan_pekerja }}</p>
                     <p>Perusahaan: {{ $anjuran->perusahaan_pekerja }}</p>
@@ -62,20 +61,23 @@
                     <p class="text-center">Mediator Hubungan Industrial,</p>
                     <div class="h-32 flex items-center justify-center">
                         @if ($anjuran->signature_mediator)
-                            <img src="{{ Storage::url('signatures/' . $anjuran->signature_mediator) }}"
+                            <img src="{{ asset('storage/signatures/' . $anjuran->signature_mediator) }}"
                                 alt="Tanda Tangan Mediator" class="max-h-24">
                         @endif
                     </div>
                     <p class="text-center font-bold">
-                        {{ $anjuran->dokumenHI->risalah->jadwal->mediator->nama_mediator }}</p>
-                    <p class="text-center">NIP. {{ $anjuran->dokumenHI->risalah->jadwal->mediator->nip }}</p>
+                        {{ optional(optional(optional(optional(optional($anjuran)->dokumenHI)->risalah)->jadwal)->mediator)->nama_mediator ?? '-' }}
+                    </p>
+                    <p class="text-center">NIP.
+                        {{ optional(optional(optional(optional(optional($anjuran)->dokumenHI)->risalah)->jadwal)->mediator)->nip ?? '-' }}
+                    </p>
                 </div>
 
                 <div class="w-1/2">
                     <p class="text-center">Kepala Dinas,</p>
                     <div class="h-32 flex items-center justify-center">
                         @if ($anjuran->signature_kepala_dinas)
-                            <img src="{{ Storage::url('signatures/' . $anjuran->signature_kepala_dinas) }}"
+                            <img src="{{ asset('storage/signatures/' . $anjuran->signature_kepala_dinas) }}"
                                 alt="Tanda Tangan Kepala Dinas" class="max-h-24">
                         @endif
                     </div>

@@ -26,13 +26,18 @@ class AnjuranSignedByKepalaDinasNotification extends Notification implements Sho
 
     public function toMail($notifiable)
     {
+        $actionUrl = url('/anjuran/' . $this->anjuran->anjuran_id);
+        $finalDocuments = [
+            ['label' => 'Anjuran', 'url' => $actionUrl],
+        ];
         return (new MailMessage)
             ->subject('Anjuran Telah Ditandatangani Kepala Dinas')
-            ->greeting("Yth. {$notifiable->name},")
-            ->line('Dokumen Anjuran telah ditandatangani oleh Kepala Dinas.')
-            ->line('Silahkan login ke sistem untuk mempublikasikan dokumen kepada para pihak.')
-            ->action('Lihat Dokumen', url("/anjuran/{$this->anjuran->anjuran_id}"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.dokumen-siap-final', [
+                'mediator' => $notifiable,
+                'documentTypeLabel' => 'Anjuran',
+                'finalDocuments' => $finalDocuments,
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
@@ -43,4 +48,4 @@ class AnjuranSignedByKepalaDinasNotification extends Notification implements Sho
             'action_url' => "/anjuran/{$this->anjuran->anjuran_id}",
         ];
     }
-} 
+}

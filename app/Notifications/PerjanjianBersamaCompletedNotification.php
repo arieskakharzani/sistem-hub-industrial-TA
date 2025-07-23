@@ -26,13 +26,18 @@ class PerjanjianBersamaCompletedNotification extends Notification implements Sho
 
     public function toMail($notifiable)
     {
+        $actionUrl = url('/perjanjian-bersama/' . $this->perjanjianBersama->perjanjian_bersama_id);
+        $finalDocuments = [
+            ['label' => 'Perjanjian Bersama', 'url' => $actionUrl],
+        ];
         return (new MailMessage)
             ->subject('Perjanjian Bersama Telah Selesai')
-            ->greeting("Yth. {$notifiable->name},")
-            ->line('Perjanjian Bersama telah ditandatangani oleh semua pihak.')
-            ->line('Silahkan login ke sistem untuk melihat dokumen final.')
-            ->action('Lihat Dokumen', url("/perjanjian-bersama/{$this->perjanjianBersama->perjanjian_bersama_id}"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.dokumen-siap-final', [
+                'mediator' => $notifiable,
+                'documentTypeLabel' => 'Perjanjian Bersama',
+                'finalDocuments' => $finalDocuments,
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
@@ -43,4 +48,4 @@ class PerjanjianBersamaCompletedNotification extends Notification implements Sho
             'action_url' => "/perjanjian-bersama/{$this->perjanjianBersama->perjanjian_bersama_id}",
         ];
     }
-} 
+}

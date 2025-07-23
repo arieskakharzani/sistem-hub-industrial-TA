@@ -26,13 +26,17 @@ class PerjanjianBersamaNeedsMediatorSignatureNotification extends Notification i
 
     public function toMail($notifiable)
     {
+        $actionUrl = url('/penyelesaian');
         return (new MailMessage)
             ->subject('Perjanjian Bersama Siap Ditandatangani')
-            ->greeting("Yth. {$notifiable->name},")
-            ->line('Pelapor dan Terlapor telah menandatangani Perjanjian Bersama.')
-            ->line('Silahkan login ke sistem untuk memberikan tanda tangan final sebagai Mediator.')
-            ->action('Tanda Tangani Dokumen', url("/penyelesaian"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.tanda-tangan-dibutuhkan', [
+                'user' => $notifiable,
+                'documentTypeLabel' => 'Perjanjian Bersama',
+                'perihal' => $this->perjanjianBersama->dokumenHI->pengaduan->perihal ?? '-',
+                'namaPekerja' => $this->perjanjianBersama->nama_pekerja ?? '-',
+                'namaPengusaha' => $this->perjanjianBersama->nama_pengusaha ?? '-',
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
@@ -43,4 +47,4 @@ class PerjanjianBersamaNeedsMediatorSignatureNotification extends Notification i
             'action_url' => '/penyelesaian',
         ];
     }
-} 
+}

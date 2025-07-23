@@ -26,13 +26,17 @@ class PerjanjianBersamaNeedsPelaporSignatureNotification extends Notification im
 
     public function toMail($notifiable)
     {
+        $actionUrl = url('/penyelesaian');
         return (new MailMessage)
             ->subject('Perjanjian Bersama Memerlukan Tanda Tangan Anda')
-            ->greeting("Yth. {$notifiable->name},")
-            ->line('Terdapat Perjanjian Bersama yang memerlukan tanda tangan Anda sebagai Pelapor.')
-            ->line('Silahkan login ke sistem untuk menandatangani dokumen tersebut.')
-            ->action('Tanda Tangani Dokumen', url("/penyelesaian"))
-            ->line('Terima kasih atas perhatiannya.');
+            ->view('emails.tanda-tangan-dibutuhkan', [
+                'user' => $notifiable,
+                'documentTypeLabel' => 'Perjanjian Bersama',
+                'perihal' => $this->perjanjianBersama->dokumenHI->pengaduan->perihal ?? '-',
+                'namaPekerja' => $this->perjanjianBersama->nama_pekerja ?? '-',
+                'namaPengusaha' => $this->perjanjianBersama->nama_pengusaha ?? '-',
+                'actionUrl' => $actionUrl,
+            ]);
     }
 
     public function toArray($notifiable)
@@ -43,4 +47,4 @@ class PerjanjianBersamaNeedsPelaporSignatureNotification extends Notification im
             'action_url' => '/penyelesaian',
         ];
     }
-} 
+}
