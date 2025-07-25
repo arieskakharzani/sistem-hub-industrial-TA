@@ -122,60 +122,55 @@ class PengaduanController extends Controller
     /**
      * Semua mediator bisa melihat semua pengaduan
      */
-    public function kelola()
+    public function kelola(Request $request)
     {
         $user = Auth::user();
 
-        // Hanya mediator atau kepala dinas yang bisa akses
         if (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
             abort(403, 'Access denied');
         }
 
-        // Semua mediator bisa melihat semua pengaduan
+        $query = Pengaduan::with([
+            'pelapor.user',
+            'terlapor.user',
+            'mediator.user',
+            'jadwal',
+            'dokumenHI.risalah'
+        ]);
+
+        // Filter pencarian
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nomor_pengaduan', 'like', "%$q%")
+                    ->orWhere('perihal', 'like', "%$q%")
+                    ->orWhereHas('pelapor', function ($q2) use ($q) {
+                        $q2->where('nama_pelapor', 'like', "%$q%")
+                            ->orWhere('email', 'like', "%$q%");
+                    })
+                    ->orWhereHas('terlapor', function ($q2) use ($q) {
+                        $q2->where('nama_terlapor', 'like', "%$q%")
+                            ->orWhere('email_terlapor', 'like', "%$q%");
+                    });
+            });
+        }
+
+        $pengaduans = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+
         if ($user->active_role === 'mediator') {
             $mediator = $user->mediator;
-
-            if (!$mediator) {
-                return redirect()->route('dashboard')->with('error', 'Profil mediator tidak ditemukan.');
-            }
-
-            // Tampilkan SEMUA pengaduan dengan relasi lengkap
-            $pengaduans = Pengaduan::with([
-                'pelapor.user',
-                'terlapor.user',
-                'mediator.user',
-                'jadwal',
-                'dokumenHI.risalah'
-            ])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-            // Stats untuk mediator
             $stats = [
                 'total_semua_pengaduan' => Pengaduan::count(),
-                'total_kasus_saya' => $mediator->pengaduans()->count(),
-                'kasus_aktif_saya' => $mediator->pengaduans()->whereIn('status', ['pending', 'proses'])->count(),
-                'kasus_selesai_saya' => $mediator->pengaduans()->where('status', 'selesai')->count(),
+                'total_kasus' => Pengaduan::count(),
+                'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
+                'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
                 'pengaduan_tersedia' => Pengaduan::whereNull('mediator_id')->count(),
             ];
         } else {
-            // Kepala dinas bisa lihat semua dengan relasi lengkap
-            $pengaduans = Pengaduan::with([
-                'pelapor.user',
-                'terlapor.user',
-                'mediator.user',
-                'jadwal',
-                'dokumenHI.risalah'
-            ])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-            // Stats untuk kepala dinas
             $stats = [
-                'total_kasus_saya' => Pengaduan::count(),
+                'total_kasus' => Pengaduan::count(),
                 'kasus_aktif' => Pengaduan::whereIn('status', ['pending', 'proses'])->count(),
                 'kasus_selesai' => Pengaduan::where('status', 'selesai')->count(),
-                'mediator_aktif' => Mediator::count(),
             ];
         }
 

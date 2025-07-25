@@ -150,20 +150,16 @@
                                             {{ $pengaduan->perihal }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $statusClass =
+                                                    [
+                                                        'pending' => 'bg-yellow-100 text-yellow-800',
+                                                        'proses' => 'bg-blue-100 text-blue-800',
+                                                        'selesai' => 'bg-green-100 text-green-800',
+                                                    ][$pengaduan->status] ?? 'bg-gray-100 text-gray-800';
+                                            @endphp
                                             <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                @switch($pengaduan->status)
-                                                    @case('pending')
-                                                        bg-yellow-100 text-yellow-800
-                                                        @break
-                                                    @case('proses')
-                                                        bg-blue-100 text-blue-800
-                                                        @break
-                                                    @case('selesai')
-                                                        bg-green-100 text-green-800
-                                                        @break
-                                                @endswitch
-                                            ">
+                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
                                                 {{ ucfirst($pengaduan->status) }}
                                             </span>
                                         </td>

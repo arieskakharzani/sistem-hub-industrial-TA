@@ -131,7 +131,7 @@
         </div>
 
         <p style="text-align: justify;">
-            Kesepakatan ini merupakan perjanjian bersama yang berlaku sejak ditandatangani diatas materai cukup.
+            Kesepakatan ini merupakan perjanjian bersama yang berlaku sejak ditandatangani pihak-pihak berselisih.
         </p>
 
         <p style="text-align: justify;">
@@ -170,9 +170,8 @@
                     alt="Tanda Tangan Mediator"
                     style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
             @endif
-            <p>({{ optional(optional($perjanjian->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }})
-            </p>
-            <p>NIP. {{ optional(optional($perjanjian->dokumenHI->risalah->first())->jadwal)->mediator->nip ?? '-' }}
+            <p>({{ $perjanjian->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
+            <p>NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip ?? '-' }}
             </p>
         </div>
     </div>

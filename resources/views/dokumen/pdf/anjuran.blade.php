@@ -166,8 +166,8 @@
                             alt="Tanda Tangan Kepala Dinas"
                             style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
                     @endif
-                    <p>(...................)</p>
-                    <p>NIP. ---------------------</p>
+                    <p>{{ $anjuran->kepalaDinas->nama_kepala_dinas ?? '-' }}</p>
+                    <p>NIP. {{ $anjuran->kepalaDinas->nip ?? '-' }}</p>
                 </div>
                 <div class="signature-box">
                     <p>Mediator Hubungan Industrial,</p>
@@ -176,11 +176,8 @@
                             alt="Tanda Tangan Mediator"
                             style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
                     @endif
-                    <p>({{ optional(optional($anjuran->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }})
-                    </p>
-                    <p>NIP.
-                        {{ optional(optional($anjuran->dokumenHI->risalah->first())->jadwal)->mediator->nip ?? '-' }}
-                    </p>
+                    <p>({{ $anjuran->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
+                    <p>NIP. {{ $anjuran->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
                 </div>
             </div>
         </div>

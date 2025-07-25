@@ -47,10 +47,10 @@
             </div>
         </x-slot>
 
-        <div class="py-12">
+        <div class="py-4">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Statistics Cards with different data for mediator vs kepala dinas -->
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                     @if (auth()->user()->role === 'mediator')
                         <!-- Stats untuk Mediator -->
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -67,27 +67,8 @@
                                     <div class="ml-4">
                                         <p class="text-gray-600 text-sm">Total Semua Pengaduan</p>
                                         <p class="text-2xl font-bold text-gray-900">
-                                            {{ $stats['total_semua_pengaduan'] ?? ($stats['total_kasus_saya'] ?? 0) }}
+                                            {{ $stats['total_semua_pengaduan'] ?? ($stats['total_kasus'] ?? 0) }}
                                         </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="p-6">
-                                <div class="flex items-center">
-                                    <div class="p-3 bg-green-100 rounded-lg">
-                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <p class="text-gray-600 text-sm">Tanggung Jawab Saya</p>
-                                        <p class="text-2xl font-bold text-gray-900">
-                                            {{ $stats['total_kasus_saya'] ?? 0 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -104,9 +85,28 @@
                                         </svg>
                                     </div>
                                     <div class="ml-4">
-                                        <p class="text-gray-600 text-sm">Kasus Aktif Saya</p>
+                                        <p class="text-gray-600 text-sm">Kasus Aktif</p>
                                         <p class="text-2xl font-bold text-gray-900">
-                                            {{ $stats['kasus_aktif_saya'] ?? 0 }}</p>
+                                            {{ $stats['kasus_aktif'] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-green-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Kasus Selesai</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['kasus_selesai'] }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -146,7 +146,7 @@
                                     <div class="ml-4">
                                         <p class="text-gray-600 text-sm">Total Pengaduan</p>
                                         <p class="text-2xl font-bold text-gray-900">
-                                            {{ $stats['total_kasus_saya'] ?? 0 }}</p>
+                                            {{ $stats['total_kasus'] ?? 0 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -188,26 +188,27 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="p-6">
-                                <div class="flex items-center">
-                                    <div class="p-3 bg-purple-100 rounded-lg">
-                                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <p class="text-gray-600 text-sm">Mediator Aktif</p>
-                                        <p class="text-2xl font-bold text-gray-900">
-                                            {{ $stats['mediator_aktif'] ?? ($stats['jadwal_hari_ini'] ?? 0) }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     @endif
+                </div>
+                <br>
+
+                <!-- Kolom Pencarian -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                    <div class="p-6">
+                        <form method="GET" action="" class="flex flex-wrap gap-4">
+                            <div class="flex-1 min-w-32">
+                                <input type="text" name="q" value="{{ request('q') }}"
+                                    placeholder="Cari pengaduan..."
+                                    class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring" />
+                            </div>
+                            <button type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Cari</button>
+                            @if (request('q'))
+                                <a href="{{ route('pengaduan.kelola') }}"
+                                    class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md">Reset</a>
+                            @endif
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Main Content -->
@@ -221,6 +222,9 @@
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             No</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nomor Pengaduan</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Pelapor</th>
@@ -274,6 +278,9 @@
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ ($pengaduans->currentPage() - 1) * $pengaduans->perPage() + $index + 1 }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $pengaduan->nomor_pengaduan ?? '-' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">

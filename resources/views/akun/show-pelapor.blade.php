@@ -254,12 +254,16 @@
                                                 {{ Str::limit($pengaduan->subjek_pengaduan, 50) }}
                                             </td> --}}
                                             <td class="px-6 py-4 whitespace-nowrap">
+                                                @php
+                                                    $statusClass =
+                                                        [
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'proses' => 'bg-blue-100 text-blue-800',
+                                                            'selesai' => 'bg-green-100 text-green-800',
+                                                        ][$pengaduan->status] ?? 'bg-gray-100 text-gray-800';
+                                                @endphp
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                    @if ($pengaduan->status === 'selesai') bg-green-100 text-green-800 
-                                                    @elseif($pengaduan->status === 'proses') bg-blue-100 text-blue-800
-                                                    @elseif($pengaduan->status === 'pending') bg-yellow-100 text-yellow-800 
-                                                    @else bg-gray-100 text-gray-800 @endif">
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
                                                     {{ ucfirst($pengaduan->status) }}
                                                 </span>
                                             </td>

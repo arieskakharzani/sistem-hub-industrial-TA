@@ -117,7 +117,7 @@
                                 onclick="openSignedPreviewModal('{{ $doc->getKey() }}')">Lihat</button>
                             <!-- Modal Preview Dokumen Signed -->
                             <div id="signed-preview-modal-{{ $doc->getKey() }}"
-                                class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-40">
+                                class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40">
                                 <div
                                     class="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl mx-auto relative overflow-y-auto max-h-screen">
                                     <button type="button"
