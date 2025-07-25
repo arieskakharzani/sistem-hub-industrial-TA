@@ -105,6 +105,10 @@
                                 <tr>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Nomor Pengaduan
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tanggal
                                     </th>
                                     <th
@@ -128,6 +132,9 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($terlapor->pengaduans as $pengaduan)
                                     <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $pengaduan->tanggal_laporan->format('d/m/Y') }}
                                         </td>
@@ -169,7 +176,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5"
+                                        <td colspan="6"
                                             class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                             Belum ada pengaduan
                                         </td>

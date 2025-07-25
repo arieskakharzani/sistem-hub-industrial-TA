@@ -150,6 +150,12 @@
                                         <p class="font-medium">{{ $jadwal->pengaduan->terlapor->nama_terlapor ?? '-' }}
                                         </p>
                                     </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Nomor Pengaduan</p>
+                                        <p class="font-medium">
+                                            {{ $jadwal->pengaduan->nomor_pengaduan ?? $jadwal->pengaduan->pengaduan_id }}
+                                        </p>
+                                    </div>
                                     <div class="md:col-span-2">
                                         <p class="text-sm text-gray-500 mb-1">Perihal</p>
                                         <p class="font-medium">{{ $jadwal->pengaduan->perihal }}</p>

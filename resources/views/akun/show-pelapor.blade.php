@@ -228,7 +228,7 @@
                                     <tr>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ID Pengaduan</th>
+                                            Nomor Pengaduan</th>
                                         {{-- <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Subjek</th> --}}
@@ -247,7 +247,7 @@
                                     @foreach ($pelapor->pengaduan as $pengaduan)
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                #{{ $pengaduan->pengaduan_id }}
+                                                #{{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}
                                                 | {{ $pengaduan->perihal }}
                                             </td>
                                             {{-- <td class="px-6 py-4 text-sm text-gray-900">

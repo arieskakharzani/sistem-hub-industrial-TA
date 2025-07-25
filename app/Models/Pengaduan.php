@@ -54,6 +54,19 @@ class Pengaduan extends Model
             if (empty($model->pengaduan_id)) {
                 $model->pengaduan_id = (string) Str::uuid();
             }
+            // Generate nomor_pengaduan otomatis
+            if (empty($model->nomor_pengaduan)) {
+                $year = now()->year;
+                $last = self::whereYear('created_at', $year)
+                    ->whereNotNull('nomor_pengaduan')
+                    ->orderByDesc('nomor_pengaduan')
+                    ->first();
+                $next = 1;
+                if ($last && preg_match('/PGD-' . $year . '-(\\d{4})$/', $last->nomor_pengaduan, $matches)) {
+                    $next = intval($matches[1]) + 1;
+                }
+                $model->nomor_pengaduan = sprintf('PGD-%d-%04d', $year, $next);
+            }
         });
     }
 

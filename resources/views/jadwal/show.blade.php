@@ -401,9 +401,17 @@
 
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">ID
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor
+                                            Jadwal</label>
+                                        <p class="text-sm text-gray-900">
+                                            #{{ $jadwal->nomor_jadwal ?? $jadwal->jadwal_id }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor
                                             Pengaduan</label>
-                                        <p class="text-sm text-gray-900">#{{ $jadwal->pengaduan->pengaduan_id }}</p>
+                                        <p class="text-sm text-gray-900">
+                                            #{{ $jadwal->pengaduan->nomor_pengaduan ?? $jadwal->pengaduan->pengaduan_id }}
+                                        </p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Perihal</label>

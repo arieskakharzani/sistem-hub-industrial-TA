@@ -69,6 +69,9 @@
                                         No</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Nomor Pengaduan</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Jenis Dokumen</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -92,6 +95,9 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ ($pagedDokumenList->currentPage() - 1) * $pagedDokumenList->perPage() + $index + 1 }}
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ optional($dokumen->pengaduan)->nomor_pengaduan ?? (optional($dokumen->pengaduan)->pengaduan_id ?? '-') }}
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <span
@@ -156,7 +162,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-8 text-gray-500">Belum ada dokumen.
+                                        <td colspan="8" class="text-center py-8 text-gray-500">Belum ada dokumen.
                                         </td>
                                     </tr>
                                 @endforelse

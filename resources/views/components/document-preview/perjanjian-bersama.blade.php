@@ -42,7 +42,8 @@
 
         <!-- Signature Section -->
         <div class="mt-12">
-            <p class="text-center mb-6">Demikian Perjanjian Bersama ini dibuat dan ditandatangani oleh kedua belah pihak
+            <p class="text-center mb-6">Demikian Perjanjian Bersama ini dibuat dan ditandatangani oleh kedua belah
+                pihak
                 untuk dilaksanakan sebagaimana mestinya.</p>
 
             <div class="flex justify-between">
@@ -69,27 +70,27 @@
                 </div>
             </div>
 
-            <div class="mt-8 text-center">
-                <p>Mengetahui/Mengesahkan</p>
-                <p>Mediator Hubungan Industrial</p>
-                <div class="h-32 flex items-center justify-center">
-                    @if ($perjanjian->signature_mediator)
-                        <img src="{{ asset('storage/signatures/' . $perjanjian->signature_mediator) }}"
-                            alt="Tanda Tangan Mediator" class="max-h-24">
-                    @endif
+            <div class="mt-12 flex justify-end">
+                <div class="flex flex-col items-end" style="width: 350px;">
+                    <div class="mb-2">Muara Bungo,
+                        {{ $perjanjian->tanggal_perjanjian ? $perjanjian->tanggal_perjanjian->isoFormat('D MMMM Y') : now()->isoFormat('D MMMM Y') }}
+                    </div>
+                    <div class="font-semibold">Mediator Hubungan Industrial,</div>
+                    <div class="mb-2 flex flex-col items-end w-full">
+                        @if ($perjanjian->signature_mediator)
+                            <img src="{{ asset('storage/signatures/' . $perjanjian->signature_mediator) }}"
+                                alt="Tanda Tangan Mediator" class="max-h-24 mb-2">
+                        @else
+                            <br><br><br>
+                        @endif
+                    </div>
+                    <div class="font-bold">
+                        {{ optional(optional(optional($perjanjian->dokumenHI)->pengaduan)->mediator)->nama_mediator ?? '-' }}
+                    </div>
+                    <div class="text-sm">NIP.
+                        {{ optional(optional(optional($perjanjian->dokumenHI)->pengaduan)->mediator)->nip ?? '-' }}
+                    </div>
                 </div>
-                @php
-                    $risalahItem =
-                        isset($perjanjian->dokumenHI) &&
-                        $perjanjian->dokumenHI->risalah instanceof \Illuminate\Support\Collection
-                            ? $perjanjian->dokumenHI->risalah->first()
-                            : $perjanjian->dokumenHI->risalah;
-                @endphp
-                <p class="text-center font-bold">
-                    {{ optional(optional(optional($perjanjian->dokumenHI)->pengaduan)->mediator)->nama_mediator ?? '-' }}
-                </p>
-                <p class="text-center">NIP.
-                    {{ optional(optional(optional($perjanjian->dokumenHI)->pengaduan)->mediator)->nip ?? '-' }}</p>
             </div>
         </div>
     </div>

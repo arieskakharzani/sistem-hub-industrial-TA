@@ -53,36 +53,25 @@
         </div>
 
         <!-- Signature Section -->
-        <div class="mt-12">
-            <p class="text-center mb-6">Demikian anjuran ini dibuat untuk dapat dilaksanakan sebagaimana mestinya.</p>
-
-            <div class="flex justify-between">
-                <div class="w-1/2">
-                    <p class="text-center">Mediator Hubungan Industrial,</p>
-                    <div class="h-32 flex items-center justify-center">
-                        @if ($anjuran->signature_mediator)
-                            <img src="{{ asset('storage/signatures/' . $anjuran->signature_mediator) }}"
-                                alt="Tanda Tangan Mediator" class="max-h-24">
-                        @endif
-                    </div>
-                    <p class="text-center font-bold">
-                        {{ optional(optional(optional(optional(optional($anjuran)->dokumenHI)->risalah)->jadwal)->mediator)->nama_mediator ?? '-' }}
-                    </p>
-                    <p class="text-center">NIP.
-                        {{ optional(optional(optional(optional(optional($anjuran)->dokumenHI)->risalah)->jadwal)->mediator)->nip ?? '-' }}
-                    </p>
+        <div class="mt-12 flex justify-end">
+            <div class="flex flex-col items-end" style="width: 350px;">
+                <div class="mb-2">Muara Bungo,
+                    {{ $anjuran->created_at ? \Carbon\Carbon::parse($anjuran->created_at)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
                 </div>
-
-                <div class="w-1/2">
-                    <p class="text-center">Kepala Dinas,</p>
-                    <div class="h-32 flex items-center justify-center">
-                        @if ($anjuran->signature_kepala_dinas)
-                            <img src="{{ asset('storage/signatures/' . $anjuran->signature_kepala_dinas) }}"
-                                alt="Tanda Tangan Kepala Dinas" class="max-h-24">
-                        @endif
-                    </div>
-                    <p class="text-center font-bold">{{ $anjuran->kepalaDinas->nama_kepala_dinas }}</p>
-                    <p class="text-center">NIP. {{ $anjuran->kepalaDinas->nip }}</p>
+                <div class="font-semibold">Mediator Hubungan Industrial,</div>
+                <div class="mb-2 flex flex-col items-end w-full">
+                    @if ($anjuran->signature_mediator)
+                        <img src="{{ asset('storage/signatures/' . $anjuran->signature_mediator) }}"
+                            alt="Tanda Tangan Mediator" class="max-h-24 mb-2">
+                    @else
+                        <br><br><br>
+                    @endif
+                </div>
+                <div class="font-bold">
+                    {{ optional(optional(optional(optional(optional($anjuran)->dokumenHI)->risalah)->jadwal)->mediator)->nama_mediator ?? '-' }}
+                </div>
+                <div class="text-sm">NIP.
+                    {{ optional(optional(optional(optional(optional($anjuran)->dokumenHI)->risalah)->jadwal)->mediator)->nip ?? '-' }}
                 </div>
             </div>
         </div>

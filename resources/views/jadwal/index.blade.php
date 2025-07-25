@@ -193,6 +193,10 @@
                                         <tr>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Nomor Jadwal
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                                 Pengaduan
                                             </th>
                                             <th
@@ -231,6 +235,11 @@
                                                 $isMine = $jadwal->mediator_id === $mediator->mediator_id;
                                             @endphp
                                             <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-900">
+                                                        {{ $jadwal->nomor_jadwal ?? $jadwal->jadwal_id }}
+                                                    </div>
+                                                </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">
                                                         Pengaduan oleh :

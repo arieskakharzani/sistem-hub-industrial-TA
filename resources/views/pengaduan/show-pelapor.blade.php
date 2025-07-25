@@ -149,6 +149,8 @@
                                     <span>•</span>
                                     <span>📂 {{ $pengaduan->perihal }}</span>
                                 </div>
+                                <p><strong>Nomor Pengaduan:</strong>
+                                    {{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}</p>
                             </div>
                             <div class="text-right">
                                 @php

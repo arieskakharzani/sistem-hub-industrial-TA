@@ -52,6 +52,19 @@ class Jadwal extends Model
             if (empty($model->jadwal_id)) {
                 $model->jadwal_id = (string) Str::uuid();
             }
+            // Generate nomor_jadwal otomatis
+            if (empty($model->nomor_jadwal)) {
+                $year = now()->year;
+                $last = self::whereYear('created_at', $year)
+                    ->whereNotNull('nomor_jadwal')
+                    ->orderByDesc('nomor_jadwal')
+                    ->first();
+                $next = 1;
+                if ($last && preg_match('/JDL-' . $year . '-(\\d{4})$/', $last->nomor_jadwal, $matches)) {
+                    $next = intval($matches[1]) + 1;
+                }
+                $model->nomor_jadwal = sprintf('JDL-%d-%04d', $year, $next);
+            }
         });
     }
 

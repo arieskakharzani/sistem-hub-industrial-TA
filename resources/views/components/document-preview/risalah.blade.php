@@ -1,11 +1,11 @@
 @props(['risalah'])
 
-<div class="bg-white p-8 text-black">
-    <div class="text-center mb-6">
+<div class="bg-white p-8 text-black text-center">
+    <div class="mb-6">
         <h1 class="text-xl font-bold">RISALAH {{ strtoupper($risalah->jenis_risalah) }} PERSELISIHAN<br>HUBUNGAN
             INDUSTRIAL</h1>
     </div>
-    <table class="min-w-full table-auto mb-6 border-collapse">
+    <table class="min-w-full table-auto mb-6 border-collapse text-left">
         <tr>
             <td class="font-semibold align-top pr-2">1.</td>
             <td class="font-semibold align-top pr-2">Nama Perusahaan</td>
@@ -82,28 +82,32 @@
                     @endif
                     <div class="text-xs text-gray-500 italic mt-2">
                         Keterangan: dalam membuat Kesimpulan atau hasil klarifikasi agar ditegaskan penyelesaian
-                        perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit; atau
-                        b) sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama; atau
+                        perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan perundingan bipartit;
+                        atau
+                        b) sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil perjanjian bersama;
+                        atau
                         c) sepakat akan melanjutkan penyelesaian melalui mediasi dengan hasil anjuran.
                     </div>
                 </td>
             </tr>
         @endif
     </table>
-    <div class="mt-8 text-right">
-        <div>Muara Bungo,
-            {{ $risalah->tanggal_perundingan ? \Carbon\Carbon::parse($risalah->tanggal_perundingan)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+    <div class="mt-12 flex justify-end">
+        <div class="flex flex-col items-end" style="width: 350px;">
+            <div class="mb-2">Muara Bungo,
+                {{ $risalah->tanggal_perundingan ? \Carbon\Carbon::parse($risalah->tanggal_perundingan)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+            </div>
+            <div class="font-semibold">Mediator Hubungan Industrial,</div>
+            <div class="mb-2 flex flex-col items-end w-full">
+                @if ($risalah->signature_mediator)
+                    <img src="{{ asset('storage/signatures/' . $risalah->signature_mediator) }}"
+                        alt="Tanda Tangan Mediator" class="max-h-24 mb-2">
+                @else
+                    <br><br><br>
+                @endif
+            </div>
+            <div class="font-bold">{{ optional(optional($risalah->jadwal)->mediator)->nama_mediator ?? '-' }}</div>
+            <div class="text-sm">NIP. {{ optional(optional($risalah->jadwal)->mediator)->nip ?? '-' }}</div>
         </div>
-        <div class="mt-2">Mediator Hubungan Industrial,</div>
-        <div class="mt-8 mb-2">
-            @if ($risalah->signature_mediator)
-                <img src="{{ asset('storage/signatures/' . $risalah->signature_mediator) }}"
-                    alt="Tanda Tangan Mediator" class="max-h-24 mx-auto mb-2">
-            @else
-                <br><br><br>
-            @endif
-        </div>
-        <div class="font-bold">{{ optional(optional($risalah->jadwal)->mediator)->nama_mediator ?? '-' }}</div>
-        <div class="text-sm">NIP. {{ optional(optional($risalah->jadwal)->mediator)->nip ?? '-' }}</div>
     </div>
 </div>

@@ -161,6 +161,7 @@
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Aksi
                                             </th>
+                                            <th>Nomor Pengaduan</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -223,6 +224,7 @@
                                                         Lihat Detail
                                                     </a>
                                                 </td>
+                                                <td>{{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

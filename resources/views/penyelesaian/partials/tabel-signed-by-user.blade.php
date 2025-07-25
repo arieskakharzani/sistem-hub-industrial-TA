@@ -35,7 +35,19 @@
                 @foreach ($allSignedByUser as $index => $doc)
                     <tr>
                         <td class="px-4 py-4">{{ $index + 1 }}</td>
-                        <td class="px-4 py-4"></td>
+                        <td class="px-4 py-4">
+                            @php
+                                $pengaduan = null;
+                                if ($doc instanceof \App\Models\Risalah) {
+                                    $pengaduan = optional($doc->jadwal)->pengaduan;
+                                } elseif ($doc instanceof \App\Models\PerjanjianBersama) {
+                                    $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
+                                } elseif ($doc instanceof \App\Models\Anjuran) {
+                                    $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
+                                }
+                            @endphp
+                            {{ optional($pengaduan)->nomor_pengaduan ?? (optional($pengaduan)->pengaduan_id ?? '-') }}
+                        </td>
                         <td class="px-4 py-4">{{ $doc->created_at ? $doc->created_at->format('d/m/Y') : '-' }}</td>
                         <td class="px-4 py-4">
                             @php
