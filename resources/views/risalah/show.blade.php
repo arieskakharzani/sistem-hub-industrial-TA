@@ -201,6 +201,38 @@
                                     <div class="flex-1">{{ $detail->kesimpulan_penyelesaian ?? '-' }}</div>
                                 </div>
                             @endif
+                            @if ($risalah->jenis_risalah === 'mediasi')
+                                <div class="flex">
+                                    <div class="w-8">10.</div>
+                                    <div class="w-64">Ringkasan Pembahasan</div>
+                                    <div class="mx-2">:</div>
+                                    <div class="flex-1">{{ $detail->ringkasan_pembahasan ?? '-' }}</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-8">11.</div>
+                                    <div class="w-64">Kesepakatan Sementara</div>
+                                    <div class="mx-2">:</div>
+                                    <div class="flex-1">{{ $detail->kesepakatan_sementara ?? '-' }}</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-8">12.</div>
+                                    <div class="w-64">Ketidaksepakatan Sementara</div>
+                                    <div class="mx-2">:</div>
+                                    <div class="flex-1">{{ $detail->ketidaksepakatan_sementara ?? '-' }}</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-8">13.</div>
+                                    <div class="w-64">Catatan Khusus</div>
+                                    <div class="mx-2">:</div>
+                                    <div class="flex-1">{{ $detail->catatan_khusus ?? '-' }}</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-8">14.</div>
+                                    <div class="w-64">Rekomendasi Mediator</div>
+                                    <div class="mx-2">:</div>
+                                    <div class="flex-1">{{ $detail->rekomendasi_mediator ?? '-' }}</div>
+                                </div>
+                            @endif
                         </div>
                         <div class="mt-12 flex justify-end">
                             <div class="text-left">

@@ -73,6 +73,12 @@ class Risalah extends Model
         return $this->hasOne(DetailPenyelesaian::class, 'risalah_id', 'risalah_id');
     }
 
+    //Relasi ke detail mediasi
+    public function detailMediasi(): HasOne
+    {
+        return $this->hasOne(DetailMediasi::class, 'risalah_id', 'risalah_id');
+    }
+
     // Helper method untuk tanda tangan
     public function isSignedByMediator(): bool
     {
@@ -85,5 +91,37 @@ class Risalah extends Model
             return 'Sudah ditandatangani oleh Mediator';
         }
         return 'Menunggu tanda tangan Mediator';
+    }
+
+    // Scope methods untuk filter berdasarkan jenis risalah
+    public function scopeKlarifikasi($query)
+    {
+        return $query->where('jenis_risalah', 'klarifikasi');
+    }
+
+    public function scopeMediasi($query)
+    {
+        return $query->where('jenis_risalah', 'mediasi');
+    }
+
+    public function scopePenyelesaian($query)
+    {
+        return $query->where('jenis_risalah', 'penyelesaian');
+    }
+
+    // Helper methods untuk mengecek jenis risalah
+    public function isKlarifikasi(): bool
+    {
+        return $this->jenis_risalah === 'klarifikasi';
+    }
+
+    public function isMediasi(): bool
+    {
+        return $this->jenis_risalah === 'mediasi';
+    }
+
+    public function isPenyelesaian(): bool
+    {
+        return $this->jenis_risalah === 'penyelesaian';
     }
 }

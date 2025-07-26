@@ -10,10 +10,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use App\Models\DetailKlarifikasi;
 use App\Models\DetailPenyelesaian;
+use App\Models\DetailMediasi;
 
 class RisalahController extends Controller
 {
-    // Tampilkan form buat risalah (klarifikasi/penyelesaian)
+    // Tampilkan form buat risalah (klarifikasi/mediasi/penyelesaian)
     public function create($jadwalId, $jenis_risalah)
     {
         $jadwal = Jadwal::findOrFail($jadwalId);
@@ -67,12 +68,12 @@ class RisalahController extends Controller
     public function store(Request $request, $jadwalId, $jenis_risalah)
     {
         \Log::info('RISALAH STORE: request data', $request->all());
-        if (!in_array($jenis_risalah, ['klarifikasi', 'penyelesaian'])) {
+        if (!in_array($jenis_risalah, ['klarifikasi', 'mediasi', 'penyelesaian'])) {
             abort(404);
         }
         $jadwal = Jadwal::findOrFail($jadwalId);
         $data = $request->validate([
-            'jenis_risalah' => 'required|in:klarifikasi,penyelesaian',
+            'jenis_risalah' => 'required|in:klarifikasi,mediasi,penyelesaian',
             'nama_perusahaan' => 'required|string|max:255',
             'jenis_usaha' => 'required|string|max:255',
             'alamat_perusahaan' => 'required|string|max:255',
@@ -83,10 +84,19 @@ class RisalahController extends Controller
             'pokok_masalah' => 'nullable|string',
             'pendapat_pekerja' => 'nullable|string',
             'pendapat_pengusaha' => 'nullable|string',
-            // detail fields
+            // detail fields untuk klarifikasi
             'arahan_mediator' => 'nullable|string',
             'kesimpulan_klarifikasi' => 'nullable|in:bipartit_lagi,lanjut_ke_tahap_mediasi',
+            // detail fields untuk penyelesaian
             'kesimpulan_penyelesaian' => 'nullable|string',
+            // detail fields untuk mediasi
+            'ringkasan_pembahasan' => 'nullable|string',
+            'kesepakatan_sementara' => 'nullable|string',
+            'ketidaksepakatan_sementara' => 'nullable|string',
+            'catatan_khusus' => 'nullable|string',
+            'rekomendasi_mediator' => 'nullable|string',
+            'status_sidang' => 'nullable|in:selesai,lanjut_sidang_berikutnya',
+            'sidang_ke' => 'nullable|integer|min:1|max:3',
         ]);
         \Log::info('RISALAH STORE: validated data', $data);
         $data['jadwal_id'] = $jadwal->jadwal_id;
@@ -117,8 +127,6 @@ class RisalahController extends Controller
                 'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
             ]);
             \Log::info('RISALAH STORE: detail klarifikasi created', $detailKlarifikasi->toArray());
-            // Debug: stop di sini untuk melihat hasil
-            // dd($risalah, $detailKlarifikasi);
 
             // Handle hasil klarifikasi
             if (isset($data['kesimpulan_klarifikasi'])) {
@@ -127,6 +135,19 @@ class RisalahController extends Controller
                     return $redirectResponse;
                 }
             }
+        } elseif ($jenis_risalah === 'mediasi') {
+            $detailMediasi = DetailMediasi::create([
+                'detail_mediasi_id' => (string) Str::uuid(),
+                'risalah_id' => $risalah->risalah_id,
+                'ringkasan_pembahasan' => $data['ringkasan_pembahasan'] ?? null,
+                'kesepakatan_sementara' => $data['kesepakatan_sementara'] ?? null,
+                'ketidaksepakatan_sementara' => $data['ketidaksepakatan_sementara'] ?? null,
+                'catatan_khusus' => $data['catatan_khusus'] ?? null,
+                'rekomendasi_mediator' => $data['rekomendasi_mediator'] ?? null,
+                'status_sidang' => $data['status_sidang'] ?? 'lanjut_sidang_berikutnya',
+                'sidang_ke' => $data['sidang_ke'] ?? 1,
+            ]);
+            \Log::info('RISALAH STORE: detail mediasi created', $detailMediasi->toArray());
         } else {
             $detailPenyelesaian = DetailPenyelesaian::create([
                 'detail_penyelesaian_id' => (string) Str::uuid(),
@@ -145,6 +166,8 @@ class RisalahController extends Controller
         $detail = null;
         if ($risalah->jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
+        } elseif ($risalah->jenis_risalah === 'mediasi') {
+            $detail = $risalah->detailMediasi;
         } else {
             $detail = $risalah->detailPenyelesaian;
         }
@@ -188,6 +211,8 @@ class RisalahController extends Controller
         $detail = null;
         if ($jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
+        } elseif ($jenis_risalah === 'mediasi') {
+            $detail = $risalah->detailMediasi;
         } else {
             $detail = $risalah->detailPenyelesaian;
         }
@@ -196,11 +221,11 @@ class RisalahController extends Controller
 
     public function update(Request $request, Risalah $risalah)
     {
-        if (!in_array($risalah->jenis_risalah, ['klarifikasi', 'penyelesaian'])) {
+        if (!in_array($risalah->jenis_risalah, ['klarifikasi', 'mediasi', 'penyelesaian'])) {
             abort(404);
         }
         $data = $request->validate([
-            'jenis_risalah' => 'required|in:klarifikasi,penyelesaian',
+            'jenis_risalah' => 'required|in:klarifikasi,mediasi,penyelesaian',
             'nama_perusahaan' => 'required|string|max:255',
             'jenis_usaha' => 'required|string|max:255',
             'alamat_perusahaan' => 'required|string|max:255',
@@ -211,11 +236,22 @@ class RisalahController extends Controller
             'pokok_masalah' => 'nullable|string',
             'pendapat_pekerja' => 'nullable|string',
             'pendapat_pengusaha' => 'nullable|string',
+            // detail fields untuk klarifikasi
             'arahan_mediator' => 'nullable|string',
             'kesimpulan_klarifikasi' => 'nullable|in:bipartit_lagi,lanjut_ke_tahap_mediasi',
+            // detail fields untuk penyelesaian
             'kesimpulan_penyelesaian' => 'nullable|string',
+            // detail fields untuk mediasi
+            'ringkasan_pembahasan' => 'nullable|string',
+            'kesepakatan_sementara' => 'nullable|string',
+            'ketidaksepakatan_sementara' => 'nullable|string',
+            'catatan_khusus' => 'nullable|string',
+            'rekomendasi_mediator' => 'nullable|string',
+            'status_sidang' => 'nullable|in:selesai,lanjut_sidang_berikutnya',
+            'sidang_ke' => 'nullable|integer|min:1|max:3',
         ]);
         $risalah->update($data);
+
         // Update detail
         if ($risalah->jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
@@ -230,6 +266,31 @@ class RisalahController extends Controller
                     'risalah_id' => $risalah->risalah_id,
                     'arahan_mediator' => $data['arahan_mediator'] ?? null,
                     'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
+                ]);
+            }
+        } elseif ($risalah->jenis_risalah === 'mediasi') {
+            $detail = $risalah->detailMediasi;
+            if ($detail) {
+                $detail->update([
+                    'ringkasan_pembahasan' => $data['ringkasan_pembahasan'] ?? null,
+                    'kesepakatan_sementara' => $data['kesepakatan_sementara'] ?? null,
+                    'ketidaksepakatan_sementara' => $data['ketidaksepakatan_sementara'] ?? null,
+                    'catatan_khusus' => $data['catatan_khusus'] ?? null,
+                    'rekomendasi_mediator' => $data['rekomendasi_mediator'] ?? null,
+                    'status_sidang' => $data['status_sidang'] ?? 'lanjut_sidang_berikutnya',
+                    'sidang_ke' => $data['sidang_ke'] ?? 1,
+                ]);
+            } else {
+                DetailMediasi::create([
+                    'detail_mediasi_id' => (string) Str::uuid(),
+                    'risalah_id' => $risalah->risalah_id,
+                    'ringkasan_pembahasan' => $data['ringkasan_pembahasan'] ?? null,
+                    'kesepakatan_sementara' => $data['kesepakatan_sementara'] ?? null,
+                    'ketidaksepakatan_sementara' => $data['ketidaksepakatan_sementara'] ?? null,
+                    'catatan_khusus' => $data['catatan_khusus'] ?? null,
+                    'rekomendasi_mediator' => $data['rekomendasi_mediator'] ?? null,
+                    'status_sidang' => $data['status_sidang'] ?? 'lanjut_sidang_berikutnya',
+                    'sidang_ke' => $data['sidang_ke'] ?? 1,
                 ]);
             }
         } else {
@@ -254,6 +315,8 @@ class RisalahController extends Controller
         $detail = null;
         if ($risalah->jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
+        } elseif ($risalah->jenis_risalah === 'mediasi') {
+            $detail = $risalah->detailMediasi;
         } else {
             $detail = $risalah->detailPenyelesaian;
         }

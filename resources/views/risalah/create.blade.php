@@ -217,6 +217,45 @@
                                             dicapai</p>
                                     </div>
                                 @endif
+
+                                @if ($jenis_risalah === 'mediasi')
+                                    <div class="space-y-2">
+                                        <label class="flex items-center text-sm font-medium text-gray-700">
+                                            Ringkasan Pembahasan
+                                            <span class="text-red-500 ml-1">*</span>
+                                        </label>
+                                        <textarea name="ringkasan_pembahasan" rows="4" required placeholder="Tuliskan ringkasan pembahasan mediasi"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('ringkasan_pembahasan') }}</textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center text-sm font-medium text-gray-700">
+                                            Kesepakatan Sementara
+                                        </label>
+                                        <textarea name="kesepakatan_sementara" rows="3" placeholder="Tuliskan kesepakatan sementara jika ada"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('kesepakatan_sementara') }}</textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center text-sm font-medium text-gray-700">
+                                            Ketidaksepakatan Sementara
+                                        </label>
+                                        <textarea name="ketidaksepakatan_sementara" rows="3" placeholder="Tuliskan ketidaksepakatan sementara jika ada"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('ketidaksepakatan_sementara') }}</textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center text-sm font-medium text-gray-700">
+                                            Catatan Khusus
+                                        </label>
+                                        <textarea name="catatan_khusus" rows="3" placeholder="Catatan khusus untuk mediasi ini"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('catatan_khusus') }}</textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center text-sm font-medium text-gray-700">
+                                            Rekomendasi Mediator
+                                        </label>
+                                        <textarea name="rekomendasi_mediator" rows="3" placeholder="Rekomendasi mediator untuk sidang ini"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('rekomendasi_mediator') }}</textarea>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 

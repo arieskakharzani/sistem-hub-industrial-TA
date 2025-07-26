@@ -194,6 +194,38 @@
                 </td>
             </tr>
         @endif
+        @if ($risalah->jenis_risalah === 'mediasi')
+            <tr>
+                <td class="nomor">10.</td>
+                <td class="label">Ringkasan Pembahasan</td>
+                <td class="colon">:</td>
+                <td>{{ optional($risalah->detailMediasi)->ringkasan_pembahasan }}</td>
+            </tr>
+            <tr>
+                <td class="nomor">11.</td>
+                <td class="label">Kesepakatan Sementara</td>
+                <td class="colon">:</td>
+                <td>{{ optional($risalah->detailMediasi)->kesepakatan_sementara }}</td>
+            </tr>
+            <tr>
+                <td class="nomor">12.</td>
+                <td class="label">Ketidaksepakatan Sementara</td>
+                <td class="colon">:</td>
+                <td>{{ optional($risalah->detailMediasi)->ketidaksepakatan_sementara }}</td>
+            </tr>
+            <tr>
+                <td class="nomor">13.</td>
+                <td class="label">Catatan Khusus</td>
+                <td class="colon">:</td>
+                <td>{{ optional($risalah->detailMediasi)->catatan_khusus }}</td>
+            </tr>
+            <tr>
+                <td class="nomor">14.</td>
+                <td class="label">Rekomendasi Mediator</td>
+                <td class="colon">:</td>
+                <td>{{ optional($risalah->detailMediasi)->rekomendasi_mediator }}</td>
+            </tr>
+        @endif
     </table>
 
     <div class="ttd-section">
