@@ -1,4 +1,3 @@
-html
 <html lang="en">
 
 <head>
@@ -61,7 +60,7 @@ html
                             <!-- Pembuka -->
                             <div class="mb-6 text-gray-700">
                                 <p>Pada hari ini tanggal
-                                    {{ $perjanjian->tanggal_perjanjian->translatedFormat('d F Y') }}
+                                    {{ $perjanjian->tanggal_perjanjian ? $perjanjian->tanggal_perjanjian->translatedFormat('d F Y') : '-' }}
                                     kami yang bertanda tangan di bawah ini:</p>
                             </div>
 

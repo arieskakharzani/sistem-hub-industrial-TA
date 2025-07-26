@@ -18,7 +18,14 @@
                 </div>
 
                 <!-- Form Body -->
-                <form method="POST" action="{{ route('risalah.update', $risalah) }}" class="p-8 space-y-8">
+                @php
+                    try {
+                        $updateUrl = route('risalah.update', $risalah);
+                    } catch (\Exception $e) {
+                        $updateUrl = '#';
+                    }
+                @endphp
+                <form method="POST" action="{{ $updateUrl }}" class="p-8 space-y-8">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="jenis_risalah" value="{{ $jenis_risalah }}">

@@ -323,27 +323,78 @@
                     Bawa dokumen-dokumen yang diperlukan untuk proses mediasi.
                 @endif
             </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-top: 30px; color: #555;">
+                    Terima kasih atas perhatian dan kerja sama Anda.
+                    Silakan login ke sistem untuk melakukan konfirmasi kehadiran Anda.
+                </p>
+                <a href="{{ url('/dashboard') }}" class="button">
+                    Konfirmasi Sekarang
+                </a>
+            </div>
         @elseif($jadwal->status_jadwal === 'ditunda')
             <div class="alert alert-warning">
                 <strong>⚠️ Perhatian:</strong><br>
                 Jadwal {{ $jadwal->jenis_jadwal }} ditunda. Anda akan mendapat pemberitahuan jadwal baru segera.
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-top: 30px; color: #555;">
+                    Terima kasih atas perhatian dan kerja sama Anda.
+                </p>
+                <a href="{{ url('/dashboard') }}" class="button">
+                    Cek Sekarang
+                </a>
             </div>
         @elseif($jadwal->status_jadwal === 'dibatalkan')
             <div class="alert alert-warning">
                 <strong>❌ Informasi:</strong><br>
                 Jadwal {{ $jadwal->jenis_jadwal }} dibatalkan. Silakan hubungi mediator untuk informasi lebih lanjut.
             </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-top: 30px; color: #555;">
+                    Terima kasih atas perhatian dan kerja sama Anda.
+                </p>
+                <a href="{{ url('/dashboard') }}" class="button">
+                    Cek Sekarang
+                </a>
+            </div>
+        @elseif($jadwal->status_jadwal === 'berlangsung')
+            <div class="alert alert-warning">
+                <strong>Informasi:</strong><br>
+                Jadwal {{ $jadwal->jenis_jadwal }} sedang berlangsung.
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-top: 30px; color: #555;">
+                    Terima kasih atas perhatian dan kerja sama Anda.
+                </p>
+                <a href="{{ url('/dashboard') }}" class="button">
+                    Cek Sekarang
+                </a>
+            </div>
+        @elseif($jadwal->status_jadwal === 'selesai')
+            <div class="alert alert-warning">
+                <strong>Informasi:</strong><br>
+                Jadwal {{ $jadwal->jenis_jadwal }} telah selesai.
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-top: 30px; color: #555;">
+                    Terima kasih atas perhatian dan kerja sama Anda.
+                </p>
+                <a href="{{ url('/dashboard') }}" class="button">
+                    Cek Sekarang
+                </a>
+            </div>
         @endif
 
-        <div style="text-align: center; margin: 30px 0;">
+        {{-- <div style="text-align: center; margin: 30px 0;">
             <p style="margin-top: 30px; color: #555;">
                 Terima kasih atas perhatian dan kerja sama Anda.
                 Silakan login ke sistem untuk melakukan konfirmasi kehadiran Anda.
             </p>
             <a href="{{ url('/dashboard') }}" class="button">
-                Konfirmasi Sekarang
+                Masuk ke Sistem
             </a>
-        </div>
+        </div> --}}
 
         <div class="footer">
             <p>Email ini dikirim secara otomatis oleh sistem.<br>

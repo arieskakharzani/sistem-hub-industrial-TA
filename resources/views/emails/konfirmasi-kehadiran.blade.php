@@ -112,7 +112,7 @@
             <table class="details-table">
                 <tr>
                     <th>No. Pengaduan</th>
-                    <td>{{ $pengaduan->pengaduan_id }}</td>
+                    <td>{{ $pengaduan->nomor_pengaduan }}</td>
                 </tr>
                 <tr>
                     <th>Perihal</th>

@@ -85,10 +85,10 @@
                                     $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
                                 }
                             @endphp
-                            {{ optional(optional($pengaduan)->terlapor)->nama ?? '-' }}
+                            {{ optional(optional($doc)->detailPenyelesaian)->nama_perusahaan ?? '-' }}
                         </td>
                         <td class="px-4 py-4">
-                            {{ optional(optional($pengaduan)->pelapor)->nama ?? '-' }}
+                            {{-- {{ optional(optional(optional($pengaduan)->dokumenHI)->risalah)->nama_pekerja ?? '-' }} --}}
                         </td>
                         <td class="px-4 py-4">Belum Ditandatangani</td>
                         <td class="px-4 py-4 text-center">

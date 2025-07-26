@@ -53,13 +53,20 @@ class RisalahController extends Controller
                 ->with('success', 'Silahkan buat jadwal Mediasi');
         }
         // Untuk bipartit_lagi, tetap redirect ke detail risalah/halaman pengaduan tanpa mengubah status
-        return redirect()->route('risalah.show', $jadwal->risalah()->latest()->first())
-            ->with('success', 'Kesimpulan klarifikasi: bipartit_lagi. Status akan selesai setelah dokumen ditandatangani dan didistribusikan.');
+        $latestRisalah = $jadwal->risalah()->latest()->first();
+        if ($latestRisalah) {
+            return redirect()->route('risalah.show', $latestRisalah->risalah_id)
+                ->with('success', 'Kesimpulan klarifikasi: Bipartit Lagi. Status akan selesai setelah dokumen ditandatangani dan didistribusikan.');
+        } else {
+            return redirect()->route('jadwal.show', $jadwal)
+                ->with('error', 'Tidak ada risalah yang ditemukan');
+        }
     }
 
     // Modifikasi method store untuk menggunakan handleKlarifikasiResult
     public function store(Request $request, $jadwalId, $jenis_risalah)
     {
+        \Log::info('RISALAH STORE: request data', $request->all());
         if (!in_array($jenis_risalah, ['klarifikasi', 'penyelesaian'])) {
             abort(404);
         }
@@ -81,6 +88,7 @@ class RisalahController extends Controller
             'kesimpulan_klarifikasi' => 'nullable|in:bipartit_lagi,lanjut_ke_tahap_mediasi',
             'kesimpulan_penyelesaian' => 'nullable|string',
         ]);
+        \Log::info('RISALAH STORE: validated data', $data);
         $data['jadwal_id'] = $jadwal->jadwal_id;
         $data['jenis_risalah'] = $jenis_risalah;
 
@@ -98,15 +106,19 @@ class RisalahController extends Controller
 
         // Simpan risalah utama
         $risalah = Risalah::create($data);
+        \Log::info('RISALAH STORE: risalah created', $risalah->toArray());
 
         // Simpan detail sesuai jenis
         if ($jenis_risalah === 'klarifikasi') {
-            DetailKlarifikasi::create([
+            $detailKlarifikasi = DetailKlarifikasi::create([
                 'detail_klarifikasi_id' => (string) Str::uuid(),
                 'risalah_id' => $risalah->risalah_id,
                 'arahan_mediator' => $data['arahan_mediator'] ?? null,
                 'kesimpulan_klarifikasi' => $data['kesimpulan_klarifikasi'] ?? null,
             ]);
+            \Log::info('RISALAH STORE: detail klarifikasi created', $detailKlarifikasi->toArray());
+            // Debug: stop di sini untuk melihat hasil
+            // dd($risalah, $detailKlarifikasi);
 
             // Handle hasil klarifikasi
             if (isset($data['kesimpulan_klarifikasi'])) {
@@ -116,14 +128,15 @@ class RisalahController extends Controller
                 }
             }
         } else {
-            DetailPenyelesaian::create([
+            $detailPenyelesaian = DetailPenyelesaian::create([
                 'detail_penyelesaian_id' => (string) Str::uuid(),
                 'risalah_id' => $risalah->risalah_id,
                 'kesimpulan_penyelesaian' => $data['kesimpulan_penyelesaian'] ?? null,
             ]);
+            \Log::info('RISALAH STORE: detail penyelesaian created', $detailPenyelesaian->toArray());
         }
 
-        return redirect()->route('risalah.show', $risalah)->with('success', 'Risalah berhasil dibuat');
+        return redirect()->route('risalah.show', $risalah->risalah_id)->with('success', 'Risalah berhasil dibuat');
     }
 
     // Tampilkan detail risalah
@@ -233,7 +246,7 @@ class RisalahController extends Controller
                 ]);
             }
         }
-        return redirect()->route('risalah.show', $risalah)->with('success', 'Risalah berhasil diperbarui');
+        return redirect()->route('risalah.show', $risalah->risalah_id)->with('success', 'Risalah berhasil diperbarui');
     }
 
     public function exportPDF(Risalah $risalah)

@@ -28,7 +28,7 @@
         <x-slot name="header">
             <div class="flex items-center justify-between">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Konfirmasi Kehadiran Mediasi
+                    Konfirmasi Kehadiran {{ $jadwal->jenis_jadwal }}
                 </h2>
                 <a href="{{ route('konfirmasi.index') }}"
                     class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
@@ -173,7 +173,8 @@
                         {{-- Detail jadwal --}}
                         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                             <div class="px-6 py-4 border-b border-gray-200">
-                                <h3 class="text-lg font-semibold text-gray-900">Detail jadwal</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">Detail jadwal
+                                    {{ $jadwal->jenis_jadwal }}</h3>
                             </div>
                             <div class="p-6">
                                 <div class="grid md:grid-cols-2 gap-6">
@@ -329,7 +330,7 @@
                                                     <div>
                                                         <div class="font-medium text-green-800">✅ Saya akan hadir</div>
                                                         <div class="text-sm text-green-600">Saya akan menghadiri sesi
-                                                            mediasi sesuai jadwal</div>
+                                                            {{ $jadwal->jenis_jadwal }} sesuai jadwal</div>
                                                     </div>
                                                 </label>
                                                 <label

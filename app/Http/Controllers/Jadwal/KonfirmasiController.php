@@ -179,7 +179,7 @@ class KonfirmasiController extends Controller
             // Return appropriate message
             if ($request->konfirmasi === 'hadir') {
                 if ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir()) {
-                    $message = 'Konfirmasi kehadiran berhasil. Kedua belah pihak siap hadir. Mediasi akan dilaksanakan sesuai jadwal.';
+                    $message = 'Konfirmasi kehadiran berhasil. Kedua belah pihak siap hadir. ' . $jadwal->jenis_jadwal . ' akan dilaksanakan sesuai jadwal.';
                 } else {
                     $message = 'Konfirmasi kehadiran berhasil. Terima kasih!';
                 }

@@ -29,8 +29,14 @@
                     </div>
 
                     <!-- Form Body -->
-                    <form method="POST" action="{{ route('risalah.store', [$jadwal->jadwal_id, $jenis_risalah]) }}"
-                        class="p-8 space-y-8">
+                    @php
+                        try {
+                            $storeUrl = route('risalah.store', [$jadwal->jadwal_id, $jenis_risalah]);
+                        } catch (\Exception $e) {
+                            $storeUrl = '#';
+                        }
+                    @endphp
+                    <form method="POST" action="{{ $storeUrl }}" class="p-8 space-y-8">
                         @csrf
                         <input type="hidden" name="jenis_risalah" value="{{ $jenis_risalah }}">
 

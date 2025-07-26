@@ -34,19 +34,19 @@ class PenyelesaianController extends Controller
 
         if ($role === 'mediator' && $user->mediator) {
             $mediatorId = $user->mediator->mediator_id;
-            $risalahPending = Risalah::with(['jadwal.mediator'])
+            $risalahPending = Risalah::with(['jadwal.mediator', 'jadwal.pengaduan'])
                 ->where('ttd_mediator', false)
                 ->whereHas('jadwal', function ($q) use ($mediatorId) {
                     $q->where('mediator_id', $mediatorId);
                 });
-            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', false)
                 ->where('ttd_pekerja', true)
                 ->where('ttd_pengusaha', true)
                 ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
                     $q->where('mediator_id', $mediatorId);
                 });
-            $anjuranPending = Anjuran::with(['dokumenHI.risalah.jadwal.mediator'])
+            $anjuranPending = Anjuran::with(['dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', false)
                 ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
                     $q->where('mediator_id', $mediatorId);
@@ -55,12 +55,12 @@ class PenyelesaianController extends Controller
             $pelaporId = $user->pelapor->pelapor_id;
             // Pelapor hanya bisa menandatangani perjanjian bersama, risalahPending dikosongkan
             $risalahPending = collect();
-            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_pekerja', false)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
                     $q->where('pelapor_id', $pelaporId);
                 });
-            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
                     $q->where('pelapor_id', $pelaporId);
@@ -69,19 +69,19 @@ class PenyelesaianController extends Controller
             $terlaporId = $user->terlapor->terlapor_id;
             // Terlapor tidak boleh menandatangani risalah, kosongkan risalahPending
             $risalahPending = collect();
-            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianPending = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_pengusaha', false)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
-            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
         } elseif ($role === 'kepala_dinas' && $user->kepalaDinas) {
             $kepalaDinasId = $user->kepalaDinas->kepala_dinas_id;
-            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranPending = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->where('ttd_kepala_dinas', false)
                 ->where('kepala_dinas_id', $kepalaDinasId);
@@ -157,19 +157,19 @@ class PenyelesaianController extends Controller
         $anjuranSigned = collect();
         if ($role === 'mediator' && $user->mediator) {
             $mediatorId = $user->mediator->mediator_id;
-            $risalahSignedQ = Risalah::with(['jadwal.mediator'])
+            $risalahSignedQ = Risalah::with(['jadwal.mediator', 'jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->whereHas('jadwal', function ($q) use ($mediatorId) {
                     $q->where('mediator_id', $mediatorId);
                 });
-            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->where('ttd_pekerja', true)
                 ->where('ttd_pengusaha', true)
                 ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
                     $q->where('mediator_id', $mediatorId);
                 });
-            $anjuranSignedQ = Anjuran::with(['dokumenHI.risalah.jadwal.mediator'])
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->where('ttd_kepala_dinas', true)
                 ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
@@ -177,45 +177,45 @@ class PenyelesaianController extends Controller
                 });
         } elseif ($role === 'pelapor' && $user->pelapor) {
             $pelaporId = $user->pelapor->pelapor_id;
-            $risalahSignedQ = Risalah::with(['jadwal.mediator'])
+            $risalahSignedQ = Risalah::with(['jadwal.mediator', 'jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->whereHas('jadwal.pengaduan', function ($q) use ($pelaporId) {
                     $q->where('pelapor_id', $pelaporId);
                 });
-            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_pekerja', true)
                 ->where('ttd_pengusaha', true)
                 ->where('ttd_mediator', true)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
                     $q->where('pelapor_id', $pelaporId);
                 });
-            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_kepala_dinas', true)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
                     $q->where('pelapor_id', $pelaporId);
                 });
         } elseif ($role === 'terlapor' && $user->terlapor) {
             $terlaporId = $user->terlapor->terlapor_id;
-            $risalahSignedQ = Risalah::with(['jadwal.mediator'])
+            $risalahSignedQ = Risalah::with(['jadwal.mediator', 'jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->whereHas('jadwal.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
-            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianSignedQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_pekerja', true)
                 ->where('ttd_pengusaha', true)
                 ->where('ttd_mediator', true)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
-            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_kepala_dinas', true)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
         } elseif ($role === 'kepala_dinas' && $user->kepalaDinas) {
             $kepalaDinasId = $user->kepalaDinas->kepala_dinas_id;
-            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranSignedQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_kepala_dinas', true)
                 ->where('kepala_dinas_id', $kepalaDinasId);
         }
@@ -247,9 +247,30 @@ class PenyelesaianController extends Controller
         $risalahSignedByUser = collect();
         $perjanjianSignedByUser = collect();
         $anjuranSignedByUser = collect();
-        if ($role === 'pelapor' && $user->pelapor) {
+        if ($role === 'mediator' && $user->mediator) {
+            $mediatorId = $user->mediator->mediator_id;
+            $risalahSignedByUserQ = Risalah::with(['jadwal.mediator', 'jadwal.pengaduan'])
+                ->where('ttd_mediator', true)
+                ->whereHas('jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
+                ->where('ttd_mediator', true)
+                ->where(function ($q) {
+                    $q->where('ttd_pekerja', false)->orWhere('ttd_pengusaha', false);
+                })
+                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
+                ->where('ttd_mediator', true)
+                ->where('ttd_kepala_dinas', false)
+                ->whereHas('dokumenHI.risalah.jadwal', function ($q) use ($mediatorId) {
+                    $q->where('mediator_id', $mediatorId);
+                });
+        } elseif ($role === 'pelapor' && $user->pelapor) {
             $pelaporId = $user->pelapor->pelapor_id;
-            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_pekerja', true)
                 ->where(function ($q) {
                     $q->where('ttd_pengusaha', false)->orWhere('ttd_mediator', false);
@@ -257,7 +278,7 @@ class PenyelesaianController extends Controller
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
                     $q->where('pelapor_id', $pelaporId);
                 });
-            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->where('ttd_kepala_dinas', false)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($pelaporId) {
@@ -265,7 +286,7 @@ class PenyelesaianController extends Controller
                 });
         } elseif ($role === 'terlapor' && $user->terlapor) {
             $terlaporId = $user->terlapor->terlapor_id;
-            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $perjanjianSignedByUserQ = PerjanjianBersama::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_pengusaha', true)
                 ->where(function ($q) {
                     $q->where('ttd_pekerja', false)->orWhere('ttd_mediator', false);
@@ -273,12 +294,18 @@ class PenyelesaianController extends Controller
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
-            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator'])
+            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
                 ->where('ttd_mediator', true)
                 ->where('ttd_kepala_dinas', false)
                 ->whereHas('dokumenHI.pengaduan', function ($q) use ($terlaporId) {
                     $q->where('terlapor_id', $terlaporId);
                 });
+        } elseif ($role === 'kepala_dinas' && $user->kepalaDinas) {
+            $kepalaDinasId = $user->kepalaDinas->kepala_dinas_id;
+            $anjuranSignedByUserQ = Anjuran::with(['dokumenHI.pengaduan', 'dokumenHI.risalah.jadwal.mediator', 'dokumenHI.risalah.jadwal.pengaduan'])
+                ->where('ttd_kepala_dinas', true)
+                ->where('ttd_mediator', false)
+                ->where('kepala_dinas_id', $kepalaDinasId);
         }
         // Terapkan filter pada query builder sebelum get()
         if ($filter === 'Risalah Klarifikasi') {

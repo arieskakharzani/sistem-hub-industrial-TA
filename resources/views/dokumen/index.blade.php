@@ -97,9 +97,6 @@
                                             {{ ($pagedDokumenList->currentPage() - 1) * $pagedDokumenList->perPage() + $index + 1 }}
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ optional($dokumen->pengaduan)->nomor_pengaduan ?? (optional($dokumen->pengaduan)->pengaduan_id ?? '-') }}
-                                        </td>
-                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <span
                                                 class="px-2 py-1 text-xs font-medium rounded-full {{ $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ? 'bg-purple-100 text-purple-800' : ($dokumen->jenis_dokumen == 'Risalah Penyelesaian' ? 'bg-pink-100 text-pink-800' : ($dokumen->jenis_dokumen == 'Perjanjian Bersama' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')) }}">{{ $dokumen->jenis_dokumen }}</span>
                                         </td>
@@ -121,10 +118,23 @@
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
                                             @if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
-                                                <a href="{{ route('risalah.show', $dokumen->id) }}"
+                                                @php
+                                                    try {
+                                                        $risalahUrl = route('risalah.show', $dokumen->id);
+                                                    } catch (\Exception $e) {
+                                                        $risalahUrl = '#';
+                                                    }
+                                                @endphp
+                                                <a href="{{ $risalahUrl }}"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
-                                                <form action="{{ route('risalah.destroy', $dokumen->id) }}"
-                                                    method="POST" class="inline">
+                                                @php
+                                                    try {
+                                                        $destroyUrl = route('risalah.destroy', $dokumen->id);
+                                                    } catch (\Exception $e) {
+                                                        $destroyUrl = '#';
+                                                    }
+                                                @endphp
+                                                <form action="{{ $destroyUrl }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-600 hover:text-red-900"

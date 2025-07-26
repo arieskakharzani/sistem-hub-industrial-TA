@@ -68,10 +68,10 @@
                     </div>
                 @endif
 
-                <div class="grid grid-cols-3 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {{-- Statistics --}}
                     <div class="lg:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="bg-white p-6 rounded-lg shadow-sm">
                                 <div class="flex items-center">
                                     <div class="p-3 bg-red-100 rounded-lg">
@@ -90,7 +90,7 @@
                                 </div>
                             </div>
 
-                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                            {{-- <div class="bg-white p-6 rounded-lg shadow-sm">
                                 <div class="flex items-center">
                                     <div class="p-3 bg-blue-100 rounded-lg">
                                         <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -101,11 +101,11 @@
                                     </div>
                                     <div class="ml-4">
                                         <p class="text-gray-600 text-sm">Dijadwalkan Mediasi</p>
-                                        {{-- <p class="text-2xl font-bold text-gray-900">{{ $stats['dijadwalkan_mediasi'] }} --}}
+                                        <p class="text-2xl font-bold text-gray-900">{{ $stats['dijadwalkan_mediasi'] }}
                                         </p>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="bg-white p-6 rounded-lg shadow-sm">
                                 <div class="flex items-center">

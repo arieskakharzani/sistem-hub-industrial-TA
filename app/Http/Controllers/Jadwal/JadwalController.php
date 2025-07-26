@@ -255,13 +255,11 @@ class JadwalController extends Controller
 
                 return redirect()->route('jadwal.show', $jadwal)
                     ->with('success', 'Jadwal berhasil dibuat dan notifikasi telah dikirim');
-
             } catch (\Exception $e) {
                 DB::rollback();
                 Log::error('Error creating jadwal: ' . $e->getMessage());
                 throw $e;
             }
-
         } catch (\Exception $e) {
             Log::error('Error in JadwalController@store: ' . $e->getMessage());
             return back()->withInput()
@@ -272,7 +270,7 @@ class JadwalController extends Controller
     // Halaman detail jadwal
     public function show($jadwalId): View
     {
-        $jadwal = Jadwal::with(['pengaduan.pelapor', 'mediator'])
+        $jadwal = Jadwal::with(['pengaduan.pelapor', 'mediator', 'risalahKlarifikasi', 'risalahPenyelesaian'])
             ->findOrFail($jadwalId);
 
         $user = Auth::user();
@@ -343,8 +341,12 @@ class JadwalController extends Controller
 
             // Simpan data lama untuk event
             $oldData = $jadwal->only([
-                'tanggal', 'waktu', 'tempat', 'status_jadwal', 
-                'catatan_jadwal', 'hasil'
+                'tanggal',
+                'waktu',
+                'tempat',
+                'status_jadwal',
+                'catatan_jadwal',
+                'hasil'
             ]);
 
             DB::beginTransaction();
@@ -365,7 +367,7 @@ class JadwalController extends Controller
                 // Kirim email langsung ke pelapor dan terlapor
                 try {
                     $eventType = $oldData['status_jadwal'] !== $request->status_jadwal ? 'status_updated' : 'updated';
-                    
+
                     // Kirim ke pelapor
                     if ($jadwal->pengaduan->pelapor && $jadwal->pengaduan->pelapor->email) {
                         Mail::to($jadwal->pengaduan->pelapor->email)
@@ -422,13 +424,11 @@ class JadwalController extends Controller
 
                 return redirect()->route('jadwal.show', $jadwal)
                     ->with('success', 'Jadwal berhasil diupdate dan notifikasi telah dikirim');
-
             } catch (\Exception $e) {
                 DB::rollback();
                 Log::error('Error updating jadwal: ' . $e->getMessage());
                 throw $e;
             }
-
         } catch (\Exception $e) {
             Log::error('Error in JadwalController@update: ' . $e->getMessage());
             return back()->withInput()
@@ -542,7 +542,6 @@ class JadwalController extends Controller
                         ));
                         Log::info('Notifikasi in-app dikirim ke terlapor');
                     }
-
                 } catch (\Exception $e) {
                     Log::error('Gagal mengirim notifikasi update status jadwal: ' . $e->getMessage());
                 }
@@ -565,13 +564,11 @@ class JadwalController extends Controller
                     'message' => 'Status jadwal berhasil diupdate dan notifikasi telah dikirim',
                     'status' => $request->status_jadwal
                 ]);
-
             } catch (\Exception $e) {
                 DB::rollback();
                 Log::error('Error updating jadwal status: ' . $e->getMessage());
                 throw $e;
             }
-
         } catch (\Exception $e) {
             Log::error('Error in JadwalController@updateStatus: ' . $e->getMessage());
             return response()->json([

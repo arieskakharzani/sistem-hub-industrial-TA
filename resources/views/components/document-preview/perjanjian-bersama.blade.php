@@ -48,17 +48,6 @@
 
             <div class="flex justify-between">
                 <div class="w-1/3">
-                    <p class="text-center">PIHAK KEDUA,</p>
-                    <div class="h-32 flex items-center justify-center">
-                        @if ($perjanjian->signature_pekerja)
-                            <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pekerja) }}"
-                                alt="Tanda Tangan Pekerja" class="max-h-24">
-                        @endif
-                    </div>
-                    <p class="text-center font-bold">{{ $perjanjian->nama_pekerja }}</p>
-                </div>
-
-                <div class="w-1/3">
                     <p class="text-center">PIHAK PERTAMA,</p>
                     <div class="h-32 flex items-center justify-center">
                         @if ($perjanjian->signature_pengusaha)
@@ -67,6 +56,17 @@
                         @endif
                     </div>
                     <p class="text-center font-bold">{{ $perjanjian->nama_pengusaha }}</p>
+                </div>
+
+                <div class="w-1/3">
+                    <p class="text-center">PIHAK KEDUA,</p>
+                    <div class="h-32 flex items-center justify-center">
+                        @if ($perjanjian->signature_pekerja)
+                            <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pekerja) }}"
+                                alt="Tanda Tangan Pekerja" class="max-h-24">
+                        @endif
+                    </div>
+                    <p class="text-center font-bold">{{ $perjanjian->nama_pekerja }}</p>
                 </div>
             </div>
 

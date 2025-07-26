@@ -66,7 +66,9 @@ class SendKonfirmasiNotification implements ShouldQueue
                 $jadwal,
                 $event->userRole,
                 $event->konfirmasi,
-                $this->determineNotificationType($jadwal, $event->konfirmasi)
+                is_array($this->determineNotificationType($jadwal, $event->konfirmasi))
+                    ? $this->determineNotificationType($jadwal, $event->konfirmasi)
+                    : ['type' => $this->determineNotificationType($jadwal, $event->konfirmasi)]
             ));
 
             Log::info('✅ Konfirmasi kehadiran notifications sent successfully', [
@@ -116,7 +118,7 @@ class SendKonfirmasiNotification implements ShouldQueue
                     $jadwal,
                     'system',
                     'reschedule_needed',
-                    'reschedule_required'
+                    ['type' => 'reschedule_required']
                 ));
             }
         }
@@ -136,7 +138,7 @@ class SendKonfirmasiNotification implements ShouldQueue
                     $jadwal,
                     'system',
                     'both_confirmed',
-                    'ready_to_proceed'
+                    ['type' => 'ready_to_proceed']
                 ));
             }
         }

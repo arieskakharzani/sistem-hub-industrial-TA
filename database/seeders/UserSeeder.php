@@ -175,7 +175,7 @@ class UserSeeder extends Seeder
         Mediator::create([
             'user_id' => $userMediator1->user_id,
             'nama_mediator' => 'Mochammad Effendi',
-            'nip' => '19821015001',
+            'nip' => '1982051520111011008',
         ]);
 
         // Mediator 2
@@ -189,8 +189,8 @@ class UserSeeder extends Seeder
 
         Mediator::create([
             'user_id' => $userMediator2->user_id,
-            'nama_mediator' => 'Dra. Sri Rahayu',
-            'nip' => '19751208002',
+            'nama_mediator' => 'Alhafiz, ST',
+            'nip' => '198607282015031003',
         ]);
 
         // Kepala Dinas

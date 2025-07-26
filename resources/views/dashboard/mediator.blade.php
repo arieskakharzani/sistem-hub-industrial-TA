@@ -179,7 +179,7 @@
                 </div>
 
                 {{-- Performance Metrics --}}
-                <div class="bg-white rounded-lg shadow-sm p-6">
+                {{-- <div class="bg-white rounded-lg shadow-sm p-6">
                     <h4 class="text-lg font-semibold mb-4">Performa Mediasi</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="text-center p-4 bg-green-50 rounded-lg">
@@ -195,7 +195,7 @@
                             <div class="text-sm text-gray-600">Rating Kepuasan</div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </x-app-layout>

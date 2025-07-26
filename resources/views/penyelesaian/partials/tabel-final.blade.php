@@ -106,7 +106,14 @@
                                 <a href="{{ route('dokumen.perjanjian-bersama.pdf', ['id' => $doc->perjanjian_bersama_id]) }}"
                                     target="_blank" class="ml-2 text-green-600 hover:text-green-900">Cetak PDF</a>
                             @elseif($doc instanceof \App\Models\Risalah)
-                                <a href="{{ route('risalah.pdf', ['risalah' => $doc->risalah_id]) }}" target="_blank"
+                                @php
+                                    try {
+                                        $pdfUrl = route('risalah.pdf', ['risalah' => $doc->risalah_id]);
+                                    } catch (\Exception $e) {
+                                        $pdfUrl = '#';
+                                    }
+                                @endphp
+                                <a href="{{ $pdfUrl }}" target="_blank"
                                     class="ml-2 text-green-600 hover:text-green-900">Cetak PDF</a>
                             @elseif($doc instanceof \App\Models\Anjuran)
                                 <a href="{{ route('dokumen.anjuran.pdf', ['id' => $doc->anjuran_id]) }}"

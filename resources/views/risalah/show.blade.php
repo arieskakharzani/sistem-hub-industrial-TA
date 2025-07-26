@@ -259,9 +259,23 @@
                             </form>
                         @endif
                         <div class="mt-8 flex gap-4">
-                            <a href="{{ route('risalah.edit', $risalah) }}"
+                            @php
+                                try {
+                                    $editUrl = route('risalah.edit', $risalah);
+                                } catch (\Exception $e) {
+                                    $editUrl = '#';
+                                }
+                            @endphp
+                            <a href="{{ $editUrl }}"
                                 class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow font-semibold transition">Edit</a>
-                            <a href="{{ route('risalah.pdf', $risalah) }}"
+                            @php
+                                try {
+                                    $pdfUrl = route('risalah.pdf', $risalah);
+                                } catch (\Exception $e) {
+                                    $pdfUrl = '#';
+                                }
+                            @endphp
+                            <a href="{{ $pdfUrl }}"
                                 class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow font-semibold transition"
                                 target="_blank">Cetak PDF</a>
 
@@ -269,7 +283,18 @@
                                 @if ($detail->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
                                     {{-- Cek apakah sudah ada jadwal mediasi untuk kasus ini --}}
                                     @if (!optional($risalah->jadwal)->pengaduan || !optional($risalah->jadwal->pengaduan)->hasActiveMediasiSchedule())
-                                        <a href="{{ route('jadwal.create', ['pengaduan_id' => optional($risalah->jadwal)->pengaduan_id, 'jenis' => 'mediasi', 'sidang_ke' => '1']) }}"
+                                        @php
+                                            try {
+                                                $jadwalUrl = route('jadwal.create', [
+                                                    'pengaduan_id' => optional($risalah->jadwal)->pengaduan_id,
+                                                    'jenis' => 'mediasi',
+                                                    'sidang_ke' => '1',
+                                                ]);
+                                            } catch (\Exception $e) {
+                                                $jadwalUrl = '#';
+                                            }
+                                        @endphp
+                                        <a href="{{ $jadwalUrl }}"
                                             class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow font-semibold transition">
                                             <svg class="w-4 h-4 inline-block mr-1" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +304,19 @@
                                             Buat Jadwal Mediasi
                                         </a>
                                     @else
-                                        <a href="{{ route('jadwal.show', optional(optional($risalah->jadwal)->pengaduan)->getLatestMediasiSchedule()->jadwal_id ?? '') }}"
+                                        @php
+                                            try {
+                                                $jadwalShowUrl = route(
+                                                    'jadwal.show',
+                                                    optional(
+                                                        optional($risalah->jadwal)->pengaduan,
+                                                    )->getLatestMediasiSchedule()->jadwal_id ?? '',
+                                                );
+                                            } catch (\Exception $e) {
+                                                $jadwalShowUrl = '#';
+                                            }
+                                        @endphp
+                                        <a href="{{ $jadwalShowUrl }}"
                                             class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded shadow font-semibold transition">
                                             <svg class="w-4 h-4 inline-block mr-1" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">

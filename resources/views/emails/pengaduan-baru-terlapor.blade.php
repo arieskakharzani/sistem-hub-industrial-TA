@@ -141,7 +141,7 @@
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Nomor Pengaduan:</div>
-                    <div class="info-value">#{{ $pengaduan->pengaduan_id }}</div>
+                    <div class="info-value">#{{ $pengaduan->nomor_pengaduan }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Status:</div>
@@ -187,9 +187,8 @@
 
         <div class="footer">
             <p>Email ini dikirim secara otomatis oleh sistem. Mohon tidak membalas email ini.</p>
-            <p>Dinas Ketenagakerjaan Kabupaten Bungo<br>
-                Jl. Lintas Sumatera KM. 2 Sungai Binjai, Kabupaten Bungo<br>
-                Telp: (0747) 21013 | Email: disnaker@bungokab.go.id</p>
+            <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo<br>
+                Telp: (0747) 21013 | Email: disnakertrans@bungokab.go.id</p>
         </div>
     </div>
 </body>

@@ -15,7 +15,7 @@ class DokumenController extends Controller
 {
     public function dokumenIndex(Request $request)
     {
-        $risalahList = Risalah::orderBy('created_at', 'desc')->get()->map(function($item) {
+        $risalahList = Risalah::orderBy('created_at', 'desc')->get()->map(function ($item) {
             $item->jenis_dokumen = $item->jenis_risalah === 'klarifikasi' ? 'Risalah Klarifikasi' : 'Risalah Penyelesaian';
             $item->tanggal_dokumen = $item->created_at;
             $item->pihak_pengusaha = $item->nama_perusahaan ?? '-';
@@ -23,7 +23,7 @@ class DokumenController extends Controller
             $item->id = $item->risalah_id;
             return $item;
         });
-        $perjanjianList = PerjanjianBersama::orderBy('created_at', 'desc')->get()->map(function($item) {
+        $perjanjianList = PerjanjianBersama::orderBy('created_at', 'desc')->get()->map(function ($item) {
             $item->jenis_dokumen = 'Perjanjian Bersama';
             $item->tanggal_dokumen = $item->created_at;
             $item->pihak_pengusaha = $item->nama_pengusaha ?? '-';
@@ -31,7 +31,7 @@ class DokumenController extends Controller
             $item->id = $item->perjanjian_bersama_id;
             return $item;
         });
-        $anjuranList = Anjuran::orderBy('created_at', 'desc')->get()->map(function($item) {
+        $anjuranList = Anjuran::orderBy('created_at', 'desc')->get()->map(function ($item) {
             $item->jenis_dokumen = 'Anjuran';
             $item->tanggal_dokumen = $item->created_at;
             $item->pihak_pengusaha = '-';

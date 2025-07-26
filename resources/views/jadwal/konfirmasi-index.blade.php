@@ -104,7 +104,7 @@
                 <div class="bg-gradient-to-br from-primary to-primary-light rounded-xl p-8 text-white mb-8">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h1 class="text-3xl font-bold mb-2">🗓️ Jadwal</h1>
+                            <h1 class="text-3xl font-bold mb-2">🗓️ Jadwal </h1>
                             <p class="text-white">Konfirmasi kehadiran Anda untuk panggilan klarifikasi/mediasi yang
                                 telah
                                 dijadwalkan</p>
