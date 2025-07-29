@@ -96,6 +96,27 @@ class Jadwal extends Model
         return $this->hasOne(Risalah::class, 'jadwal_id', 'jadwal_id')->where('jenis_risalah', 'penyelesaian');
     }
 
+    // Relasi ke detail mediasi (semua sesi mediasi untuk pengaduan ini)
+    public function detailMediasi()
+    {
+        return $this->hasManyThrough(
+            \App\Models\DetailMediasi::class,
+            \App\Models\Risalah::class,
+            'jadwal_id', // Foreign key di Risalah
+            'risalah_id', // Foreign key di DetailMediasi
+            'jadwal_id', // Local key di Jadwal
+            'risalah_id' // Local key di Risalah
+        )->whereHas('risalah', function ($q) {
+            $q->where('jenis_risalah', 'mediasi');
+        });
+    }
+
+    // Helper untuk ambil detail mediasi terakhir (sidang_ke terbesar)
+    public function detailMediasiTerakhir()
+    {
+        return $this->detailMediasi()->orderByDesc('sidang_ke')->first();
+    }
+
     // Scope untuk filter berdasarkan mediator
     public function scopeByMediator($query, $mediatorId)
     {

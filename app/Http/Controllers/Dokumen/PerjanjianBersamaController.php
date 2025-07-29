@@ -42,12 +42,6 @@ class PerjanjianBersamaController extends Controller
 
         $perjanjian = PerjanjianBersama::create($data);
 
-        // Kirim notifikasi ke terlapor untuk tanda tangan
-        $pengaduan = $perjanjian->dokumenHI->pengaduan;
-        $terlaporUser = $pengaduan && $pengaduan->terlapor ? $pengaduan->terlapor->user : null;
-        if ($terlaporUser) {
-            $terlaporUser->notify(new \App\Notifications\PerjanjianBersamaNeedsTerlaporSignatureNotification($perjanjian));
-        }
         // Redirect ke halaman detail perjanjian bersama
         return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
             ->with('success', 'Perjanjian Bersama berhasil dibuat.');

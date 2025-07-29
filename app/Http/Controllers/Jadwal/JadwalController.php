@@ -84,12 +84,16 @@ class JadwalController extends Controller
             abort(403, 'Data mediator tidak ditemukan');
         }
 
-        // Ambil pengaduan yang bisa dijadwalkan (status proses dan belum ada jadwal aktif)
+        // Ambil pengaduan yang bisa dijadwalkan
+        // Untuk sidang mediasi berikutnya, pengaduan yang sudah pernah dijadwalkan tetap bisa dipilih
         $pengaduanList = Pengaduan::with('pelapor')
             ->where('mediator_id', $mediator->mediator_id)
             ->where('status', 'proses')
             ->whereDoesntHave('jadwal', function ($query) {
                 $query->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung']);
+            })
+            ->whereDoesntHave('dokumenHI.risalah', function ($query) {
+                $query->where('jenis_risalah', 'penyelesaian');
             })
             ->get();
 
@@ -284,7 +288,10 @@ class JadwalController extends Controller
             abort(403, 'Anda tidak dapat melihat jadwal mediator lain');
         }
 
-        return view('jadwal.show', compact('jadwal'));
+        // Ambil detail mediasi terakhir (jika ada)
+        $detailMediasiTerakhir = $jadwal->detailMediasi()->orderByDesc('sidang_ke')->first();
+
+        return view('jadwal.show', compact('jadwal', 'detailMediasiTerakhir'));
     }
 
     // Halaman edit jadwal

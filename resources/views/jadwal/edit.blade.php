@@ -126,9 +126,21 @@
                             </select>
                         </div>
                         <div class="mb-4" id="sidang_ke_field" style="display: none;">
-                            <label for="sidang_ke" class="block text-gray-700">Sidang Ke-</label>
-                            <input type="text" name="sidang_ke" id="sidang_ke" class="form-input mt-1 block w-full"
-                                value="{{ $jadwal->sidang_ke }}" placeholder="I/II/III">
+                            <label for="sidang_ke" class="block text-sm font-medium text-gray-700 mb-2">
+                                Sidang Ke- <span class="text-red-500">*</span>
+                            </label>
+                            <select name="sidang_ke" id="sidang_ke" class="w-full rounded-md border-gray-300" required>
+                                <option value="">-- Pilih Sidang --</option>
+                                <option value="1"
+                                    {{ old('sidang_ke', $jadwal->sidang_ke) == '1' ? 'selected' : '' }}>Sidang ke-1
+                                </option>
+                                <option value="2"
+                                    {{ old('sidang_ke', $jadwal->sidang_ke) == '2' ? 'selected' : '' }}>Sidang ke-2
+                                </option>
+                                <option value="3"
+                                    {{ old('sidang_ke', $jadwal->sidang_ke) == '3' ? 'selected' : '' }}>Sidang ke-3
+                                </option>
+                            </select>
                         </div>
                         <script>
                             const jenisJadwal = document.getElementById('jenis_jadwal');

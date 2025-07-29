@@ -1,179 +1,151 @@
 <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-    {{-- <h4 class="font-semibold mb-4">Dokumen yang Sudah Anda Tandatangani (Menunggu Pihak Lain)</h4> --}}
-    <table class="min-w-full table-auto mb-6">
-        <thead>
-            <tr class="bg-gray-50">
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor
-                    Pengaduan</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal
-                    Dokumen</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Dokumen
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama
-                    Perusahaan</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pekerja
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            @php
-                $allSignedByUser = collect([]);
-                if (isset($signedByUser['risalah'])) {
-                    $allSignedByUser = $allSignedByUser->concat($signedByUser['risalah']);
-                }
-                if (isset($signedByUser['perjanjian_bersama'])) {
-                    $allSignedByUser = $allSignedByUser->concat($signedByUser['perjanjian_bersama']);
-                }
-                if (isset($signedByUser['anjuran'])) {
-                    $allSignedByUser = $allSignedByUser->concat($signedByUser['anjuran']);
-                }
-            @endphp
-            @if ($allSignedByUser->count() > 0)
-                @foreach ($allSignedByUser as $index => $doc)
+    @if ($dokumenSignedByUser->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-300">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-4 py-4">{{ $index + 1 }}</td>
-                        <td class="px-4 py-4">
-                            @php
-                                $pengaduan = null;
-                                if ($doc instanceof \App\Models\Risalah) {
-                                    $pengaduan = optional($doc->jadwal)->pengaduan;
-                                } elseif ($doc instanceof \App\Models\PerjanjianBersama) {
-                                    $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
-                                } elseif ($doc instanceof \App\Models\Anjuran) {
-                                    $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
-                                }
-                            @endphp
-                            {{ optional($pengaduan)->nomor_pengaduan ?? (optional($pengaduan)->pengaduan_id ?? '-') }}
-                        </td>
-                        <td class="px-4 py-4">{{ $doc->created_at ? $doc->created_at->format('d/m/Y') : '-' }}</td>
-                        <td class="px-4 py-4">
-                            @php
-                                $jenis = '';
-                                if ($doc instanceof \App\Models\Risalah) {
-                                    $jenis =
-                                        $doc->jenis_risalah == 'klarifikasi'
-                                            ? 'Risalah Klarifikasi'
-                                            : 'Risalah Penyelesaian';
-                                } elseif ($doc instanceof \App\Models\PerjanjianBersama) {
-                                    $jenis = 'Perjanjian Bersama';
-                                } elseif ($doc instanceof \App\Models\Anjuran) {
-                                    $jenis = 'Anjuran';
-                                }
-                                $badgeClass =
-                                    $jenis === 'Risalah Klarifikasi'
-                                        ? 'bg-purple-100 text-purple-800'
-                                        : ($jenis === 'Risalah Penyelesaian'
-                                            ? 'bg-pink-100 text-pink-800'
-                                            : ($jenis === 'Perjanjian Bersama'
-                                                ? 'bg-blue-100 text-blue-800'
-                                                : 'bg-yellow-100 text-yellow-800'));
-                            @endphp
-                            <span
-                                class="px-2 py-1 text-xs font-medium rounded-full {{ $badgeClass }}">{{ $jenis }}</span>
-                        </td>
-                        <td class="px-4 py-4">
-                            @php
-                                $pengaduan = null;
-                                if ($doc instanceof \App\Models\Risalah) {
-                                    $pengaduan = optional($doc->jadwal)->pengaduan;
-                                } elseif ($doc instanceof \App\Models\PerjanjianBersama) {
-                                    $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
-                                } elseif ($doc instanceof \App\Models\Anjuran) {
-                                    $pengaduan = optional(optional($doc->dokumenHI)->pengaduan);
-                                }
-                            @endphp
-                            {{ optional(optional($pengaduan)->terlapor)->nama ?? '-' }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ optional(optional($pengaduan)->pelapor)->nama ?? '-' }}
-                        </td>
-                        <td class="px-4 py-4">
-                            @if ($doc instanceof \App\Models\PerjanjianBersama)
-                                @php
-                                    $status = [];
-                                    if ($doc->ttd_pekerja) {
-                                        $status[] = 'Pelapor ✔';
-                                    }
-                                    if ($doc->ttd_pengusaha) {
-                                        $status[] = 'Terlapor ✔';
-                                    }
-                                    if ($doc->ttd_mediator) {
-                                        $status[] = 'Mediator ✔';
-                                    }
-                                    $statusText = implode(', ', $status);
-                                @endphp
-                                {{ $statusText }}
-                            @elseif($doc instanceof \App\Models\Risalah)
-                                Ditandatangani Mediator
-                            @elseif($doc instanceof \App\Models\Anjuran)
-                                Ditandatangani Mediator
-                            @endif
-                        </td>
-                        <td class="px-4 py-4 text-center">
-                            <button type="button" class="text-blue-600 hover:text-blue-900"
-                                onclick="openSignedPreviewModal('{{ $doc->getKey() }}')">Lihat</button>
-                            <!-- Modal Preview Dokumen Signed -->
-                            <div id="signed-preview-modal-{{ $doc->getKey() }}"
-                                class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40">
-                                <div
-                                    class="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl mx-auto relative overflow-y-auto max-h-screen">
-                                    <button type="button"
-                                        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                                        onclick="closeSignedPreviewModal('{{ $doc->getKey() }}')">&times;</button>
-                                    <h3 class="text-lg font-semibold mb-4">Preview Dokumen</h3>
-                                    <div class="mb-6 overflow-y-auto max-h-[70vh]">
-                                        @if ($doc instanceof \App\Models\Risalah)
-                                            @include('components.document-preview.risalah', [
-                                                'risalah' => $doc,
-                                            ])
-                                        @elseif($doc instanceof \App\Models\PerjanjianBersama)
-                                            @include('components.document-preview.perjanjian-bersama', [
-                                                'perjanjian' => $doc,
-                                            ])
-                                        @elseif($doc instanceof \App\Models\Anjuran)
-                                            @include('components.document-preview.anjuran', [
-                                                'anjuran' => $doc,
-                                            ])
-                                        @endif
-                                    </div>
-                                    <div class="flex justify-end gap-2">
-                                        <button type="button"
-                                            onclick="closeSignedPreviewModal('{{ $doc->getKey() }}')"
-                                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Tutup</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            No
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Jenis Dokumen
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Nomor
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Tanggal
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Nama Perusahaan
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Nama Pekerja
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th
+                            class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            Aksi
+                        </th>
                     </tr>
-                @endforeach
-            @else
-                <tr>
-                    <td colspan="8" class="text-center text-gray-500 py-4">Belum ada dokumen yang sudah Anda
-                        tandatangani namun belum final.</td>
-                </tr>
-            @endif
-        </tbody>
-    </table>
+                </thead>
+                <tbody class="bg-white">
+                    @foreach ($dokumenSignedByUser as $index => $doc)
+                        @php
+                            $namaPerusahaan = '-';
+                            $namaPekerja = '-';
+                            if ($doc instanceof \App\Models\Risalah) {
+                                $namaPerusahaan = $doc->nama_perusahaan ?? '-';
+                                $namaPekerja = $doc->nama_pekerja ?? '-';
+                            } elseif ($doc instanceof \App\Models\PerjanjianBersama) {
+                                $namaPerusahaan = $doc->perusahaan_pengusaha ?? '-';
+                                $namaPekerja = $doc->nama_pekerja ?? '-';
+                            } elseif ($doc instanceof \App\Models\Anjuran) {
+                                $namaPerusahaan = $doc->nama_perusahaan ?? '-';
+                                $namaPekerja = $doc->nama_pekerja ?? '-';
+                            }
+                        @endphp
+                        <tr class="hover:bg-gray-50">
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                {{ $index + 1 }}
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                @if ($doc instanceof \App\Models\Risalah)
+                                    Risalah {{ ucfirst($doc->jenis_risalah) }}
+                                @elseif ($doc instanceof \App\Models\PerjanjianBersama)
+                                    Perjanjian Bersama
+                                @elseif ($doc instanceof \App\Models\Anjuran)
+                                    Anjuran
+                                @endif
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                @if ($doc instanceof \App\Models\Risalah)
+                                    {{ $doc->risalah_id }}
+                                @elseif ($doc instanceof \App\Models\PerjanjianBersama)
+                                    {{ $doc->nomor_perjanjian ?? '-' }}
+                                @elseif ($doc instanceof \App\Models\Anjuran)
+                                    {{ $doc->nomor_anjuran ?? '-' }}
+                                @endif
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                @if ($doc instanceof \App\Models\Risalah)
+                                    {{ $doc->tanggal_perundingan ? $doc->tanggal_perundingan->format('d/m/Y') : '-' }}
+                                @elseif ($doc instanceof \App\Models\PerjanjianBersama)
+                                    {{ $doc->tanggal_perjanjian ? $doc->tanggal_perjanjian->format('d/m/Y') : '-' }}
+                                @elseif ($doc instanceof \App\Models\Anjuran)
+                                    {{ $doc->tanggal_anjuran ? $doc->tanggal_anjuran->format('d/m/Y') : '-' }}
+                                @endif
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                {{ $namaPerusahaan }}
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                {{ $namaPekerja }}
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                @if ($doc instanceof \App\Models\Risalah)
+                                    @if ($doc->jenis_risalah === 'mediasi')
+                                        Catatan Internal
+                                    @else
+                                        Draft
+                                    @endif
+                                @elseif ($doc instanceof \App\Models\PerjanjianBersama)
+                                    Draft
+                                @elseif ($doc instanceof \App\Models\Anjuran)
+                                    Draft
+                                @endif
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900 border-b border-gray-200">
+                                <div class="flex space-x-2">
+                                    @if ($doc instanceof \App\Models\Risalah)
+                                        <a href="{{ route('risalah.show', $doc->risalah_id) }}"
+                                            class="text-blue-600 hover:text-blue-900">Lihat</a>
+                                        <a href="{{ route('risalah.edit', $doc->risalah_id) }}"
+                                            class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                        <a href="{{ route('risalah.pdf', $doc->risalah_id) }}"
+                                            class="text-green-600 hover:text-green-900">PDF</a>
+                                    @elseif ($doc instanceof \App\Models\PerjanjianBersama)
+                                        <a href="{{ route('perjanjian-bersama.show', $doc->perjanjian_bersama_id) }}"
+                                            class="text-blue-600 hover:text-blue-900">Lihat</a>
+                                        <a href="{{ route('perjanjian-bersama.edit', $doc->perjanjian_bersama_id) }}"
+                                            class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                        <a href="{{ route('perjanjian-bersama.pdf', $doc->perjanjian_bersama_id) }}"
+                                            class="text-green-600 hover:text-green-900">PDF</a>
+                                    @elseif ($doc instanceof \App\Models\Anjuran)
+                                        <a href="{{ route('anjuran.show', $doc->anjuran_id) }}"
+                                            class="text-blue-600 hover:text-blue-900">Lihat</a>
+                                        <a href="{{ route('anjuran.edit', $doc->anjuran_id) }}"
+                                            class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                        <a href="{{ route('anjuran.pdf', $doc->anjuran_id) }}"
+                                            class="text-green-600 hover:text-green-900">PDF</a>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <div class="text-center py-8">
+            <p class="text-gray-500">Tidak ada dokumen yang ditandatangani oleh Anda.</p>
+        </div>
+    @endif
 </div>
-
-<script>
-    window.openSignedPreviewModal = function(id) {
-        var modal = document.getElementById('signed-preview-modal-' + id);
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            modal.style.display = '';
-        }
-    }
-    window.closeSignedPreviewModal = function(id) {
-        var modal = document.getElementById('signed-preview-modal-' + id);
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            modal.style.display = 'none';
-        }
-    }
-</script>

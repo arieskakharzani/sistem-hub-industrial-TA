@@ -30,20 +30,10 @@ class Anjuran extends Model
         'pertimbangan_hukum',
         'isi_anjuran',
         'nomor_anjuran',
-        'tanggal_anjuran',
-        'ttd_mediator',
-        'ttd_kepala_dinas',
-        'tanggal_ttd_mediator',
-        'tanggal_ttd_kepala_dinas',
-        'signature_mediator',
-        'signature_kepala_dinas'
+        'tanggal_anjuran'
     ];
 
     protected $casts = [
-        'ttd_mediator' => 'boolean',
-        'ttd_kepala_dinas' => 'boolean',
-        'tanggal_ttd_mediator' => 'datetime',
-        'tanggal_ttd_kepala_dinas' => 'datetime',
         'tanggal_anjuran' => 'date'
     ];
 
@@ -65,38 +55,5 @@ class Anjuran extends Model
     public function kepalaDinas(): BelongsTo
     {
         return $this->belongsTo(KepalaDinas::class, 'kepala_dinas_id', 'kepala_dinas_id');
-    }
-
-    // Helper methods untuk tanda tangan
-    public function isSignedByMediator(): bool
-    {
-        return $this->ttd_mediator;
-    }
-
-    public function isSignedByKepalaDinas(): bool
-    {
-        return $this->ttd_kepala_dinas;
-    }
-
-    public function isFullySigned(): bool
-    {
-        return $this->ttd_mediator && $this->ttd_kepala_dinas;
-    }
-
-    public function getSignatureStatus(): string
-    {
-        if ($this->isFullySigned()) {
-            return 'Sudah ditandatangani semua pihak';
-        }
-        
-        $status = [];
-        if (!$this->ttd_mediator) {
-            $status[] = 'Menunggu tanda tangan Mediator';
-        }
-        if (!$this->ttd_kepala_dinas && $this->ttd_mediator) {
-            $status[] = 'Menunggu tanda tangan Kepala Dinas';
-        }
-        
-        return implode(', ', $status);
     }
 }

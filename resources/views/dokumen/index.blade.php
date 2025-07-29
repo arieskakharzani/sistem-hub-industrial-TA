@@ -97,8 +97,40 @@
                                             {{ ($pagedDokumenList->currentPage() - 1) * $pagedDokumenList->perPage() + $index + 1 }}
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            @if (
+                                                $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ||
+                                                    $dokumen->jenis_dokumen == 'Risalah Mediasi' ||
+                                                    $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
+                                                {{ optional(optional($dokumen->jadwal)->pengaduan)->nomor_pengaduan ?? '-' }}
+                                            @elseif($dokumen->jenis_dokumen == 'Perjanjian Bersama' || $dokumen->jenis_dokumen == 'Anjuran')
+                                                @php
+                                                    $pengaduan = null;
+                                                    if ($dokumen->dokumenHI && $dokumen->dokumenHI->risalah) {
+                                                        $risalah = $dokumen->dokumenHI->risalah->first();
+                                                        if (
+                                                            $risalah &&
+                                                            $risalah->jadwal &&
+                                                            $risalah->jadwal->pengaduan
+                                                        ) {
+                                                            $pengaduan = $risalah->jadwal->pengaduan;
+                                                        }
+                                                    }
+                                                @endphp
+                                                {{ $pengaduan ? $pengaduan->nomor_pengaduan : '-' }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <span
-                                                class="px-2 py-1 text-xs font-medium rounded-full {{ $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ? 'bg-purple-100 text-purple-800' : ($dokumen->jenis_dokumen == 'Risalah Penyelesaian' ? 'bg-pink-100 text-pink-800' : ($dokumen->jenis_dokumen == 'Perjanjian Bersama' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')) }}">{{ $dokumen->jenis_dokumen }}</span>
+                                                class="px-3 py-1 text-xs font-semibold rounded-full
+                                                @if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi') bg-purple-100 text-purple-800
+                                                @elseif($dokumen->jenis_dokumen == 'Risalah Mediasi') bg-orange-100 text-orange-800
+                                                @elseif($dokumen->jenis_dokumen == 'Risalah Penyelesaian') bg-pink-100 text-pink-800
+                                                @elseif($dokumen->jenis_dokumen == 'Perjanjian Bersama') bg-blue-100 text-blue-800
+                                                @else bg-yellow-100 text-yellow-800 @endif">
+                                                {{ $dokumen->jenis_dokumen }}
+                                            </span>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $dokumen->tanggal_dokumen ? \Carbon\Carbon::parse($dokumen->tanggal_dokumen)->format('d M Y') : '-' }}
@@ -109,15 +141,34 @@
                                             {{ $dokumen->pihak_pekerja }}</td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             @if ($dokumen->jenis_dokumen == 'Perjanjian Bersama' || $dokumen->jenis_dokumen == 'Anjuran')
-                                                {{ optional(optional($dokumen->dokumenHI->risalah->first())->jadwal)->mediator->nama_mediator ?? '-' }}
-                                            @elseif($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
-                                                {{ $dokumen->jadwal->mediator->nama_mediator ?? '-' }}
+                                                @php
+                                                    $mediator = null;
+                                                    if ($dokumen->dokumenHI && $dokumen->dokumenHI->risalah) {
+                                                        $risalah = $dokumen->dokumenHI->risalah->first();
+                                                        if (
+                                                            $risalah &&
+                                                            $risalah->jadwal &&
+                                                            $risalah->jadwal->mediator
+                                                        ) {
+                                                            $mediator = $risalah->jadwal->mediator;
+                                                        }
+                                                    }
+                                                @endphp
+                                                {{ $mediator ? $mediator->nama_mediator : '-' }}
+                                            @elseif(
+                                                $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ||
+                                                    $dokumen->jenis_dokumen == 'Risalah Mediasi' ||
+                                                    $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
+                                                {{ optional(optional($dokumen->jadwal)->mediator)->nama_mediator ?? '-' }}
                                             @else
                                                 -
                                             @endif
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                            @if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi' || $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
+                                            @if (
+                                                $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ||
+                                                    $dokumen->jenis_dokumen == 'Risalah Mediasi' ||
+                                                    $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
                                                 @php
                                                     try {
                                                         $risalahUrl = route('risalah.show', $dokumen->id);

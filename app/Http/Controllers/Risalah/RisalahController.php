@@ -118,6 +118,9 @@ class RisalahController extends Controller
         $risalah = Risalah::create($data);
         \Log::info('RISALAH STORE: risalah created', $risalah->toArray());
 
+        // Update status jadwal menjadi 'selesai' setiap kali risalah disimpan
+        $jadwal->update(['status_jadwal' => 'selesai']);
+
         // Simpan detail sesuai jenis
         if ($jenis_risalah === 'klarifikasi') {
             $detailKlarifikasi = DetailKlarifikasi::create([
@@ -157,7 +160,7 @@ class RisalahController extends Controller
             \Log::info('RISALAH STORE: detail penyelesaian created', $detailPenyelesaian->toArray());
         }
 
-        return redirect()->route('risalah.show', $risalah->risalah_id)->with('success', 'Risalah berhasil dibuat');
+        return redirect()->route('dokumen.index')->with('success', 'Risalah berhasil dibuat');
     }
 
     // Tampilkan detail risalah
@@ -252,6 +255,12 @@ class RisalahController extends Controller
         ]);
         $risalah->update($data);
 
+        // Update status jadwal menjadi 'selesai' setiap kali risalah disimpan
+        $jadwal = $risalah->jadwal;
+        if ($jadwal) {
+            $jadwal->update(['status_jadwal' => 'selesai']);
+        }
+
         // Update detail
         if ($risalah->jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
@@ -307,7 +316,7 @@ class RisalahController extends Controller
                 ]);
             }
         }
-        return redirect()->route('risalah.show', $risalah->risalah_id)->with('success', 'Risalah berhasil diperbarui');
+        return redirect()->route('dokumen.index')->with('success', 'Risalah berhasil diperbarui');
     }
 
     public function exportPDF(Risalah $risalah)

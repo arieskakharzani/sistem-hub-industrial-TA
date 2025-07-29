@@ -141,8 +141,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Manajemen Akun Terlapor</p>
-                                <p class="text-sm text-gray-600">Buat akun baru</p>
+                                <p class="font-medium text-gray-900">Manajemen Akun</p>
+                                <p class="text-sm text-gray-600">Buat akun Terlapor</p>
                             </div>
                         </a>
 

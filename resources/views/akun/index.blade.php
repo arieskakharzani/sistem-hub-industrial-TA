@@ -105,7 +105,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        {{ __('Kelola Akun') }}
+                        /{{ __('Manajemen Akun') }}
                     </h2>
                     <p class="text-gray-600 text-sm mt-1">Kelola akun pelapor dan terlapor untuk Sistem Informasi
                         Pengaduan dan Penyelesaian Hubungan Industrial Kab. Bungo

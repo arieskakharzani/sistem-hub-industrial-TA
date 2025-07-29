@@ -8,52 +8,99 @@
         body {
             font-family: Times New Roman, serif;
             line-height: 1.5;
-            font-size: 12pt;
+            font-size: 12px;
+            margin: 0;
+            padding: 40px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .content {
-            margin: 0 30px;
+            margin: 0;
         }
 
         .title {
             font-weight: bold;
-            font-size: 14pt;
-            margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .party-info {
-            margin-left: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
-        .party-info p {
-            margin: 5px 0;
+        .party-info table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .label {
-            display: inline-block;
-            width: 100px;
+        .party-info td {
+            vertical-align: top;
+            padding: 0;
         }
 
-        .colon {
-            display: inline-block;
+        .info-number {
+            width: 40px;
+            font-weight: bold;
+            text-align: right;
+            padding-right: 10px;
+            font-size: 12px;
+        }
+
+        .info-label {
+            width: 120px;
+            font-weight: bold;
+            text-align: left;
+            padding-right: 15px;
+            font-size: 12px;
+        }
+
+        .info-colon {
             width: 20px;
+            font-weight: bold;
+            text-align: left;
+            padding-right: 15px;
+            font-size: 12px;
         }
 
-        .dotted-line {
-            display: inline-block;
-            border-bottom: 1px dotted #000;
-            width: 250px;
+        .info-value {
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .party-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .party-description {
+            font-style: italic;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .legal-basis {
+            text-align: justify;
+            font-size: 12px;
+        }
+
+        .agreement-content {
+            text-align: justify;
+            margin: 20px 0;
+            font-size: 12px;
+        }
+
+        .conclusion {
+            text-align: justify;
+            font-size: 12px;
         }
 
         .signature-container {
             width: 100%;
-            margin-top: 50px;
+            margin-top: 10px;
         }
 
         .signature-row {
@@ -67,23 +114,32 @@
             width: 50%;
             text-align: center;
             vertical-align: top;
+            padding: 0 20px;
         }
 
         .signature-line {
             margin: 0 auto;
-            margin-top: 80px;
+            margin-top: 50px;
             margin-bottom: 5px;
             width: 200px;
-            border-bottom: 1px dotted #000;
+            border-bottom: 1px solid #000;
         }
 
         .mediator-signature {
-            margin-top: 50px;
+            margin-top: 10px;
             text-align: center;
+
         }
 
         .mediator-signature .signature-line {
             margin-top: 80px;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 30px;
+            }
         }
     </style>
 </head>
@@ -103,60 +159,93 @@
         </p>
 
         <div class="party-info">
-            <p>1. <span class="label">Nama</span><span class="colon">:</span>{{ $perjanjian->nama_pengusaha }}</p>
-            <p><span class="label">Jabatan</span><span class="colon">:</span>{{ $perjanjian->jabatan_pengusaha }}</p>
-            <p><span class="label">Perusahaan</span><span class="colon">:</span>{{ $perjanjian->perusahaan_pengusaha }}
-            </p>
-            <p><span class="label">Alamat</span><span class="colon">:</span>{{ $perjanjian->alamat_pengusaha }}</p>
-            <p>Yang selanjutnya disebut Pihak Pengusaha.</p>
+            <div class="party-title">1. Pihak Pengusaha</div>
+            <table>
+                <tr>
+                    <td class="info-label">Nama</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->nama_pengusaha }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Jabatan</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->jabatan_pengusaha }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Perusahaan</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->perusahaan_pengusaha }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Alamat</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->alamat_pengusaha }}</td>
+                </tr>
+            </table>
+            <div class="party-description">Yang selanjutnya disebut Pihak Pengusaha.</div>
         </div>
 
         <div class="party-info">
-            <p>2. <span class="label">Nama</span><span class="colon">:</span>{{ $perjanjian->nama_pekerja }}</p>
-            <p><span class="label">Jabatan</span><span class="colon">:</span>{{ $perjanjian->jabatan_pekerja }}</p>
-            <p><span class="label">Perusahaan</span><span class="colon">:</span>{{ $perjanjian->perusahaan_pekerja }}
-            </p>
-            <p><span class="label">Alamat</span><span class="colon">:</span>{{ $perjanjian->alamat_pekerja }}</p>
-            <p>Yang selanjutnya disebut Pihak Pekerja/Buruh/SP/SB*)</p>
+            <div class="party-title">2. Pihak Pekerja/Buruh/SP/SB</div>
+            <table>
+                <tr>
+                    <td class="info-label">Nama</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->nama_pekerja }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Jabatan</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->jabatan_pekerja }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Perusahaan</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->perusahaan_pekerja }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Alamat</td>
+                    <td class="info-colon">:</td>
+                    <td class="info-value">{{ $perjanjian->alamat_pekerja }}</td>
+                </tr>
+            </table>
+            <div class="party-description">Yang selanjutnya disebut Pihak Pekerja/Buruh/SP/SB*)</div>
         </div>
 
-        <p style="text-align: justify;">
-            Berdasarkan ketentuan Pasal 13 ayat (1) Undang-Undang Nomor 2 Tahun 2004 tentang Penyelesaian Perselisihan
-            Hubungan Industrial, antara Pihak Pengusaha dan Pihak Pekerja/Buruh/SP/SB*) telah tercapai kesepakatan
-            penyelesaian perselisihan hubungan industrial melalui Mediasi sebagai berikut:
-        </p>
+        <div class="legal-basis">
+            <p>
+                Berdasarkan ketentuan Pasal 13 ayat (1) Undang-Undang Nomor 2 Tahun 2004 tentang Penyelesaian
+                Perselisihan
+                Hubungan Industrial, antara Pihak Pengusaha dan Pihak Pekerja/Buruh/SP/SB*) telah tercapai kesepakatan
+                penyelesaian perselisihan hubungan industrial melalui Mediasi sebagai berikut:
+            </p>
+        </div>
 
-        <div style="margin: 20px 0;">
+        <div class="agreement-content">
             {!! nl2br(e($perjanjian->isi_kesepakatan)) !!}
         </div>
 
-        <p style="text-align: justify;">
-            Kesepakatan ini merupakan perjanjian bersama yang berlaku sejak ditandatangani pihak-pihak berselisih.
-        </p>
+        <div class="conclusion">
+            <p>
+                Kesepakatan ini merupakan perjanjian bersama yang berlaku sejak ditandatangani pihak-pihak berselisih.
+            </p>
 
-        <p style="text-align: justify;">
-            Demikian Perjanjian Bersama ini dibuat dalam keadaan sadar tanpa paksaan dari pihak manapun, dan
-            dilaksanakan dengan penuh rasa tanggung jawab yang didasari itikad baik.
-        </p>
+            <p>
+                Demikian Perjanjian Bersama ini dibuat dalam keadaan sadar tanpa paksaan dari pihak manapun, dan
+                dilaksanakan dengan penuh rasa tanggung jawab yang didasari itikad baik.
+            </p>
+        </div>
 
         <div class="signature-container">
             <div class="signature-row">
                 <div class="signature-box">
                     <p>Pihak Pengusaha,</p>
-                    @if ($perjanjian->signature_pengusaha)
-                        <img src="{{ public_path('storage/signatures/' . $perjanjian->signature_pengusaha) }}"
-                            alt="Tanda Tangan Pengusaha"
-                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
-                    @endif
+                    <br><br>
                     <p>({{ $perjanjian->nama_pengusaha }})</p>
                 </div>
                 <div class="signature-box">
                     <p>Pihak Pekerja/Buruh/SP/SB,</p>
-                    @if ($perjanjian->signature_pekerja)
-                        <img src="{{ public_path('storage/signatures/' . $perjanjian->signature_pekerja) }}"
-                            alt="Tanda Tangan Pekerja"
-                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
-                    @endif
+                    <br><br>
                     <p>({{ $perjanjian->nama_pekerja }})</p>
                 </div>
             </div>
@@ -165,14 +254,9 @@
         <div class="mediator-signature">
             <p>Menyaksikan</p>
             <p>Mediator Hubungan Industrial,</p>
-            @if ($perjanjian->signature_mediator)
-                <img src="{{ public_path('storage/signatures/' . $perjanjian->signature_mediator) }}"
-                    alt="Tanda Tangan Mediator"
-                    style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
-            @endif
+            <br><br>
             <p>({{ $perjanjian->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
-            <p>NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip ?? '-' }}
-            </p>
+            <p>NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
         </div>
     </div>
 </body>

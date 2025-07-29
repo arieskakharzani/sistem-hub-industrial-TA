@@ -132,6 +132,19 @@
 
                                 <div class="space-y-2">
                                     <label class="flex items-center text-sm font-medium text-gray-700">
+                                        Perusahaan Pekerja
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <input type="text" name="perusahaan_pekerja"
+                                        value="{{ old('perusahaan_pekerja', $anjuran->perusahaan_pekerja) }}" required
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                                    @error('perusahaan_pekerja')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="flex items-center text-sm font-medium text-gray-700">
                                         Alamat
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
@@ -181,7 +194,8 @@
 
                         <!-- Pertimbangan Hukum -->
                         <div class="space-y-6 mt-8">
-                            <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">Pertimbangan
+                            <h3 class="text-lg font-semibold text-gray-800 pb-3 border-b-2 border-gray-200">
+                                Pertimbangan
                                 Hukum</h3>
                             <div class="space-y-2">
                                 <label class="flex items-center text-sm font-medium text-gray-700">

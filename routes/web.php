@@ -162,7 +162,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('penyelesaian')->name('penyelesaian.')->group(function () {
         Route::get('/', [PenyelesaianController::class, 'index'])->name('index');
-        Route::post('/sign-document', [PenyelesaianController::class, 'signDocument'])->name('sign-document');
         Route::post('/publish-anjuran/{anjuran}', [PenyelesaianController::class, 'publishAnjuran'])->name('publish-anjuran');
     });
 });

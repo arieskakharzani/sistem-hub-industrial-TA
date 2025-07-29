@@ -28,16 +28,11 @@ class Risalah extends Model
         'tempat_perundingan',
         'pokok_masalah',
         'pendapat_pekerja',
-        'pendapat_pengusaha',
-        'ttd_mediator',
-        'tanggal_ttd_mediator',
-        'signature_mediator'
+        'pendapat_pengusaha'
     ];
 
     protected $casts = [
-        'tanggal_perundingan' => 'datetime',
-        'ttd_mediator' => 'boolean',
-        'tanggal_ttd_mediator' => 'datetime'
+        'tanggal_perundingan' => 'datetime'
     ];
 
     protected static function boot()
@@ -77,20 +72,6 @@ class Risalah extends Model
     public function detailMediasi(): HasOne
     {
         return $this->hasOne(DetailMediasi::class, 'risalah_id', 'risalah_id');
-    }
-
-    // Helper method untuk tanda tangan
-    public function isSignedByMediator(): bool
-    {
-        return $this->ttd_mediator;
-    }
-
-    public function getSignatureStatus(): string
-    {
-        if ($this->isSignedByMediator()) {
-            return 'Sudah ditandatangani oleh Mediator';
-        }
-        return 'Menunggu tanda tangan Mediator';
     }
 
     // Scope methods untuk filter berdasarkan jenis risalah

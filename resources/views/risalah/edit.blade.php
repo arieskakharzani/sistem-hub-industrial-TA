@@ -207,6 +207,27 @@
                             @if ($jenis_risalah === 'mediasi')
                                 <div class="space-y-2">
                                     <label class="flex items-center text-sm font-medium text-gray-700">
+                                        Sidang Ke
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <select name="sidang_ke" required
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                                        <option value="">-- Pilih Sidang --</option>
+                                        <option value="1"
+                                            {{ old('sidang_ke', $detail->sidang_ke ?? '') == '1' ? 'selected' : '' }}>
+                                            Sidang ke-1</option>
+                                        <option value="2"
+                                            {{ old('sidang_ke', $detail->sidang_ke ?? '') == '2' ? 'selected' : '' }}>
+                                            Sidang ke-2</option>
+                                        <option value="3"
+                                            {{ old('sidang_ke', $detail->sidang_ke ?? '') == '3' ? 'selected' : '' }}>
+                                            Sidang ke-3</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 italic">Pilih sidang ke berapa untuk mediasi ini
+                                    </p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="flex items-center text-sm font-medium text-gray-700">
                                         Ringkasan Pembahasan
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>

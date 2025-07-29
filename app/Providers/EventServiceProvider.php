@@ -2,20 +2,10 @@
 
 namespace App\Providers;
 
-use App\Events\PengaduanCreated;
-use App\Listeners\NotifyMediators;
-use App\Events\KonfirmasiKehadiran;
-use App\Events\JadwalCreated;
-use App\Events\JadwalUpdated;
-use App\Events\JadwalStatusUpdated;
-use App\Events\JadwalRescheduleNeeded;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
-use App\Listeners\SendKonfirmasiNotification;
-use App\Listeners\HandleRescheduleNotification;
-use App\Listeners\SendJadwalNotification;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -28,29 +18,21 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-
-        // Event untuk pengaduan baru
-        PengaduanCreated::class => [
-            NotifyMediators::class,
+        'App\Events\PengaduanCreated' => [
+            'App\Listeners\SendJadwalNotification',
+            'App\Listeners\NotifyMediators',
         ],
-
-        //Event untuk pemberitahuan jadwal ke pelapor dan terlapor
-        JadwalCreated::class => [
-            SendJadwalNotification::class,
+        'App\Events\JadwalCreated' => [
+            'App\Listeners\SendJadwalNotification',
         ],
-        JadwalUpdated::class => [
-            SendJadwalNotification::class,
+        'App\Events\JadwalUpdated' => [
+            'App\Listeners\SendJadwalNotification',
         ],
-        JadwalStatusUpdated::class => [
-            SendJadwalNotification::class,
+        'App\Events\KonfirmasiKehadiran' => [
+            'App\Listeners\SendKonfirmasiNotification',
         ],
-        JadwalRescheduleNeeded::class => [
-            HandleRescheduleNotification::class,
-        ],
-
-        // Event untuk konfirmasi kehadiran (EMAIL + IN-APP untuk mediator)
-        KonfirmasiKehadiran::class => [
-            SendKonfirmasiNotification::class,
+        'App\Events\JadwalRescheduleNeeded' => [
+            'App\Listeners\HandleRescheduleNotification',
         ],
     ];
 
@@ -59,7 +41,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Manual event binding sebagai fallback
+        //
     }
 
     /**

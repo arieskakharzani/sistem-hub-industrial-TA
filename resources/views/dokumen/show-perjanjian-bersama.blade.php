@@ -167,7 +167,7 @@
                                 </p>
                             </div>
 
-                            @if ($perjanjian->isFullySigned())
+                            {{-- @if ($perjanjian->isFullySigned())
                                 <form method="POST" action="{{ route('penyelesaian.finalize') }}"
                                     class="mt-8 text-center">
                                     @csrf
@@ -179,7 +179,7 @@
                                         Kirim Final ke Para Pihak & Selesaikan Kasus
                                     </button>
                                 </form>
-                            @endif
+                            @endif --}}
                         </div>
                     </div>
                 </div>
