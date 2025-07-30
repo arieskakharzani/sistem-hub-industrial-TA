@@ -71,7 +71,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {{-- Statistics --}}
                     <div class="lg:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div class="bg-white p-6 rounded-lg shadow-sm">
                                 <div class="flex items-center">
                                     <div class="p-3 bg-red-100 rounded-lg">
@@ -90,23 +90,6 @@
                                 </div>
                             </div>
 
-                            {{-- <div class="bg-white p-6 rounded-lg shadow-sm">
-                                <div class="flex items-center">
-                                    <div class="p-3 bg-blue-100 rounded-lg">
-                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <p class="text-gray-600 text-sm">Dijadwalkan Mediasi</p>
-                                        <p class="text-2xl font-bold text-gray-900">{{ $stats['dijadwalkan_mediasi'] }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div> --}}
-
                             <div class="bg-white p-6 rounded-lg shadow-sm">
                                 <div class="flex items-center">
                                     <div class="p-3 bg-purple-100 rounded-lg">
@@ -120,6 +103,23 @@
                                         <p class="text-gray-600 text-sm">Menunggu Konfirmasi</p>
                                         <p class="text-2xl font-bold text-gray-900">
                                             {{ $stats['jadwal_menunggu_konfirmasi'] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-green-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Selesai</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['selesai'] ?? 0 }}</p>
                                     </div>
                                 </div>
                             </div>

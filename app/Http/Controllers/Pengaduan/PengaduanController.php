@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Events\PengaduanCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Models\BukuRegisterPerselisihan;
 use App\Models\DokumenHubunganIndustrial;
 use App\Models\Risalah;
@@ -37,11 +38,16 @@ class PengaduanController extends Controller
                     ['path' => request()->url(), 'pageName' => 'page']
                 );
             } else {
-                // Pelapor hanya bisa lihat pengaduan sendiri
+                // Pelapor hanya bisa lihat pengaduan sendiri dengan force refresh
                 $pengaduans = Pengaduan::where('pelapor_id', $pelapor->pelapor_id)
                     ->with(['pelapor', 'mediator.user'])
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
+
+                // Force refresh untuk memastikan status terbaru
+                $pengaduans->getCollection()->each(function ($pengaduan) {
+                    $pengaduan->refresh();
+                });
             }
         } else {
             // Redirect jika bukan pelapor
@@ -80,7 +86,6 @@ class PengaduanController extends Controller
         // Statistik untuk terlapor
         $stats = [
             'total_pengaduan' => $pengaduans->total(),
-            'pending' => Pengaduan::where('terlapor_id', $terlapor->terlapor_id)->where('status', 'pending')->count(),
             'proses' => Pengaduan::where('terlapor_id', $terlapor->terlapor_id)->where('status', 'proses')->count(),
             'selesai' => Pengaduan::where('terlapor_id', $terlapor->terlapor_id)->where('status', 'selesai')->count(),
         ];
@@ -268,7 +273,7 @@ class PengaduanController extends Controller
         \Log::info('PengaduanCreated event triggered successfully');
 
 
-        return redirect()->route('pengaduan.index')
+        return redirect()->route('dashboard')
             ->with('success', 'Pengaduan berhasil dibuat');
     }
 
@@ -285,6 +290,9 @@ class PengaduanController extends Controller
             if (!$pelapor || $pengaduan->pelapor_id !== $pelapor->pelapor_id) {
                 abort(403, 'Access denied');
             }
+
+            // Force refresh data dari database untuk memastikan status terbaru
+            $pengaduan->refresh();
 
             // Load relasi yang diperlukan untuk pelapor
             $pengaduan->load(['pelapor', 'mediator.user', 'terlapor']);
@@ -475,44 +483,110 @@ class PengaduanController extends Controller
         ]);
 
         $status = $request->input('status');
+
+        // Validasi khusus untuk status selesai
+        if ($status === 'selesai') {
+            // Cek apakah sudah ada risalah penyelesaian
+            $hasRisalahPenyelesaian = $pengaduan->dokumenHI()
+                ->whereHas('risalah', function ($query) {
+                    $query->where('jenis_risalah', 'penyelesaian');
+                })->exists();
+
+            if (!$hasRisalahPenyelesaian) {
+                return redirect()->back()
+                    ->with('error', 'Risalah penyelesaian harus dibuat terlebih dahulu sebelum menyelesaikan kasus.');
+            }
+
+            // Cek apakah sudah ada Perjanjian Bersama
+            $hasPerjanjianBersama = $pengaduan->dokumenHI()
+                ->whereHas('perjanjianBersama')->exists();
+
+            if (!$hasPerjanjianBersama) {
+                return redirect()->back()
+                    ->with('error', 'Perjanjian Bersama harus dibuat terlebih dahulu sebelum menyelesaikan kasus.');
+            }
+
+            // Update status
+            $pengaduan->status = $status;
+            $pengaduan->save();
+
+            // Kirim email draft PB ke para pihak
+            \Log::info('Memanggil method kirimDraftPerjanjianBersama untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+            $this->kirimDraftPerjanjianBersama($pengaduan);
+
+            // Generate laporan otomatis
+            $laporanService = new \App\Services\LaporanService();
+            $laporanService->generateLaporanOtomatis($pengaduan);
+
+            return redirect()->back()
+                ->with('success', 'Kasus berhasil diselesaikan. Draft Perjanjian Bersama telah dikirim ke email para pihak.');
+        }
+
+        // Untuk status lain, update normal
         $pengaduan->status = $status;
         $pengaduan->save();
-        // Jika status selesai, buat register otomatis jika belum ada
-        if ($status === 'selesai') {
-            // Ambil dokumen HI utama (misal: yang terbaru)
-            $dokumenHI = $pengaduan->dokumenHI()->latest()->first();
-            if ($dokumenHI && !BukuRegisterPerselisihan::where('dokumen_hi_id', $dokumenHI->dokumen_hi_id)->exists()) {
-                // Ambil risalah penyelesaian (jika ada)
-                $risalah = Risalah::where('jadwal_id', $dokumenHI->jadwal_id ?? null)
-                    ->where('jenis_risalah', 'penyelesaian')->latest()->first();
-                // Ambil mediator
-                $mediator = $pengaduan->mediator;
-                BukuRegisterPerselisihan::create([
-                    'dokumen_hi_id' => $dokumenHI->dokumen_hi_id,
-                    'tanggal_pencatatan' => $pengaduan->tanggal_laporan,
-                    'pihak_mencatat' => $mediator ? $mediator->nama_mediator : '-',
-                    'pihak_pekerja' => $risalah ? $risalah->nama_pekerja : '-',
-                    'pihak_pengusaha' => $risalah ? $risalah->nama_perusahaan : '-',
-                    'perselisihan_hak' => $pengaduan->perihal === 'Perselisihan Hak' ? 'ya' : 'tidak',
-                    'perselisihan_kepentingan' => $pengaduan->perihal === 'Perselisihan Kepentingan' ? 'ya' : 'tidak',
-                    'perselisihan_phk' => $pengaduan->perihal === 'Perselisihan PHK' ? 'ya' : 'tidak',
-                    'perselisihan_sp_sb' => $pengaduan->perihal === 'Perselisihan antar SP/SB' ? 'ya' : 'tidak',
-                    // Penyelesaian dan tindak lanjut bisa diisi otomatis/manual sesuai kebutuhan
-                    'penyelesaian_bipartit' => 'tidak',
-                    'penyelesaian_klarifikasi' => 'tidak',
-                    'penyelesaian_mediasi' => 'tidak',
-                    'penyelesaian_pb' => 'tidak',
-                    'penyelesaian_anjuran' => 'tidak',
-                    'penyelesaian_risalah' => 'ya',
-                    'tindak_lanjut_phi' => 'tidak',
-                    'tindak_lanjut_ma' => 'tidak',
-                    'keterangan' => null,
-                ]);
-            }
-        }
 
         return redirect()->back()
             ->with('success', 'Status pengaduan berhasil diperbarui');
+    }
+
+    /**
+     * Kirim draft Perjanjian Bersama ke email para pihak
+     */
+    private function kirimDraftPerjanjianBersama(Pengaduan $pengaduan)
+    {
+        try {
+            \Log::info('Memulai pengiriman email draft Perjanjian Bersama untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+
+            // Load relasi yang diperlukan
+            $pengaduan->load([
+                'pelapor.user',
+                'terlapor',
+                'mediator.user',
+                'dokumenHI.perjanjianBersama'
+            ]);
+
+            // Ambil Perjanjian Bersama
+            $perjanjianBersama = $pengaduan->dokumenHI->first()?->perjanjianBersama->first();
+
+            if (!$perjanjianBersama) {
+                \Log::error('Perjanjian Bersama tidak ditemukan untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+                return;
+            }
+
+            \Log::info('Perjanjian Bersama ditemukan: ' . $perjanjianBersama->perjanjian_bersama_id);
+
+            // Email ke Pelapor
+            if ($pengaduan->pelapor && $pengaduan->pelapor->user) {
+                $pelaporEmail = $pengaduan->pelapor->user->email;
+                \Log::info('Mengirim email ke pelapor: ' . $pelaporEmail);
+
+                Mail::to($pelaporEmail)
+                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($pengaduan, $perjanjianBersama, 'pelapor'));
+
+                \Log::info('Email berhasil dikirim ke pelapor: ' . $pelaporEmail);
+            } else {
+                \Log::warning('Pelapor atau user pelapor tidak ditemukan');
+            }
+
+            // Email ke Terlapor
+            if ($pengaduan->terlapor) {
+                $terlaporEmail = $pengaduan->terlapor->email_terlapor;
+                \Log::info('Mengirim email ke terlapor: ' . $terlaporEmail);
+
+                Mail::to($terlaporEmail)
+                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($pengaduan, $perjanjianBersama, 'terlapor'));
+
+                \Log::info('Email berhasil dikirim ke terlapor: ' . $terlaporEmail);
+            } else {
+                \Log::warning('Terlapor tidak ditemukan');
+            }
+
+            \Log::info('Draft Perjanjian Bersama berhasil dikirim untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+        } catch (\Exception $e) {
+            \Log::error('Error mengirim draft Perjanjian Bersama: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+        }
     }
 
     /**

@@ -145,6 +145,7 @@ class DashboardController extends Controller
                 'menunggu_respons' => $pengaduans->where('status', 'pending')->count() ?? 0,
                 'dalam_mediasi' => $pengaduans->where('status', 'proses')->count() ?? 0,
                 'jadwal_menunggu_konfirmasi' => $jadwal->where('konfirmasi_terlapor', 'pending')->count(),
+                'selesai' => $pengaduans->where('status', 'selesai')->count() ?? 0,
             ];
         }
 

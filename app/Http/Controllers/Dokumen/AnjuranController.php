@@ -51,6 +51,26 @@ class AnjuranController extends Controller
     public function show($id)
     {
         $anjuran = Anjuran::findOrFail($id);
+        $user = auth()->user();
+
+        // Load relasi yang diperlukan
+        $anjuran->load(['dokumenHI.pengaduan.pelapor.user', 'dokumenHI.pengaduan.terlapor']);
+
+        // Authorization check
+        if ($user->active_role === 'pelapor') {
+            $pelapor = $user->pelapor;
+            if (!$pelapor || $anjuran->dokumenHI->pengaduan->pelapor_id !== $pelapor->pelapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke anjuran ini.');
+            }
+        } elseif ($user->active_role === 'terlapor') {
+            $terlapor = $user->terlapor;
+            if (!$terlapor || $anjuran->dokumenHI->pengaduan->terlapor_id !== $terlapor->terlapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke anjuran ini.');
+            }
+        } elseif (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
+            abort(403, 'Anda tidak memiliki akses ke anjuran ini.');
+        }
+
         return view('dokumen.show-anjuran', compact('anjuran'));
     }
 

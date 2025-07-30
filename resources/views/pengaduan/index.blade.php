@@ -20,6 +20,17 @@
                 }
             }
         }
+
+        // Auto-refresh untuk status update
+        @if ($pengaduans->count() > 0)
+            // Cek apakah ada pengaduan yang belum selesai
+            const hasUnfinishedPengaduan = @json($pengaduans->where('status', '!=', 'selesai')->count() > 0);
+            if (hasUnfinishedPengaduan) {
+                setTimeout(function() {
+                    window.location.reload();
+                }, 30000); // Refresh setiap 30 detik jika ada pengaduan belum selesai
+            }
+        @endif
     </script>
 </head>
 
@@ -106,171 +117,133 @@
                             </div>
                         </div>
                     @else
-                        <!-- Status Pengaduan Aktif -->
-                        @php
-                            $latestPengaduan = $pengaduans->first();
-                        @endphp
-
+                        <!-- Riwayat Pengaduan -->
                         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                            <!-- Header Status -->
-                            <div class="text-center py-12 px-8 bg-gradient-to-br from-green-50 to-emerald-50">
-                                <div class="text-8xl mb-6 opacity-70">✅</div>
-                                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Pengaduan Sudah Terkirim</h3>
-                                <p class="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
-                                    Pengaduan Anda sudah berhasil dikirim dan sedang dalam proses peninjauan oleh tim
-                                    mediator.
-                                </p>
-
-                                <!-- Status Badge -->
-                                @if ($latestPengaduan->status == 'pending')
-                                    <div
-                                        class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-medium mb-6">
-                                        <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                                        <span>Menunggu Review</span>
-                                    </div>
-                                    <!-- Action Button -->
-                                    <a href="{{ route('pengaduan.show', $latestPengaduan->pengaduan_id) }}"
-                                        class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
-                                        <span>📄</span>
-                                        <span>Lihat Detail Pengaduan</span>
-                                    </a>
-                                @elseif($latestPengaduan->status == 'proses')
-                                    <div
-                                        class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium mb-6">
-                                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                        <span>Sedang Diproses</span>
-                                    </div>
-                                    <!-- Action Button -->
-                                    <a href="{{ route('pengaduan.show', $latestPengaduan->pengaduan_id) }}"
-                                        class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
-                                        <span>📄</span>
-                                        <span>Lihat Detail Pengaduan</span>
-                                    </a>
-                                @elseif($latestPengaduan->status == 'selesai')
-                                    <div
-                                        class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium mb-6">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                                        <span>Selesai</span>
-                                    </div>
-                                    <!-- Action Button -->
-                                    <a href="{{ route('penyelesaian.index') }}"
-                                        class="inline-flex items-center gap-3 bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-dark transform hover:-translate-y-1 transition-all duration-300">
-                                        <span>📄</span>
-                                        <span>Lihat Hasil Kesepakatan</span>
-                                    </a>
-                                @endif
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-xl font-semibold text-gray-800">Riwayat Pengaduan Saya</h3>
+                                <p class="text-gray-600 mt-1">Daftar semua pengaduan yang pernah Anda ajukan</p>
                             </div>
 
-                            <!-- Pengaduan Details -->
-                            <div class="p-8">
-                                <h4 class="text-xl font-semibold text-gray-800 mb-6">Detail Pengaduan Terakhir</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                No. Pengaduan
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Perihal
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Terlapor
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Tanggal
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Dokumen (Jika Selesai)
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Aksi
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach ($pengaduans as $pengaduan)
+                                            <tr class="hover:bg-gray-50">
+                                                <td
+                                                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}
+                                                </td>
+                                                <td class="px-6 py-4 text-sm text-gray-900">
+                                                    <div class="max-w-xs truncate" title="{{ $pengaduan->perihal }}">
+                                                        {{ $pengaduan->perihal }}
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {{ $pengaduan->nama_terlapor }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {{ $pengaduan->tanggal_laporan->format('d M Y') }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    @php
+                                                        $statusClass = match ($pengaduan->status) {
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'proses' => 'bg-blue-100 text-blue-800',
+                                                            'selesai' => 'bg-green-100 text-green-800',
+                                                            default => 'bg-gray-100 text-gray-800',
+                                                        };
+                                                    @endphp
+                                                    <span
+                                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
+                                                        {{ ucfirst($pengaduan->status) }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    @if ($pengaduan->status === 'selesai')
+                                                        @php
+                                                            $dokumenHI = $pengaduan->dokumenHI()->first();
+                                                            $perjanjianBersama = $dokumenHI
+                                                                ? $dokumenHI->perjanjianBersama()->first()
+                                                                : null;
+                                                            $anjuran = $dokumenHI
+                                                                ? $dokumenHI->anjuran()->first()
+                                                                : null;
+                                                        @endphp
 
-                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
-                                    <div class="grid md:grid-cols-2 gap-4">
-                                        <div>
-                                            <p class="text-sm text-gray-600 mb-1">Tanggal Laporan</p>
-                                            <p class="font-semibold text-gray-800">
-                                                {{ $latestPengaduan->tanggal_laporan->format('d F Y') }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 mb-1">Perihal</p>
-                                            <p class="font-semibold text-gray-800">{{ $latestPengaduan->perihal }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 mb-1">Perusahaan</p>
-                                            <p class="font-semibold text-gray-800">
-                                                {{ $latestPengaduan->nama_terlapor }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-600 mb-1">Status</p>
-                                            <span
-                                                class="inline-flex items-center gap-1 {{ $latestPengaduan->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : ($latestPengaduan->status == 'proses' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800') }} px-3 py-1 rounded-full text-sm font-medium">
-                                                {{ ucfirst($latestPengaduan->status) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @if ($perjanjianBersama)
+                                                                <a href="{{ route('dokumen.show-perjanjian-bersama', $perjanjianBersama->perjanjian_bersama_id) }}"
+                                                                    class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📄 PB
+                                                                </a>
+                                                            @endif
 
-                                <!-- Next Steps -->
-                                <div class="space-y-4">
-                                    <h5 class="text-lg font-semibold text-gray-800">Langkah Selanjutnya</h5>
+                                                            @if ($anjuran)
+                                                                <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}"
+                                                                    class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📋 A
+                                                                </a>
+                                                            @endif
 
-                                    @if ($latestPengaduan->status == 'pending')
-                                        <div
-                                            class="flex items-start gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                                            <div
-                                                class="w-8 h-8 bg-yellow-200 rounded-full flex items-center justify-center text-yellow-700 font-bold text-sm flex-shrink-0">
-                                                1</div>
-                                            <div>
-                                                <h6 class="font-semibold text-yellow-800 mb-1">Menunggu Review Mediator
-                                                </h6>
-                                                <p class="text-yellow-700 text-sm">Tim mediator sedang meninjau
-                                                    pengaduan Anda. Proses ini biasanya memakan waktu 1-3 hari kerja.
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl">
-                                            <div
-                                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">
-                                                2</div>
-                                            <div>
-                                                <h6 class="font-semibold text-gray-600 mb-1">Penjadwalan Mediasi</h6>
-                                                <p class="text-gray-600 text-sm">Setelah review, mediator akan
-                                                    menghubungi Anda untuk penjadwalan sesi mediasi.</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl">
-                                            <div
-                                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">
-                                                3</div>
-                                            <div>
-                                                <h6 class="font-semibold text-gray-600 mb-1">Pelaksanaan Mediasi</h6>
-                                                <p class="text-gray-600 text-sm">Mediasi akan dilaksanakan sesuai jadwal
-                                                    yang telah disepakati.</p>
-                                            </div>
-                                        </div>
-                                    @elseif($latestPengaduan->status == 'proses')
-                                        <div
-                                            class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                            <div
-                                                class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
-                                                ✓</div>
-                                            <div>
-                                                <h6 class="font-semibold text-green-800 mb-1">Review Selesai</h6>
-                                                <p class="text-green-700 text-sm">Pengaduan Anda sudah direview dan
-                                                    disetujui untuk proses mediasi.</p>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="flex items-start gap-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                            <div
-                                                class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">
-                                                📅</div>
-                                            <div>
-                                                <h6 class="font-semibold text-blue-800 mb-1">Proses Mediasi Berlangsung
-                                                </h6>
-                                                <p class="text-blue-700 text-sm">Mediasi sedang berlangsung. Harap
-                                                    menunggu hasil dari sesi mediasi.</p>
-                                            </div>
-                                        </div>
-                                    @elseif($latestPengaduan->status == 'selesai')
-                                        <div
-                                            class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                            <div
-                                                class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
-                                                🎉</div>
-                                            <div>
-                                                <h6 class="font-semibold text-green-800 mb-1">Mediasi Selesai</h6>
-                                                <p class="text-green-700 text-sm">Proses mediasi telah selesai. Lihat
-                                                    detail pengaduan untuk hasil mediasi.</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
+                                                            <a href="{{ route('laporan.index') }}"
+                                                                class="inline-flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                📊 L
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-gray-400 text-xs">-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <a href="{{ route('pengaduan.show', $pengaduan->pengaduan_id) }}"
+                                                        class="bg-primary hover:bg-primary-dark text-white px-3 py-1 rounded text-xs font-medium transition-colors">
+                                                        Lihat Detail
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
+
+                            <!-- Pagination -->
+                            @if ($pengaduans->hasPages())
+                                <div class="px-6 py-4 border-t border-gray-200">
+                                    {{ $pengaduans->links() }}
+                                </div>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -298,8 +271,8 @@
                                     class="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
                                     1</div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">Isi Form Pengaduan</p>
-                                    <p class="text-xs text-gray-600">Lengkapi data dan detail perselisihan</p>
+                                    <p class="text-sm font-medium text-gray-900">Submit Pengaduan</p>
+                                    <p class="text-xs text-gray-500">Isi form pengaduan lengkap</p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-3">
@@ -307,9 +280,8 @@
                                     class="w-6 h-6 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-bold">
                                     2</div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500">Proses Mediasi</p>
-                                    <p class="text-xs text-gray-500">Tim mediator akan meninjau dan menjadwalkan
-                                    </p>
+                                    <p class="text-sm font-medium text-gray-500">Review Mediator</p>
+                                    <p class="text-xs text-gray-500">Tim mediator meninjau pengaduan</p>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-3">
@@ -386,30 +358,6 @@
             </div>
         </div>
     </x-app-layout>
-
-    {{-- <script>
-        // Add click handlers for buttons
-        document.querySelectorAll('a[href*="pengaduan.create"]').forEach(button => {
-            button.addEventListener('click', function(e) {
-                // You can add any additional logic here before navigation
-                console.log('Navigating to create pengaduan form...');
-            });
-        });
-
-        // Add hover effects for help items
-        document.querySelectorAll('.flex.items-start.space-x-3').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                this.classList.add('bg-gray-50', 'rounded-lg', 'p-2', '-m-2');
-            });
-
-            item.addEventListener('mouseleave', function() {
-                this.classList.remove('bg-gray-50', 'rounded-lg', 'p-2', '-m-2');
-            });
-        });
-    </script> --}}
-
-
-    {{-- </x-app-layout> --}}
 </body>
 
 </html>

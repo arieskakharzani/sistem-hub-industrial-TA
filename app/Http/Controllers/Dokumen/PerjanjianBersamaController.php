@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Dokumen;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\PerjanjianBersama;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PerjanjianBersama;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\DokumenHubunganIndustrial;
 
 class PerjanjianBersamaController extends Controller
@@ -50,6 +51,26 @@ class PerjanjianBersamaController extends Controller
     public function show($id)
     {
         $perjanjian = PerjanjianBersama::findOrFail($id);
+        $user = Auth::user();
+
+        // Load relasi yang diperlukan
+        $perjanjian->load(['dokumenHI.pengaduan.pelapor.user', 'dokumenHI.pengaduan.terlapor']);
+
+        // Authorization check
+        if ($user->active_role === 'pelapor') {
+            $pelapor = $user->pelapor;
+            if (!$pelapor || $perjanjian->dokumenHI->pengaduan->pelapor_id !== $pelapor->pelapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke perjanjian bersama ini.');
+            }
+        } elseif ($user->active_role === 'terlapor') {
+            $terlapor = $user->terlapor;
+            if (!$terlapor || $perjanjian->dokumenHI->pengaduan->terlapor_id !== $terlapor->terlapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke perjanjian bersama ini.');
+            }
+        } elseif (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
+            abort(403, 'Anda tidak memiliki akses ke perjanjian bersama ini.');
+        }
+
         return view('dokumen.show-perjanjian-bersama', compact('perjanjian'));
     }
 
@@ -97,5 +118,19 @@ class PerjanjianBersamaController extends Controller
         $perjanjian = PerjanjianBersama::findOrFail($id);
         $pdf = Pdf::loadView('dokumen.pdf.perjanjian-bersama', compact('perjanjian'));
         return $pdf->stream('perjanjian-bersama.pdf');
+    }
+
+    public function complete($id)
+    {
+        $perjanjian = PerjanjianBersama::findOrFail($id);
+        $pengaduan = $perjanjian->dokumenHI->pengaduan;
+
+        // Ubah status pengaduan menjadi 'selesai'
+        $pengaduan->update(['status' => 'selesai']);
+
+        // Kirim notifikasi ke semua pihak bahwa kasus telah selesai
+        // TODO: Implementasi notifikasi email
+
+        return redirect()->back()->with('success', 'Kasus telah selesai. Status pengaduan telah diubah menjadi selesai.');
     }
 }

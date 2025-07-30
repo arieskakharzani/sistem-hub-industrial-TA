@@ -30,10 +30,12 @@
                     {{ __('Detail Perjanjian Bersama') }}
                 </h2>
                 <div class="flex space-x-4">
-                    <a href="{{ route('dokumen.perjanjian-bersama.edit', ['id' => $perjanjian->perjanjian_bersama_id]) }}"
-                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
-                        Edit Perjanjian
-                    </a>
+                    @if (auth()->user()->active_role === 'mediator')
+                        <a href="{{ route('dokumen.perjanjian-bersama.edit', ['id' => $perjanjian->perjanjian_bersama_id]) }}"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
+                            Edit Perjanjian
+                        </a>
+                    @endif
                     <a href="{{ route('dokumen.perjanjian-bersama.pdf', ['id' => $perjanjian->perjanjian_bersama_id]) }}"
                         target="_blank"
                         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
@@ -45,6 +47,57 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <!-- Status Pengaduan dan Button Selesaikan Kasus -->
+                <div class="mb-6 bg-white p-4 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm">
+                            <span class="text-gray-600">Status Pengaduan: </span>
+                            <span
+                                class="font-semibold {{ $perjanjian->dokumenHI->pengaduan->status === 'selesai' ? 'text-green-600' : 'text-yellow-600' }}">
+                                {{ ucfirst($perjanjian->dokumenHI->pengaduan->status) }}
+                            </span>
+                        </div>
+
+                        @if (auth()->user()->active_role === 'mediator' && $perjanjian->dokumenHI->pengaduan->status !== 'selesai')
+                            <button type="button"
+                                style="background-color: #2563eb; color: white; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; display: inline-flex; align-items: center;"
+                                onclick="submitCompleteForm()">
+                                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Selesaikan Kasus
+                            </button>
+                        @elseif (auth()->user()->active_role === 'mediator' && $perjanjian->dokumenHI->pengaduan->status === 'selesai')
+                            <div class="text-green-600 font-semibold flex items-center">
+                                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Kasus Telah Selesai
+                            </div>
+                        @endif
+
+                        <!-- Hidden form untuk submit -->
+                        <form id="completeForm" method="POST"
+                            action="{{ route('dokumen.perjanjian-bersama.complete', ['id' => $perjanjian->perjanjian_bersama_id]) }}"
+                            style="display: none;">
+                            @csrf
+                        </form>
+
+                        <script>
+                            function submitCompleteForm() {
+                                if (confirm('Apakah Anda yakin ingin menyelesaikan kasus ini? Status pengaduan akan diubah menjadi selesai.')) {
+                                    document.getElementById('completeForm').submit();
+                                }
+                            }
+                        </script>
+                    </div>
+                </div>
                 <div class="bg-white overflow-hidden shadow-lg sm:rounded-lg">
                     <div class="relative">
                         <div class="pointer-events-none select-none absolute inset-0 flex items-center justify-center z-50"
@@ -137,18 +190,10 @@
                             <div class="grid md:grid-cols-2 gap-8 mb-8">
                                 <div class="text-center">
                                     <p class="font-medium mb-20">Pihak Pengusaha,</p>
-                                    @if ($perjanjian->signature_pengusaha)
-                                        <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pengusaha) }}"
-                                            alt="Tanda Tangan Pengusaha" class="max-h-24 mx-auto mb-2">
-                                    @endif
                                     <p class="font-medium">({{ $perjanjian->nama_pengusaha }})</p>
                                 </div>
                                 <div class="text-center">
                                     <p class="font-medium mb-20">Pihak Pekerja/Buruh/SP/SB,</p>
-                                    @if ($perjanjian->signature_pekerja)
-                                        <img src="{{ asset('storage/signatures/' . $perjanjian->signature_pekerja) }}"
-                                            alt="Tanda Tangan Pekerja" class="max-h-24 mx-auto mb-2">
-                                    @endif
                                     <p class="font-medium">({{ $perjanjian->nama_pekerja }})</p>
                                 </div>
                             </div>
@@ -157,29 +202,11 @@
                             <div class="text-center">
                                 <p class="font-medium mb-2">Menyaksikan</p>
                                 <p class="font-medium mb-20">Mediator Hubungan Industrial,</p>
-                                @if ($perjanjian->signature_mediator)
-                                    <img src="{{ asset('storage/signatures/' . $perjanjian->signature_mediator) }}"
-                                        alt="Tanda Tangan Mediator" class="max-h-24 mx-auto mb-2">
-                                @endif
                                 <p class="font-medium">{{ $perjanjian->dokumenHI->pengaduan->mediator->nama_mediator }}
                                 </p>
                                 <p class="text-gray-600">NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip }}
                                 </p>
                             </div>
-
-                            {{-- @if ($perjanjian->isFullySigned())
-                                <form method="POST" action="{{ route('penyelesaian.finalize') }}"
-                                    class="mt-8 text-center">
-                                    @csrf
-                                    <input type="hidden" name="document_type" value="perjanjian_bersama">
-                                    <input type="hidden" name="document_id"
-                                        value="{{ $perjanjian->perjanjian_bersama_id }}">
-                                    <button type="submit"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all duration-200">
-                                        Kirim Final ke Para Pihak & Selesaikan Kasus
-                                    </button>
-                                </form>
-                            @endif --}}
                         </div>
                     </div>
                 </div>

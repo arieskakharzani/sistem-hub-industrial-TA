@@ -25,8 +25,8 @@
                         </x-nav-link>
                     </div>
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('penyelesaian.index')" :active="request()->routeIs('penyelesaian.index')">
-                            {{ __('Penyelesaian HI') }}
+                        <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">
+                            {{ __('Laporan') }}
                         </x-nav-link>
                     </div>
                 @elseif(Auth::user()->active_role === 'terlapor')
@@ -38,8 +38,14 @@
                     </div>
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('penyelesaian.index')" :active="request()->routeIs('penyelesaian.index')">
-                            {{ __('Penyelesaian HI') }}
+                        <x-nav-link :href="route('pengaduan.index-terlapor')" :active="request()->routeIs('pengaduan.index-terlapor')">
+                            {{ __('Pengaduan terhadap Saya') }}
+                        </x-nav-link>
+                    </div>
+
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">
+                            {{ __('Laporan') }}
                         </x-nav-link>
                     </div>
                 @elseif(Auth::user()->active_role === 'mediator')
@@ -67,8 +73,8 @@
                     </div>
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('penyelesaian.index')" :active="request()->routeIs('penyelesaian.index')">
-                            {{ __('Penyelesaian HI') }}
+                        <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">
+                            {{ __('Laporan') }}
                         </x-nav-link>
                     </div>
 
@@ -85,8 +91,8 @@
                         </x-nav-link>
                     </div>
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('penyelesaian.index')" :active="request()->routeIs('penyelesaian.index')">
-                            {{ __('Penyelesaian HI') }}
+                        <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">
+                            {{ __('Laporan') }}
                         </x-nav-link>
                     </div>
                     {{-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">

@@ -1,0 +1,35 @@
+# Konfigurasi Email untuk Testing
+# Pilih salah satu opsi di bawah ini:
+
+# OPSI 1: Mailtrap (Recommended untuk Testing)
+# Daftar gratis di https://mailtrap.io
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_mailtrap_username
+MAIL_PASSWORD=your_mailtrap_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@sippphi.test"
+MAIL_FROM_NAME="SIPPPHI - Kabupaten Bungo"
+
+# OPSI 2: Gmail SMTP
+# MAIL_MAILER=smtp
+# MAIL_HOST=smtp.gmail.com
+# MAIL_PORT=587
+# MAIL_USERNAME=your_email@gmail.com
+# MAIL_PASSWORD=your_app_password
+# MAIL_ENCRYPTION=tls
+# MAIL_FROM_ADDRESS="your_email@gmail.com"
+# MAIL_FROM_NAME="SIPPPHI - Kabupaten Bungo"
+
+# OPSI 3: Log Driver (Hanya untuk Development)
+# Email tidak dikirim, hanya di-log di storage/logs/laravel.log
+# MAIL_MAILER=log
+# MAIL_FROM_ADDRESS="noreply@sippphi.test"
+# MAIL_FROM_NAME="SIPPPHI - Kabupaten Bungo"
+
+# OPSI 4: Array Driver (Hanya untuk Development)
+# Email disimpan dalam array, bisa diakses via Artisan command
+# MAIL_MAILER=array
+# MAIL_FROM_ADDRESS="noreply@sippphi.test"
+# MAIL_FROM_NAME="SIPPPHI - Kabupaten Bungo" 

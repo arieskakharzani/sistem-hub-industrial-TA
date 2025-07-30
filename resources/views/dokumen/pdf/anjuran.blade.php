@@ -161,21 +161,11 @@
                 <div class="signature-box">
                     <p>Mengetahui</p>
                     <p>Kepala Dinas,</p>
-                    @if ($anjuran->signature_kepala_dinas)
-                        <img src="{{ public_path('storage/signatures/' . $anjuran->signature_kepala_dinas) }}"
-                            alt="Tanda Tangan Kepala Dinas"
-                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
-                    @endif
                     <p>{{ $anjuran->kepalaDinas->nama_kepala_dinas ?? '-' }}</p>
                     <p>NIP. {{ $anjuran->kepalaDinas->nip ?? '-' }}</p>
                 </div>
                 <div class="signature-box">
                     <p>Mediator Hubungan Industrial,</p>
-                    @if ($anjuran->signature_mediator)
-                        <img src="{{ public_path('storage/signatures/' . $anjuran->signature_mediator) }}"
-                            alt="Tanda Tangan Mediator"
-                            style="max-height: 80px; max-width: 200px; display: block; margin: 0 0 10px auto;">
-                    @endif
                     <p>({{ $anjuran->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
                     <p>NIP. {{ $anjuran->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
                 </div>

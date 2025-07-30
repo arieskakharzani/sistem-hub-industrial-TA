@@ -22,13 +22,12 @@ class KonfirmasiController extends Controller
             abort(403, 'Akses ditolak');
         }
 
-        // Ambil jadwal berdasarkan role user
+        // Ambil jadwal berdasarkan role user (termasuk riwayat)
         if ($user->active_role === 'pelapor' && $user->pelapor) {
             $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($user) {
                     $query->where('pelapor_id', $user->pelapor->pelapor_id);
                 })
-                ->whereIn('status_jadwal', ['dijadwalkan', 'ditunda'])
                 ->orderBy('tanggal', 'asc')
                 ->get();
         } elseif ($user->active_role === 'terlapor' && $user->terlapor) {
@@ -36,7 +35,6 @@ class KonfirmasiController extends Controller
                 ->whereHas('pengaduan', function ($query) use ($user) {
                     $query->where('terlapor_id', $user->terlapor->terlapor_id);
                 })
-                ->whereIn('status_jadwal', ['dijadwalkan', 'ditunda'])
                 ->orderBy('tanggal', 'asc')
                 ->get();
         } else {

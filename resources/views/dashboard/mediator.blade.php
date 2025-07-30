@@ -161,7 +161,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('penyelesaian.index') }}"
+                        <a href="{{ route('dokumen.index') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors">
                             <div class="p-2 bg-orange-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
@@ -171,8 +171,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Penyelesaian</p>
-                                <p class="text-sm text-gray-600">Proses penyelesaian</p>
+                                <p class="font-medium text-gray-900">Dokumen</p>
+                                <p class="text-sm text-gray-600">Perjanjian & Anjuran</p>
                             </div>
                         </a>
                     </div>

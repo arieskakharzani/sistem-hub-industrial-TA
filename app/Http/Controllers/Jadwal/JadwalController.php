@@ -227,7 +227,7 @@ class JadwalController extends Controller
 
                 Log::info('Event JadwalCreated dipanggil untuk jadwal_id: ' . $jadwal->jadwal_id);
 
-                // Di method store atau create
+                // Kirim notifikasi in-app ke pelapor dan terlapor
                 $notification_data = [
                     'title' => 'Jadwal ' . $jadwal->jenis_jadwal . ' Baru',
                     'message' => 'Jadwal ' . $jadwal->jenis_jadwal . ' telah dibuat untuk pengaduan #' . $jadwal->pengaduan->nomor_pengaduan,
@@ -235,9 +235,9 @@ class JadwalController extends Controller
                     'jadwal_id' => $jadwal->jadwal_id
                 ];
 
-                // Kirim notifikasi ke pelapor
+                // Kirim notifikasi ke pelapor menggunakan JadwalNotification
                 if ($jadwal->pengaduan->pelapor && $jadwal->pengaduan->pelapor->user) {
-                    $jadwal->pengaduan->pelapor->user->notify(new MediatorInAppNotification(
+                    $jadwal->pengaduan->pelapor->user->notify(new \App\Notifications\JadwalNotification(
                         $jadwal,
                         'jadwal_created',
                         null,
@@ -245,9 +245,9 @@ class JadwalController extends Controller
                     ));
                 }
 
-                // Kirim notifikasi ke terlapor
+                // Kirim notifikasi ke terlapor menggunakan JadwalNotification
                 if ($jadwal->pengaduan->terlapor && $jadwal->pengaduan->terlapor->user) {
-                    $jadwal->pengaduan->terlapor->user->notify(new MediatorInAppNotification(
+                    $jadwal->pengaduan->terlapor->user->notify(new \App\Notifications\JadwalNotification(
                         $jadwal,
                         'jadwal_created',
                         null,
@@ -525,7 +525,7 @@ class JadwalController extends Controller
                             'type' => 'jadwal_updated',
                             'jadwal_id' => $jadwal->jadwal_id
                         ];
-                        $jadwal->pengaduan->pelapor->user->notify(new MediatorInAppNotification(
+                        $jadwal->pengaduan->pelapor->user->notify(new \App\Notifications\JadwalNotification(
                             $jadwal,
                             'jadwal_updated',
                             $oldStatus,
@@ -541,7 +541,7 @@ class JadwalController extends Controller
                             'type' => 'jadwal_updated',
                             'jadwal_id' => $jadwal->jadwal_id
                         ];
-                        $jadwal->pengaduan->terlapor->user->notify(new MediatorInAppNotification(
+                        $jadwal->pengaduan->terlapor->user->notify(new \App\Notifications\JadwalNotification(
                             $jadwal,
                             'jadwal_updated',
                             $oldStatus,

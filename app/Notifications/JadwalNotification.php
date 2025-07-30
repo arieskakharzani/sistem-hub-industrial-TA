@@ -3,71 +3,90 @@
 namespace App\Notifications;
 
 use App\Models\Jadwal;
-use App\Services\JadwalNotificationService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-class JadwalNotification extends Mailable
+class JadwalNotification extends Notification implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
-    public $jadwal;
-    public $recipient;
-    public $eventType;
-    public $notificationData;
+    protected $jadwal;
+    protected $type;
+    protected $oldStatus;
+    protected $data;
 
     /**
-     * Create a new message instance.
+     * Create a new notification instance.
      */
-    public function __construct(
-        Jadwal $jadwal,
-        array $recipient,
-        string $eventType,
-        array $additionalData = []
-    ) {
+    public function __construct(Jadwal $jadwal, string $type = 'jadwal_created', ?string $oldStatus = null, array $data = [])
+    {
         $this->jadwal = $jadwal;
-        $this->recipient = $recipient;
-        $this->eventType = $eventType;
-
-        // Format notification data using service
-        $notificationService = app(JadwalNotificationService::class);
-        $this->notificationData = $notificationService->formatNotificationData(
-            $jadwal,
-            $eventType,
-            $additionalData
-        );
+        $this->type = $type;
+        $this->oldStatus = $oldStatus;
+        $this->data = $data;
     }
 
     /**
-     * Build the message.
+     * Get the notification's delivery channels.
      */
-    public function build()
+    public function via(object $notifiable): array
     {
-        $subject = $this->getEmailSubject();
-
-        return $this->view('emails.jadwal-mediasi')
-            ->subject($subject)
-            ->with([
-                'recipient' => $this->recipient,
-                'jadwal' => $this->jadwal,
-                'data' => $this->notificationData,
-                'eventType' => $this->eventType,
-            ]);
+        return ['database'];
     }
 
     /**
-     * Get email subject based on event type
+     * Get the array representation of the notification.
      */
-    private function getEmailSubject(): string
+    public function toArray(object $notifiable): array
     {
-        $baseSubject = "Notifikasi Jadwal #{$this->jadwal->jadwal_id}";
+        return array_merge([
+            'title' => $this->data['title'] ?? $this->getDefaultTitle(),
+            'message' => $this->data['message'] ?? $this->getDefaultMessage(),
+            'type' => $this->type,
+            'jadwal_id' => $this->jadwal->jadwal_id,
+            'old_status' => $this->oldStatus,
+            'new_status' => $this->jadwal->status_jadwal,
+            'icon' => $this->getIcon(),
+        ], $this->data);
+    }
 
-        return match ($this->eventType) {
-            'created' => "{$baseSubject} - Jadwal Baru Dibuat",
-            'updated' => "{$baseSubject} - Perubahan Jadwal",
-            'status_updated' => "{$baseSubject} - Update Status",
-            default => $baseSubject
+    /**
+     * Get default title based on notification type
+     */
+    private function getDefaultTitle(): string
+    {
+        return match ($this->type) {
+            'jadwal_created' => 'Jadwal ' . $this->jadwal->jenis_jadwal . ' Baru',
+            'jadwal_updated' => 'Jadwal ' . $this->jadwal->jenis_jadwal . ' Diperbarui',
+            default => 'Notifikasi Jadwal'
+        };
+    }
+
+    /**
+     * Get default message based on notification type
+     */
+    private function getDefaultMessage(): string
+    {
+        return match ($this->type) {
+            'jadwal_created' => 'Jadwal ' . $this->jadwal->jenis_jadwal . ' baru telah dibuat untuk pengaduan #' . $this->jadwal->pengaduan->nomor_pengaduan,
+            'jadwal_updated' => $this->oldStatus
+                ? 'Status jadwal telah diubah dari ' . $this->oldStatus . ' menjadi ' . $this->jadwal->status_jadwal
+                : 'Jadwal telah diperbarui',
+            default => 'Ada pembaruan pada jadwal ' . $this->jadwal->jenis_jadwal
+        };
+    }
+
+    /**
+     * Get icon based on notification type
+     */
+    private function getIcon(): string
+    {
+        return match ($this->type) {
+            'jadwal_created' => 'calendar-plus',
+            'jadwal_updated' => 'calendar-edit',
+            default => 'calendar'
         };
     }
 }

@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm">
                         <div class="flex items-center">
                             <div class="p-3 bg-gray-100 rounded-lg">
@@ -74,22 +74,6 @@
                                 <p class="text-gray-600 text-sm">Total Pengaduan</p>
                                 <p class="text-2xl font-bold text-gray-900">
                                     {{ $stats['total_pengaduan'] }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-yellow-100 rounded-lg">
-                                <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-gray-600 text-sm">Pending</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ $stats['pending'] }}</p>
                             </div>
                         </div>
                     </div>
@@ -139,6 +123,10 @@
                                         <tr>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Nomor Pengaduan
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Tanggal
                                             </th>
                                             <th
@@ -161,7 +149,6 @@
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Aksi
                                             </th>
-                                            <th>Nomor Pengaduan</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -170,18 +157,21 @@
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div>
                                                         <div class="text-sm font-medium text-gray-900">
+                                                            {{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}
+                                                        </div>
+                                                    </div>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">
                                                             {{ $pengaduan->tanggal_laporan->format('d M Y') }}
                                                         </div>
-                                                        {{-- <div class="text-sm text-gray-500">
-                                                            
-                                                        </div> --}}
                                                     </div>
                                                 </td>
-                                                <td class="px-6 py-4">
+                                                <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-900">{{ $pengaduan->perihal }}</div>
-                                                    <div class="text-sm text-gray-500">
-                                                        {{ Str::limit($pengaduan->narasi_kasus, 50) }}
-                                                    </div>
+                                                    {{-- <div class="text-sm text-gray-500">
+                                                        Terlapor : {{ $pengaduan->terlapor->nama_terlapor ?? 'N/A' }}
+                                                    </div> --}}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-900">
@@ -224,7 +214,6 @@
                                                         Lihat Detail
                                                     </a>
                                                 </td>
-                                                <td>{{ $pengaduan->nomor_pengaduan ?? $pengaduan->pengaduan_id }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

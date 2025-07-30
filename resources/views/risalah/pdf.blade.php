@@ -396,7 +396,6 @@
     @if ($risalah->jenis_risalah !== 'mediasi')
         <div class="signature-section">
             <div class="signature-text">Mediator Hubungan Industrial,</div>
-            <br><br><br>
             <div class="signature-name">
                 {{ $risalah->jadwal->mediator->nama_mediator }}</div>
             <div class="signature-nip">

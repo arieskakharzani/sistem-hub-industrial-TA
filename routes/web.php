@@ -4,16 +4,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Akun\AkunController;
+use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Debug\EmailTestController;
+use App\Http\Controllers\Dokumen\DokumenController;
+use App\Http\Controllers\Laporan\LaporanController;
+use App\Http\Controllers\Risalah\RisalahController;
 use App\Http\Controllers\Jadwal\KonfirmasiController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Pengaduan\PengaduanController;
 use App\Http\Controllers\Notifikasi\NotificationController;
-use App\Http\Controllers\Risalah\RisalahController;
-use App\Http\Controllers\Dokumen\DokumenController;
-use App\Http\Controllers\Role\RoleController;
-use App\Http\Controllers\Penyelesaian\PenyelesaianController;
 
 
 Route::get('/', function () {
@@ -160,14 +160,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Routes untuk penyelesaian
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::prefix('penyelesaian')->name('penyelesaian.')->group(function () {
-        Route::get('/', [PenyelesaianController::class, 'index'])->name('index');
-        Route::post('/publish-anjuran/{anjuran}', [PenyelesaianController::class, 'publishAnjuran'])->name('publish-anjuran');
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('index');
+        // Route::post('/publish-anjuran/{anjuran}', [PenyelesaianController::class, 'publishAnjuran'])->name('publish-anjuran');
     });
 });
 
 // Penyelesaian - finalize dokumen (kirim final)
-Route::middleware(['auth', 'verified'])->post('/penyelesaian/finalize', [PenyelesaianController::class, 'finalizeDocument'])->name('penyelesaian.finalize');
+// Route::middleware(['auth', 'verified'])->post('/penyelesaian/finalize', [PenyelesaianController::class, 'finalizeDocument'])->name('penyelesaian.finalize');
 
 // Routes untuk kelola dokumen
 Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->group(function () {
@@ -180,6 +180,11 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     Route::put('/perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'update'])->name('perjanjian-bersama.update');
     Route::delete('/perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'destroy'])->name('perjanjian-bersama.destroy');
     Route::get('/perjanjian-bersama/{id}/pdf', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'cetakPdf'])->name('perjanjian-bersama.pdf');
+
+    Route::post('/perjanjian-bersama/{id}/complete', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'complete'])->name('perjanjian-bersama.complete');
+
+    // Route khusus untuk pelapor dan terlapor melihat perjanjian bersama
+    Route::get('/show-perjanjian-bersama/{id}', [\App\Http\Controllers\Dokumen\PerjanjianBersamaController::class, 'show'])->name('show-perjanjian-bersama');
 
     // Anjuran
     Route::get('/anjuran/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'create'])->name('anjuran.create');
@@ -216,28 +221,21 @@ Route::middleware(['auth', 'verified', 'check.role:mediator'])->prefix('mediator
     });
 });
 
-// Routes untuk notifikasi (khusus mediator)
-Route::middleware(['auth', 'verified', 'check.role:mediator'])->prefix('notifications')->name('notifications.')->group(function () {
+// Routes untuk notifikasi (semua role)
+Route::middleware(['auth', 'verified'])->prefix('notifications')->name('notifications.')->group(function () {
     // Halaman index notifikasi
     Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::get('/{notification}', [NotificationController::class, 'show'])->name('show');
 
     // AJAX routes untuk dropdown
     Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
     Route::get('/recent', [NotificationController::class, 'getRecent'])->name('recent');
 
     // Actions
-    Route::post('/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('read');
-    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::post('/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
+    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('markAllAsRead');
     Route::delete('/{notificationId}', [NotificationController::class, 'delete'])->name('delete');
     Route::post('/clear-all', [NotificationController::class, 'clearAll'])->name('clear-all');
-});
-
-// Notification routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
-    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 });
 
 // Profile routes
@@ -277,6 +275,15 @@ Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->gr
     Route::get('/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('pdf');
     Route::get('/{risalah}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
     Route::get('/{risalah}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
+});
+
+// Laporan Routes
+Route::middleware(['auth', 'verified'])->prefix('laporan')->name('laporan.')->group(function () {
+    Route::get('/', [LaporanController::class, 'index'])->name('index');
+    Route::get('/pihak-terkait', [LaporanController::class, 'laporanPihakTerkait'])->name('pihak-terkait');
+    Route::get('/kasus-selesai', [LaporanController::class, 'laporanKasusSelesai'])->name('kasus-selesai');
+    Route::get('/pengadilan-hi', [LaporanController::class, 'laporanPengadilanHI'])->name('pengadilan-hi');
+    Route::get('/generate-pdf/{pengaduan}', [LaporanController::class, 'generateLaporanPDF'])->name('generate-pdf');
 });
 
 // Route untuk testing email

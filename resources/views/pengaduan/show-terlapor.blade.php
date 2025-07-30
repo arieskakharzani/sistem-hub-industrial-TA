@@ -20,6 +20,13 @@
                 }
             }
         }
+
+        // Auto-refresh untuk status update
+        @if ($pengaduan->status !== 'selesai')
+            setTimeout(function() {
+                window.location.reload();
+            }, 30000); // Refresh setiap 30 detik jika belum selesai
+        @endif
     </script>
 </head>
 
@@ -41,22 +48,68 @@
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
                 <!-- Important Notice for Terlapor -->
-                <div class="mb-6 bg-orange-50 border border-orange-200 text-orange-800 px-4 py-3 rounded relative">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <strong class="font-bold">Informasi Penting</strong>
-                            <span class="block sm:inline">Berikut adalah detail pengaduan yang melibatkan
-                                perusahaan/instansi Anda.
-                                Silakan tunggu informasi selanjutnya untuk jadwal dari mediator yang menangani
-                                kasus ini.</span>
+                @if ($pengaduan->status !== 'selesai')
+                    <div class="mb-6 bg-orange-50 border border-orange-200 text-orange-800 px-4 py-3 rounded relative">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <strong class="font-bold">Informasi Penting</strong>
+                                <span class="block sm:inline">Berikut adalah detail pengaduan yang melibatkan
+                                    perusahaan/instansi Anda.
+                                    Silakan tunggu informasi selanjutnya untuk jadwal dari mediator yang menangani
+                                    kasus ini.</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @else
+                    <!-- Hasil Akhir untuk Status Selesai -->
+                    <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded relative">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <strong class="font-bold">Hasil Akhir Tersedia</strong>
+                                    <span class="block sm:inline">Pengaduan telah selesai diproses. Anda dapat melihat
+                                        hasil akhir di bawah ini.</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                @php
+                                    $dokumenHI = $pengaduan->dokumenHI()->first();
+                                    $perjanjianBersama = $dokumenHI ? $dokumenHI->perjanjianBersama()->first() : null;
+                                    $anjuran = $dokumenHI ? $dokumenHI->anjuran()->first() : null;
+                                @endphp
+
+                                @if ($perjanjianBersama)
+                                    <a href="{{ route('dokumen.show-perjanjian-bersama', $perjanjianBersama->perjanjian_bersama_id) }}"
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                        📄 Lihat Perjanjian Bersama
+                                    </a>
+                                @endif
+
+                                @if ($anjuran)
+                                    <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                        📋 Lihat Anjuran
+                                    </a>
+                                @endif
+
+                                <a href="{{ route('laporan.index') }}"
+                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                    📊 Lihat Laporan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Header Info -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
