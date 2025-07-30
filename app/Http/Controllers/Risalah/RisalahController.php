@@ -166,6 +166,9 @@ class RisalahController extends Controller
     // Tampilkan detail risalah
     public function show(Risalah $risalah)
     {
+        // Load relasi yang diperlukan
+        $risalah->load(['jadwal.pengaduan.dokumenHI']);
+
         $detail = null;
         if ($risalah->jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
@@ -179,20 +182,11 @@ class RisalahController extends Controller
         $perjanjianBersama = null;
         $anjuran = null;
         if ($risalah->jenis_risalah === 'penyelesaian') {
-            // Get or create dokumen_hi for this pengaduan
-            $jadwal = $risalah->jadwal;
-            if ($jadwal && $jadwal->pengaduan) {
-                $dokumenHI = $jadwal->pengaduan->dokumenHI()->first();
-                if (!$dokumenHI) {
-                    // Create new DokumenHI if not exists
-                    $dokumenHI = new \App\Models\DokumenHubunganIndustrial();
-                    $dokumenHI->dokumen_hi_id = \Illuminate\Support\Str::uuid();
-                    $dokumenHI->pengaduan_id = $jadwal->pengaduan->pengaduan_id;
-                    $dokumenHI->save();
-                }
-                $dokumen_hi_id = $dokumenHI->dokumen_hi_id;
+            // DokumenHI sudah pasti ada karena risalah penyelesaian sudah dibuat
+            $dokumen_hi_id = $risalah->dokumen_hi_id;
 
-                // Check for existing PB or Anjuran
+            // Check for existing PB or Anjuran
+            if ($dokumen_hi_id) {
                 $perjanjianBersama = \App\Models\PerjanjianBersama::where('dokumen_hi_id', $dokumen_hi_id)->first();
                 $anjuran = \App\Models\Anjuran::where('dokumen_hi_id', $dokumen_hi_id)->first();
             }

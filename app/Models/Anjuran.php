@@ -30,11 +30,28 @@ class Anjuran extends Model
         'pertimbangan_hukum',
         'isi_anjuran',
         'nomor_anjuran',
-        'tanggal_anjuran'
+        'status_approval',
+        'approved_by_kepala_dinas_at',
+        'rejected_by_kepala_dinas_at',
+        'notes_kepala_dinas',
+        'published_at',
+        'deadline_response_at',
+        'response_pelapor',
+        'response_note_pelapor',
+        'response_at_pelapor',
+        'response_terlapor',
+        'response_note_terlapor',
+        'response_at_terlapor',
+        'overall_response_status'
     ];
 
     protected $casts = [
-        'tanggal_anjuran' => 'date'
+        'approved_by_kepala_dinas_at' => 'datetime',
+        'rejected_by_kepala_dinas_at' => 'datetime',
+        'published_at' => 'datetime',
+        'deadline_response_at' => 'datetime',
+        'response_at_pelapor' => 'datetime',
+        'response_at_terlapor' => 'datetime'
     ];
 
     protected static function boot()
@@ -55,5 +72,106 @@ class Anjuran extends Model
     public function kepalaDinas(): BelongsTo
     {
         return $this->belongsTo(KepalaDinas::class, 'kepala_dinas_id', 'kepala_dinas_id');
+    }
+
+    // Relasi ke mediator melalui dokumenHI dan pengaduan
+    public function mediator()
+    {
+        return $this->dokumenHI->pengaduan->mediator;
+    }
+
+    // Scopes
+    public function scopePendingApproval($query)
+    {
+        return $query->where('status_approval', 'pending_kepala_dinas');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status_approval', 'approved');
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status_approval', 'published');
+    }
+
+    // Methods
+    public function isPendingApproval(): bool
+    {
+        return $this->status_approval === 'pending_kepala_dinas';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status_approval === 'approved';
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status_approval === 'published';
+    }
+
+    public function canBeApprovedByKepalaDinas(): bool
+    {
+        return $this->status_approval === 'pending_kepala_dinas';
+    }
+
+    public function canBePublishedByMediator(): bool
+    {
+        return $this->status_approval === 'approved';
+    }
+
+    public function getDaysUntilDeadline(): int
+    {
+        if (!$this->deadline_response_at) return 0;
+        return max(0, now()->diffInDays($this->deadline_response_at, false));
+    }
+
+    // Helper untuk mendapatkan mediator
+    public function getMediatorAttribute()
+    {
+        return $this->mediator();
+    }
+
+    // Response helper methods
+    public function hasPelaporResponded(): bool
+    {
+        return $this->response_pelapor !== 'pending';
+    }
+
+    public function hasTerlaporResponded(): bool
+    {
+        return $this->response_terlapor !== 'pending';
+    }
+
+    public function bothPartiesResponded(): bool
+    {
+        return $this->hasPelaporResponded() && $this->hasTerlaporResponded();
+    }
+
+    public function isResponseDeadlinePassed(): bool
+    {
+        return $this->deadline_response_at && now()->isAfter($this->deadline_response_at);
+    }
+
+    public function canStillRespond(): bool
+    {
+        return !$this->isResponseDeadlinePassed();
+    }
+
+    public function updateOverallResponseStatus(): void
+    {
+        if (!$this->bothPartiesResponded()) {
+            $this->overall_response_status = 'pending';
+        } elseif ($this->response_pelapor === 'setuju' && $this->response_terlapor === 'setuju') {
+            $this->overall_response_status = 'both_agree';
+        } elseif ($this->response_pelapor === 'tidak_setuju' && $this->response_terlapor === 'tidak_setuju') {
+            $this->overall_response_status = 'both_disagree';
+        } else {
+            $this->overall_response_status = 'mixed';
+        }
+
+        $this->save();
     }
 }

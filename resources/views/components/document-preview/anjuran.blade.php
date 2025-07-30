@@ -12,7 +12,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700">Tanggal Anjuran</label>
                 <p class="mt-1 text-sm text-gray-900">
-                    {{ $anjuran->tanggal_anjuran ? $anjuran->tanggal_anjuran->format('d/m/Y') : '-' }}</p>
+                    {{ $anjuran->created_at ? $anjuran->created_at->format('d/m/Y') : '-' }}</p>
             </div>
         </div>
 

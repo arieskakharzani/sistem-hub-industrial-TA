@@ -191,7 +191,7 @@ class DashboardController extends Controller
         // Data khusus untuk kepala dinas
         $stats = [
             'total_pengaduan' => Pengaduan::count(),
-            'menunggu_approval' => Pengaduan::where('status', 'pending')->count(),
+            'menunggu_approval' => \App\Models\Anjuran::where('status_approval', 'pending_kepala_dinas')->count(),
             'dalam_proses' => Pengaduan::where('status', 'proses')->count(),
             'selesai_bulan_ini' => Pengaduan::where('status', 'selesai')
                 ->whereMonth('updated_at', now()->month)

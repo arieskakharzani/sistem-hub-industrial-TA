@@ -128,9 +128,68 @@ class PerjanjianBersamaController extends Controller
         // Ubah status pengaduan menjadi 'selesai'
         $pengaduan->update(['status' => 'selesai']);
 
-        // Kirim notifikasi ke semua pihak bahwa kasus telah selesai
-        // TODO: Implementasi notifikasi email
+        // Kirim draft perjanjian bersama ke para pihak
+        $this->kirimDraftPerjanjianBersama($pengaduan);
 
-        return redirect()->back()->with('success', 'Kasus telah selesai. Status pengaduan telah diubah menjadi selesai.');
+        return redirect()->back()->with('success', 'Kasus telah selesai dan draft perjanjian bersama telah dikirim ke para pihak.');
+    }
+
+    /**
+     * Kirim draft Perjanjian Bersama ke email para pihak
+     */
+    private function kirimDraftPerjanjianBersama($pengaduan)
+    {
+        try {
+            \Log::info('Memulai pengiriman email draft Perjanjian Bersama untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+
+            // Load relasi yang diperlukan
+            $pengaduan->load([
+                'pelapor.user',
+                'terlapor',
+                'mediator.user',
+                'dokumenHI.perjanjianBersama'
+            ]);
+
+            // Ambil Perjanjian Bersama
+            $perjanjianBersama = $pengaduan->dokumenHI->first()?->perjanjianBersama->first();
+
+            if (!$perjanjianBersama) {
+                \Log::error('Perjanjian Bersama tidak ditemukan untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+                return;
+            }
+
+            \Log::info('Perjanjian Bersama ditemukan: ' . $perjanjianBersama->perjanjian_bersama_id);
+
+            // Email ke Pelapor
+            if ($pengaduan->pelapor && $pengaduan->pelapor->user) {
+                $pelaporEmail = $pengaduan->pelapor->user->email;
+                \Log::info('Mengirim email ke pelapor: ' . $pelaporEmail);
+
+                \Illuminate\Support\Facades\Mail::to($pelaporEmail)
+                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($pengaduan, $perjanjianBersama, 'pelapor'));
+
+                \Log::info('Email berhasil dikirim ke pelapor: ' . $pelaporEmail);
+            } else {
+                \Log::warning('Pelapor atau user pelapor tidak ditemukan');
+            }
+
+            // Email ke Terlapor
+            if ($pengaduan->terlapor) {
+                $terlaporEmail = $pengaduan->terlapor->email_terlapor;
+                \Log::info('Mengirim email ke terlapor: ' . $terlaporEmail);
+
+                \Illuminate\Support\Facades\Mail::to($terlaporEmail)
+                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($pengaduan, $perjanjianBersama, 'terlapor'));
+
+                \Log::info('Email berhasil dikirim ke terlapor: ' . $terlaporEmail);
+            } else {
+                \Log::warning('Terlapor tidak ditemukan');
+            }
+
+            \Log::info('Draft Perjanjian Bersama berhasil dikirim untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+        } catch (\Exception $e) {
+            \Log::error('Error mengirim draft Perjanjian Bersama: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+        }
     }
 }

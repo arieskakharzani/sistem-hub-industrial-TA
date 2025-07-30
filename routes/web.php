@@ -7,6 +7,7 @@ use App\Http\Controllers\Akun\AkunController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Debug\EmailTestController;
+use App\Http\Controllers\Dokumen\AnjuranController;
 use App\Http\Controllers\Dokumen\DokumenController;
 use App\Http\Controllers\Laporan\LaporanController;
 use App\Http\Controllers\Risalah\RisalahController;
@@ -189,6 +190,17 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     // Anjuran
     Route::get('/anjuran/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'create'])->name('anjuran.create');
     Route::post('/anjuran/store', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'store'])->name('anjuran.store');
+
+    Route::post('/anjuran/{anjuran}/submit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'submit'])->name('anjuran.submit');
+    Route::post('/anjuran/{anjuran}/approve', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'approve'])->name('anjuran.approve');
+    Route::post('/anjuran/{anjuran}/reject', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'reject'])->name('anjuran.reject');
+    Route::post('/anjuran/{anjuran}/publish', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'publish'])->name('anjuran.publish');
+
+    // Route khusus untuk pending approval anjuran 
+    Route::get('/anjuran/pending-approval', [AnjuranController::class, 'pendingApproval'])->name('anjuran.pending-approval');
+
+
+
     Route::get('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
     Route::get('/anjuran/{id}/edit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'edit'])->name('anjuran.edit');
     Route::put('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'update'])->name('anjuran.update');
@@ -197,6 +209,14 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
 
     // Risalah
     Route::delete('/risalah/{id}', [\App\Http\Controllers\Risalah\RisalahController::class, 'destroy'])->name('risalah.destroy');
+});
+
+// Routes untuk respon anjuran dari pelapor dan terlapor
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/anjuran-response/pelapor', [\App\Http\Controllers\AnjuranResponseController::class, 'indexPelapor'])->name('anjuran-response.index-pelapor');
+    Route::get('/anjuran-response/terlapor', [\App\Http\Controllers\AnjuranResponseController::class, 'indexTerlapor'])->name('anjuran-response.index-terlapor');
+    Route::get('/anjuran-response/{id}', [\App\Http\Controllers\AnjuranResponseController::class, 'show'])->name('anjuran-response.show');
+    Route::post('/anjuran-response/{id}/submit', [\App\Http\Controllers\AnjuranResponseController::class, 'submitResponse'])->name('anjuran-response.submit');
 });
 
 // Route untuk mediator mengelola akun terlapor dan pelapor

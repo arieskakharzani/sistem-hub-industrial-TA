@@ -574,6 +574,18 @@
                                 <div class="text-xs text-gray-600">Konfirmasi kehadiran & riwayat jadwal</div>
                             </div>
                         </a>
+
+                        <a href="{{ route('anjuran-response.index-pelapor') }}"
+                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-yellow-50 hover:border-yellow-300 transform hover:translate-x-1 transition-all duration-300">
+                            <div
+                                class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center text-white">
+                                📋
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-800">Respon Anjuran</div>
+                                <div class="text-xs text-gray-600">Lihat dan respon anjuran yang diterbitkan</div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             @endif

@@ -4,9 +4,17 @@ namespace App\Http\Controllers\Dokumen;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Anjuran;
 use App\Models\DokumenHubunganIndustrial;
+use App\Models\KepalaDinas;
+use App\Models\User;
+use App\Notifications\AnjuranPendingApprovalNotification;
+use App\Notifications\AnjuranApprovedNotification;
+use App\Notifications\AnjuranRejectedNotification;
+use App\Notifications\AnjuranPublishedNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 
 class AnjuranController extends Controller
 {
@@ -35,6 +43,7 @@ class AnjuranController extends Controller
             'alamat_pengusaha' => 'required|string',
             'nama_pekerja' => 'required|string',
             'jabatan_pekerja' => 'required|string',
+            'perusahaan_pekerja' => 'required|string',
             'alamat_pekerja' => 'required|string',
             'keterangan_pekerja' => 'required|string',
             'keterangan_pengusaha' => 'required|string',
@@ -51,18 +60,26 @@ class AnjuranController extends Controller
     public function show($id)
     {
         $anjuran = Anjuran::findOrFail($id);
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Load relasi yang diperlukan
-        $anjuran->load(['dokumenHI.pengaduan.pelapor.user', 'dokumenHI.pengaduan.terlapor']);
+        $anjuran->load(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor']);
 
         // Authorization check
         if ($user->active_role === 'pelapor') {
+            // Cek apakah user memiliki relasi pelapor
+            if (!$user->relationLoaded('pelapor')) {
+                $user->load('pelapor');
+            }
             $pelapor = $user->pelapor;
             if (!$pelapor || $anjuran->dokumenHI->pengaduan->pelapor_id !== $pelapor->pelapor_id) {
                 abort(403, 'Anda tidak memiliki akses ke anjuran ini.');
             }
         } elseif ($user->active_role === 'terlapor') {
+            // Cek apakah user memiliki relasi terlapor
+            if (!$user->relationLoaded('terlapor')) {
+                $user->load('terlapor');
+            }
             $terlapor = $user->terlapor;
             if (!$terlapor || $anjuran->dokumenHI->pengaduan->terlapor_id !== $terlapor->terlapor_id) {
                 abort(403, 'Anda tidak memiliki akses ke anjuran ini.');
@@ -91,6 +108,7 @@ class AnjuranController extends Controller
             'alamat_pengusaha' => 'required|string',
             'nama_pekerja' => 'required|string',
             'jabatan_pekerja' => 'required|string',
+            'perusahaan_pekerja' => 'required|string',
             'alamat_pekerja' => 'required|string',
             'keterangan_pekerja' => 'required|string',
             'keterangan_pengusaha' => 'required|string',
@@ -120,5 +138,217 @@ class AnjuranController extends Controller
         $anjuran = Anjuran::findOrFail($id);
         $pdf = Pdf::loadView('dokumen.pdf.anjuran', compact('anjuran'));
         return $pdf->stream('anjuran.pdf');
+    }
+
+    public function pendingApproval()
+    {
+        $user = Auth::user();
+
+        // Validasi: hanya kepala dinas yang bisa akses
+        if (!$user || $user->active_role !== 'kepala_dinas') {
+            return back()->with('error', 'Hanya kepala dinas yang dapat mengakses halaman ini');
+        }
+
+        try {
+            $pendingAnjurans = Anjuran::with(['dokumenHI.pengaduan.mediator'])
+                ->where('status_approval', 'pending_kepala_dinas')
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            return view('dokumen.pending-approval', compact('pendingAnjurans'));
+        } catch (Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // Method untuk sistem approval
+    public function submit($anjuranId)
+    {
+        $anjuran = Anjuran::with(['dokumenHI.pengaduan.mediator'])->findOrFail($anjuranId);
+
+        $user = Auth::user();
+
+        // Validasi: hanya mediator yang bisa submit
+        if ($user->active_role !== 'mediator') {
+            return back()->with('error', 'Hanya mediator yang dapat mengirim anjuran untuk approval');
+        }
+
+        // Validasi: mediator yang membuat harus sama dengan mediator yang submit
+        if ($anjuran->mediator->mediator_id !== $user->mediator->mediator_id) {
+            return back()->with('error', 'Anda tidak dapat mengirim anjuran yang dibuat oleh mediator lain');
+        }
+
+        $anjuran->update([
+            'status_approval' => 'pending_kepala_dinas'
+        ]);
+
+        // Kirim notifikasi ke kepala dinas
+        $this->notifyKepalaDinas($anjuran);
+
+        return back()->with('success', 'Anjuran telah dikirim untuk approval kepala dinas');
+    }
+
+    public function approve($anjuranId)
+    {
+        $anjuran = Anjuran::with(['dokumenHI.pengaduan.mediator.user'])->findOrFail($anjuranId);
+        $user = Auth::user();
+
+        // Validasi: hanya kepala dinas yang bisa approve
+        if ($user->active_role !== 'kepala_dinas') {
+            return back()->with('error', 'Hanya kepala dinas yang dapat melakukan approval');
+        }
+
+        if (!$anjuran->canBeApprovedByKepalaDinas()) {
+            return back()->with('error', 'Anjuran tidak dapat diapprove saat ini');
+        }
+
+        $anjuran->update([
+            'status_approval' => 'approved',
+            'approved_by_kepala_dinas_at' => now(),
+            'notes_kepala_dinas' => request('notes')
+        ]);
+
+        // Kirim notifikasi ke mediator
+        $this->notifyMediatorApproved($anjuran);
+
+        return back()->with('success', 'Anjuran telah disetujui');
+    }
+
+    public function reject($anjuranId)
+    {
+        $anjuran = Anjuran::with(['dokumenHI.pengaduan.mediator.user'])->findOrFail($anjuranId);
+        $user = Auth::user();
+
+        // Validasi: hanya kepala dinas yang bisa reject
+        if ($user->active_role !== 'kepala_dinas') {
+            return back()->with('error', 'Hanya kepala dinas yang dapat melakukan rejection');
+        }
+
+        if (!$anjuran->canBeApprovedByKepalaDinas()) {
+            return back()->with('error', 'Anjuran tidak dapat direject saat ini');
+        }
+
+        $reason = request('reason');
+        if (empty($reason)) {
+            return back()->with('error', 'Alasan rejection harus diisi');
+        }
+
+        $anjuran->update([
+            'status_approval' => 'rejected',
+            'rejected_by_kepala_dinas_at' => now(),
+            'notes_kepala_dinas' => $reason
+        ]);
+
+        // Kirim notifikasi ke mediator
+        $this->notifyMediatorRejected($anjuran, $reason);
+
+        return back()->with('success', 'Anjuran telah ditolak');
+    }
+
+    public function publish($anjuranId)
+    {
+        $anjuran = Anjuran::with(['dokumenHI.pengaduan'])->findOrFail($anjuranId);
+        $user = Auth::user();
+
+        // Validasi: hanya mediator yang bisa publish
+        if ($user->active_role !== 'mediator') {
+            return back()->with('error', 'Hanya mediator yang dapat mempublish anjuran');
+        }
+
+        if (!$anjuran->canBePublishedByMediator()) {
+            return back()->with('error', 'Anjuran belum disetujui kepala dinas');
+        }
+
+        $anjuran->update([
+            'status_approval' => 'published',
+            'published_at' => now(),
+            'deadline_response_at' => now()->addDays(10)
+        ]);
+
+        // Kirim ke para pihak
+        $this->sendAnjuranToParties($anjuran);
+
+        return back()->with('success', 'Anjuran telah dipublish ke para pihak. Deadline response: ' . $anjuran->deadline_response_at->format('d/m/Y H:i'));
+    }
+
+    private function notifyKepalaDinas($anjuran)
+    {
+        // Kirim notifikasi ke semua user dengan role kepala_dinas
+        $kepalaDinasUsers = User::where('active_role', 'kepala_dinas')->get();
+
+        foreach ($kepalaDinasUsers as $user) {
+            try {
+                $user->notify(new AnjuranPendingApprovalNotification($anjuran));
+            } catch (\Exception $e) {
+                \Log::error('Error mengirim notifikasi ke ' . $user->email . ': ' . $e->getMessage());
+            }
+        }
+    }
+
+    private function notifyMediatorApproved($anjuran)
+    {
+        // Kirim notifikasi ke mediator yang membuat anjuran
+        $mediator = $anjuran->mediator;
+        if ($mediator) {
+            // Cari user yang terkait dengan mediator ini
+            $user = User::where('active_role', 'mediator')
+                ->whereHas('mediator', function ($query) use ($mediator) {
+                    $query->where('mediator_id', $mediator->mediator_id);
+                })
+                ->first();
+
+            if ($user) {
+                $user->notify(new AnjuranApprovedNotification($anjuran));
+            }
+        }
+    }
+
+    private function notifyMediatorRejected($anjuran, $reason)
+    {
+        // Kirim notifikasi ke mediator yang membuat anjuran
+        $mediator = $anjuran->mediator;
+        if ($mediator) {
+            // Cari user yang terkait dengan mediator ini
+            $user = User::where('active_role', 'mediator')
+                ->whereHas('mediator', function ($query) use ($mediator) {
+                    $query->where('mediator_id', $mediator->mediator_id);
+                })
+                ->first();
+
+            if ($user) {
+                $user->notify(new AnjuranRejectedNotification($anjuran, $reason));
+            }
+        }
+    }
+
+    private function sendAnjuranToParties($anjuran)
+    {
+        $pengaduan = $anjuran->dokumenHI->pengaduan;
+
+        // Kirim ke pelapor
+        if ($pengaduan->pelapor) {
+            $user = User::where('active_role', 'pelapor')
+                ->whereHas('pelapor', function ($query) use ($pengaduan) {
+                    $query->where('pelapor_id', $pengaduan->pelapor_id);
+                })
+                ->first();
+
+            if ($user) {
+                $user->notify(new AnjuranPublishedNotification($anjuran));
+            }
+        }
+
+        // Kirim ke terlapor
+        if ($pengaduan->terlapor) {
+            $user = User::where('active_role', 'terlapor')
+                ->whereHas('terlapor', function ($query) use ($pengaduan) {
+                    $query->where('terlapor_id', $pengaduan->terlapor_id);
+                })
+                ->first();
+
+            if ($user) {
+                $user->notify(new AnjuranPublishedNotification($anjuran));
+            }
+        }
     }
 }

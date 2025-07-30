@@ -133,7 +133,7 @@
                             </div>
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('dokumen.anjuran.pending-approval') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors">
                             <div class="p-2 bg-yellow-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
@@ -143,8 +143,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-medium text-gray-900">Approval Penyelesaian</p>
-                                <p class="text-sm text-gray-600">Review hasil mediasi</p>
+                                <p class="font-medium text-gray-900">Approval Anjuran</p>
+                                <p class="text-sm text-gray-600">{{ $stats['menunggu_approval'] }} anjuran menunggu</p>
                             </div>
                         </a>
 

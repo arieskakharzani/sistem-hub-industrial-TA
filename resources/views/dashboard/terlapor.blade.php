@@ -287,6 +287,20 @@
                                         </div>
                                     @endif
                                 </a>
+
+                                <a href="{{ route('anjuran-response.index-terlapor') }}"
+                                    class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-yellow-50 hover:border-yellow-300 transition-colors">
+                                    <div class="p-2 bg-yellow-100 rounded-lg mr-3">
+                                        <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">Respon Anjuran</p>
+                                        <p class="text-sm text-gray-600">Lihat dan respon anjuran yang diterbitkan</p>
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     </div>

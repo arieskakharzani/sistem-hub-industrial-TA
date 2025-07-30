@@ -240,10 +240,12 @@
             <div class="signature-row">
                 <div class="signature-box">
                     <p>Pihak Pengusaha,</p>
+                    <br><br>
                     <p>({{ $perjanjian->nama_pengusaha }})</p>
                 </div>
                 <div class="signature-box">
                     <p>Pihak Pekerja/Buruh/SP/SB,</p>
+                    <br><br>
                     <p>({{ $perjanjian->nama_pekerja }})</p>
                 </div>
             </div>
@@ -252,6 +254,7 @@
         <div class="mediator-signature">
             <p>Menyaksikan</p>
             <p>Mediator Hubungan Industrial,</p>
+            <br><br>
             <p>({{ $perjanjian->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
             <p>NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
         </div>

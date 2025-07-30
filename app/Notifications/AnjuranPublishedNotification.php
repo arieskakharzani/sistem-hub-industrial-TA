@@ -12,40 +12,33 @@ class AnjuranPublishedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $anjuran;
+    public function __construct(public Anjuran $anjuran) {}
 
-    public function __construct(Anjuran $anjuran)
+    public function via(object $notifiable): array
     {
-        $this->anjuran = $anjuran;
+        return ['database', 'mail'];
     }
 
-    public function via($notifiable)
+    public function toMail(object $notifiable): MailMessage
     {
-        return ['mail', 'database'];
-    }
-
-    public function toMail($notifiable)
-    {
-        $actionUrl = url('/anjuran/' . $this->anjuran->anjuran_id);
-        $finalDocuments = [
-            ['label' => 'Anjuran', 'url' => $actionUrl],
-        ];
         return (new MailMessage)
-            ->subject('Anjuran Telah Diterbitkan')
-            ->view('emails.dokumen-siap-final', [
-                'mediator' => $notifiable,
-                'documentTypeLabel' => 'Anjuran',
-                'finalDocuments' => $finalDocuments,
-                'actionUrl' => $actionUrl,
+            ->subject('Anjuran Mediator - ' . $this->anjuran->nomor_anjuran)
+            ->view('emails.anjuran-published', [
+                'anjuran' => $this->anjuran,
+                'user' => $notifiable,
+                'deadline' => $this->anjuran->deadline_response_at->format('d/m/Y H:i')
             ]);
     }
 
-    public function toArray($notifiable)
+    public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Anjuran Telah Diterbitkan',
-            'message' => 'Dokumen Anjuran untuk kasus Anda telah diterbitkan.',
-            'action_url' => "/anjuran/{$this->anjuran->anjuran_id}",
+            'title' => 'Anjuran Mediator Telah Diterbitkan',
+            'message' => 'Anjuran untuk pengaduan #' . $this->anjuran->dokumenHI->pengaduan->nomor_pengaduan . ' telah diterbitkan. Deadline: ' . $this->anjuran->deadline_response_at->format('d/m/Y H:i'),
+            'type' => 'anjuran_published',
+            'anjuran_id' => $this->anjuran->anjuran_id,
+            'deadline' => $this->anjuran->deadline_response_at->format('Y-m-d H:i:s'),
+            'days_remaining' => $this->anjuran->getDaysUntilDeadline()
         ];
     }
 }

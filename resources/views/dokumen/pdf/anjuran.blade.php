@@ -85,6 +85,10 @@
 <body>
     <div class="header">
         <div class="text-center text-bold">ANJURAN</div>
+        <div style="font-size: 10pt; margin-top: 5px;">
+            Nomor:
+            {{ $anjuran->nomor_anjuran ?? 'A-' . date('Y') . '-' . str_pad($anjuran->id ?? '001', 3, '0', STR_PAD_LEFT) }}
+        </div>
     </div>
 
     <div class="content">
@@ -156,21 +160,53 @@
 
         <p>Demikian untuk diketahui dan menjadi perhatian.</p>
 
-        <div class="signature-container">
-            <div class="signature-row">
-                <div class="signature-box">
-                    <p>Mengetahui</p>
-                    <p>Kepala Dinas,</p>
-                    <p>{{ $anjuran->kepalaDinas->nama_kepala_dinas ?? '-' }}</p>
-                    <p>NIP. {{ $anjuran->kepalaDinas->nip ?? '-' }}</p>
+        <!-- Informasi Approval -->
+        @if ($anjuran->status_approval === 'approved' || $anjuran->status_approval === 'published')
+            <div style="margin: 20px 0; padding: 10px; border: 1px solid #000; background-color: #f9f9f9;">
+                <p style="font-weight: bold; margin-bottom: 5px;">INFORMASI APPROVAL:</p>
+                <p style="margin: 0; font-size: 11pt;">
+                    Anjuran ini telah disetujui oleh Kepala Dinas Tenaga Kerja dan Transmigrasi
+                    pada tanggal
+                    {{ $anjuran->approved_by_kepala_dinas_at ? \Carbon\Carbon::parse($anjuran->approved_by_kepala_dinas_at)->translatedFormat('d F Y') : '-' }}
+                    @if ($anjuran->notes_kepala_dinas)
+                        dengan catatan: {{ $anjuran->notes_kepala_dinas }}
+                    @endif
+                </p>
+            </div>
+        @endif
+
+        <!-- Pernyataan Resmi -->
+        <div style="margin: 20px 0; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+            <p style="font-weight: bold; margin-bottom: 5px; text-align: center; color: #666; font-style: italic;">
+                PERNYATAAN RESMI</p>
+            <p style="margin: 0; font-size: 10pt; text-align: justify; color: #666; font-style: italic;">
+                Dokumen anjuran ini dikeluarkan secara resmi oleh Mediator Hubungan Industrial yang ditunjuk
+                oleh Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo. Anjuran ini telah melalui proses
+                approval dan disetujui oleh Kepala Dinas Tenaga Kerja dan Transmigrasi, sehingga memiliki
+                kekuatan hukum sesuai dengan ketentuan Undang-Undang Nomor 2 Tahun 2004 tentang Penyelesaian
+                Perselisihan Hubungan Industrial.
+            </p>
+        </div>
+
+        <!-- Legalisasi Digital -->
+        @if ($anjuran->status_approval === 'approved' || $anjuran->status_approval === 'published')
+            <div
+                style="margin: 20px 0; padding: 15px; border: 2px solid #28a745; background-color: #d4edda; text-align: center;">
+                <div style="font-size: 14pt; font-weight: bold; color: #155724; margin-bottom: 10px;">
+                    ✓ DOKUMEN RESMI & TERAPPROVE
                 </div>
-                <div class="signature-box">
-                    <p>Mediator Hubungan Industrial,</p>
-                    <p>({{ $anjuran->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
-                    <p>NIP. {{ $anjuran->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
+                <div style="font-size: 10pt; color: #155724;">
+                    <p style="margin: 2px 0;">Disetujui oleh:
+                        {{ $anjuran->kepalaDinas->nama_kepala_dinas ?? 'Kepala Dinas' }}</p>
+                    <p style="margin: 2px 0;">Tanggal:
+                        {{ $anjuran->approved_by_kepala_dinas_at ? \Carbon\Carbon::parse($anjuran->approved_by_kepala_dinas_at)->translatedFormat('d F Y') : '-' }}
+                    </p>
+                    <p style="margin: 2px 0;">Dikeluarkan oleh:
+                        {{ $anjuran->dokumenHI->pengaduan->mediator->nama_mediator ?? 'Mediator' }}</p>
+                    <p style="margin: 2px 0; font-weight: bold;">Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo</p>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </body>
 

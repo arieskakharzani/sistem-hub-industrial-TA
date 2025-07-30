@@ -22,13 +22,20 @@ class NotificationController extends Controller
                     $query->where('type', 'App\\Notifications\\MediatorPengaduanNotification')
                         ->orWhere('type', 'App\\Notifications\\MediatorInAppNotification')
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
-                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification');
+                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
                 } elseif ($userRole === 'pelapor') {
                     // Pelapor hanya bisa lihat notifikasi jadwal yang ditujukan ke pelapor
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
                 } elseif ($userRole === 'terlapor') {
                     // Terlapor hanya bisa lihat notifikasi jadwal yang ditujukan ke terlapor
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
+                } elseif ($userRole === 'kepala_dinas') {
+                    // Kepala dinas bisa lihat notifikasi anjuran yang menunggu approval
+                    $query->where('type', 'App\\Notifications\\AnjuranPendingApprovalNotification');
                 }
             })
             ->paginate(10);
@@ -39,11 +46,17 @@ class NotificationController extends Controller
                     $query->where('type', 'App\\Notifications\\MediatorPengaduanNotification')
                         ->orWhere('type', 'App\\Notifications\\MediatorInAppNotification')
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
-                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification');
+                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
                 } elseif ($userRole === 'pelapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
                 } elseif ($userRole === 'terlapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
+                } elseif ($userRole === 'kepala_dinas') {
+                    $query->where('type', 'App\\Notifications\\AnjuranPendingApprovalNotification');
                 }
             })
             ->count();
@@ -83,6 +96,9 @@ class NotificationController extends Controller
     public function getUnreadCount()
     {
         $user = Auth::user();
+        if (!$user) {
+            return response()->json(['count' => 0]);
+        }
         $userRole = $user->active_role;
 
         $count = $user->unreadNotifications()
@@ -91,11 +107,17 @@ class NotificationController extends Controller
                     $query->where('type', 'App\\Notifications\\MediatorPengaduanNotification')
                         ->orWhere('type', 'App\\Notifications\\MediatorInAppNotification')
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
-                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification');
+                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
                 } elseif ($userRole === 'pelapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
                 } elseif ($userRole === 'terlapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
+                } elseif ($userRole === 'kepala_dinas') {
+                    $query->where('type', 'App\\Notifications\\AnjuranPendingApprovalNotification');
                 }
             })
             ->count();
@@ -114,11 +136,17 @@ class NotificationController extends Controller
                     $query->where('type', 'App\\Notifications\\MediatorPengaduanNotification')
                         ->orWhere('type', 'App\\Notifications\\MediatorInAppNotification')
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
-                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification');
+                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
                 } elseif ($userRole === 'pelapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
                 } elseif ($userRole === 'terlapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
+                } elseif ($userRole === 'kepala_dinas') {
+                    $query->where('type', 'App\\Notifications\\AnjuranPendingApprovalNotification');
                 }
             })
             ->limit(5)
@@ -148,11 +176,17 @@ class NotificationController extends Controller
                     $query->where('type', 'App\\Notifications\\MediatorPengaduanNotification')
                         ->orWhere('type', 'App\\Notifications\\MediatorInAppNotification')
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
-                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification');
+                        ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
                 } elseif ($userRole === 'pelapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
                 } elseif ($userRole === 'terlapor') {
-                    $query->where('type', 'App\\Notifications\\JadwalNotification');
+                    $query->where('type', 'App\\Notifications\\JadwalNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
+                } elseif ($userRole === 'kepala_dinas') {
+                    $query->where('type', 'App\\Notifications\\AnjuranPendingApprovalNotification');
                 }
             })
             ->delete();
