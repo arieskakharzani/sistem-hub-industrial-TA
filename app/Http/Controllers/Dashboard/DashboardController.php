@@ -97,7 +97,27 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor', 'jadwal'));
+        // Ambil anjuran yang sudah dipublish tapi belum direspon oleh pelapor
+        $pendingAnjuran = collect();
+        if ($pelapor) {
+            $pendingAnjuran = \App\Models\Anjuran::with(['dokumenHI.pengaduan'])
+                ->whereHas('dokumenHI.pengaduan', function ($query) use ($pelapor) {
+                    $query->where('pelapor_id', $pelapor->pelapor_id);
+                })
+                ->where('status_approval', 'published')
+                ->where(function ($query) {
+                    $query->whereNull('response_pelapor')
+                        ->orWhere('response_pelapor', 'pending');
+                })
+                ->where('created_at', '>=', now()->subDays(10)) // Hanya anjuran dalam 10 hari terakhir
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Tambahkan statistik anjuran yang menunggu respon
+        $stats['anjuran_menunggu_respon'] = $pendingAnjuran->count();
+
+        return view('dashboard.pelapor', compact('user', 'stats', 'pengaduans', 'pelapor', 'jadwal', 'pendingAnjuran'));
     }
 
     public function terlapor()
@@ -149,7 +169,27 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dashboard.terlapor', compact('user', 'stats', 'jadwal'));
+        // Ambil anjuran yang sudah dipublish tapi belum direspon oleh terlapor
+        $pendingAnjuran = collect();
+        if ($terlapor) {
+            $pendingAnjuran = \App\Models\Anjuran::with(['dokumenHI.pengaduan'])
+                ->whereHas('dokumenHI.pengaduan', function ($query) use ($terlapor) {
+                    $query->where('terlapor_id', $terlapor->terlapor_id);
+                })
+                ->where('status_approval', 'published')
+                ->where(function ($query) {
+                    $query->whereNull('response_terlapor')
+                        ->orWhere('response_terlapor', 'pending');
+                })
+                ->where('created_at', '>=', now()->subDays(10)) // Hanya anjuran dalam 10 hari terakhir
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Tambahkan statistik anjuran yang menunggu respon
+        $stats['anjuran_menunggu_respon'] = $pendingAnjuran->count();
+
+        return view('dashboard.terlapor', compact('user', 'stats', 'jadwal', 'pendingAnjuran'));
     }
 
     public function mediator()

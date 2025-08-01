@@ -54,6 +54,40 @@
                 </div>
             </div>
 
+            <!-- Anjuran Response Alert (jika ada) -->
+            @if ($pendingAnjuran->count() > 0)
+                <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-8 rounded-r-xl">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                <span class="font-medium">Penting!</span>
+                                Anda memiliki {{ $pendingAnjuran->count() }} anjuran yang menunggu respon Anda.
+                                @if ($pendingAnjuran->first()->getDaysUntilDeadline() <= 3)
+                                    <span class="font-bold">Deadline:
+                                        {{ $pendingAnjuran->first()->getDaysUntilDeadline() }} hari lagi!</span>
+                                @else
+                                    <span>Deadline: {{ $pendingAnjuran->first()->getDaysUntilDeadline() }} hari
+                                        lagi</span>
+                                @endif
+                            </p>
+                        </div>
+                        <div class="ml-auto">
+                            <a href="{{ route('anjuran-response.index-pelapor') }}"
+                                class="bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Respon Sekarang
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Jadwal Alert (jika ada) -->
             @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-r-xl">
@@ -520,6 +554,12 @@
                                 {{ $stats['jadwal_menunggu_konfirmasi'] }}</div>
                             <div class="text-xs text-gray-600 font-medium">Menunggu Konfirmasi</div>
                         </div>
+                        <div
+                            class="text-center p-5 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl border border-red-100">
+                            <div class="text-3xl font-bold text-red-600 mb-1">
+                                {{ $stats['anjuran_menunggu_respon'] ?? 0 }}</div>
+                            <div class="text-xs text-gray-600 font-medium">Anjuran Menunggu Respon</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -585,6 +625,12 @@
                                 <div class="text-sm font-medium text-gray-800">Respon Anjuran</div>
                                 <div class="text-xs text-gray-600">Lihat dan respon anjuran yang diterbitkan</div>
                             </div>
+                            @if ($pendingAnjuran->count() > 0)
+                                <div
+                                    class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                    {{ $pendingAnjuran->count() }}
+                                </div>
+                            @endif
                         </a>
                     </div>
                 </div>

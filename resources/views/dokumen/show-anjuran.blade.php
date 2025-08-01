@@ -156,6 +156,8 @@
                         <!-- Header -->
                         <div class="text-center mb-8">
                             <h2 class="text-xl font-bold mb-2">ANJURAN</h2>
+                            <p class="text-sm text-gray-600">Nomor:
+                                {{ $anjuran->nomor_anjuran ?? 'A-' . $anjuran->anjuran_id }}</p>
                         </div>
 
                         <!-- Nomor Surat -->
@@ -256,58 +258,13 @@
 
                         <!-- Pernyataan Resmi -->
                         <div class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-                            <h3 class="font-semibold text-lg mb-4 text-blue-800 text-center">PERNYATAAN RESMI</h3>
                             <div class="text-blue-700 text-justify">
                                 <p class="mb-4">
-                                    Dokumen anjuran ini dikeluarkan secara resmi oleh Mediator Hubungan Industrial yang
-                                    ditunjuk
-                                    oleh Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo. Anjuran ini telah melalui
-                                    proses
-                                    approval dan disetujui oleh Kepala Dinas Tenaga Kerja dan Transmigrasi, sehingga
-                                    memiliki
-                                    kekuatan hukum sesuai dengan ketentuan Undang-Undang Nomor 2 Tahun 2004 tentang
-                                    Penyelesaian
-                                    Perselisihan Hubungan Industrial.
-                                </p>
-                                <p class="text-sm italic">
-                                    <strong>Catatan:</strong> Dokumen ini memiliki kekuatan hukum resmi melalui sistem
-                                    approval digital.
+                                    Dokumen anjuran ini dikeluarkan oleh Mediator Hubungan Industrial dan disetujui
+                                    oleh Kepala Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo.
                                 </p>
                             </div>
                         </div>
-
-                        <!-- Legalisasi Digital -->
-                        @if ($anjuran->status_approval === 'approved' || $anjuran->status_approval === 'published')
-                            <div class="mb-8 bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
-                                <div class="text-green-800">
-                                    <div class="text-2xl font-bold mb-4">✓ DOKUMEN RESMI & TERAPPROVE</div>
-                                    <div class="text-sm space-y-1">
-                                        <p><strong>Disetujui oleh:</strong>
-                                            {{ $anjuran->kepalaDinas->nama_kepala_dinas ?? 'Kepala Dinas' }}</p>
-                                        <p><strong>Tanggal:</strong>
-                                            {{ $anjuran->approved_by_kepala_dinas_at ? \Carbon\Carbon::parse($anjuran->approved_by_kepala_dinas_at)->translatedFormat('d F Y') : '-' }}
-                                        </p>
-                                        <p><strong>Dikeluarkan oleh:</strong>
-                                            {{ $anjuran->dokumenHI->pengaduan->mediator->nama_mediator ?? 'Mediator' }}
-                                        </p>
-                                        <p class="font-bold text-base">Dinas Tenaga Kerja dan Transmigrasi Kabupaten
-                                            Bungo</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                        {{-- @if ($anjuran->isFullySigned())
-                                <form method="POST" action="{{ route('penyelesaian.finalize') }}"
-                                    class="mt-8 text-center">
-                                    @csrf
-                                    <input type="hidden" name="document_type" value="anjuran">
-                                    <input type="hidden" name="document_id" value="{{ $anjuran->anjuran_id }}">
-                                    <button type="submit"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all duration-200">
-                                        Kirim Final ke Para Pihak & Selesaikan Kasus
-                                    </button>
-                                </form>
-                            @endif --}}
                     </div>
                 </div>
             </div>

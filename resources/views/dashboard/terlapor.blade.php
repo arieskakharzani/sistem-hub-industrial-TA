@@ -40,6 +40,40 @@
                         dan Penyelesaian Perselisihan Hubungan Industrial Kab. Bungo</p>
                 </div>
 
+                {{-- Anjuran Response Alert (jika ada) --}}
+                @if ($pendingAnjuran->count() > 0)
+                    <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-6 rounded-r-xl">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    <span class="font-medium">Penting!</span>
+                                    Anda memiliki {{ $pendingAnjuran->count() }} anjuran yang menunggu respon Anda.
+                                    @if ($pendingAnjuran->first()->getDaysUntilDeadline() <= 3)
+                                        <span class="font-bold">Deadline:
+                                            {{ $pendingAnjuran->first()->getDaysUntilDeadline() }} hari lagi!</span>
+                                    @else
+                                        <span>Deadline: {{ $pendingAnjuran->first()->getDaysUntilDeadline() }} hari
+                                            lagi</span>
+                                    @endif
+                                </p>
+                            </div>
+                            <div class="ml-auto">
+                                <a href="{{ route('anjuran-response.index-terlapor') }}"
+                                    class="bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    Respon Sekarang
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Jadwal Alert (jika ada) --}}
                 @if ($jadwal->where('konfirmasi_terlapor', 'pending')->count() > 0)
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-6 rounded-r-xl">
@@ -120,6 +154,22 @@
                                         <p class="text-gray-600 text-sm">Selesai</p>
                                         <p class="text-2xl font-bold text-gray-900">
                                             {{ $stats['selesai'] ?? 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-red-100 rounded-lg">
+                                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-600 text-sm">Anjuran Menunggu Respon</p>
+                                        <p class="text-2xl font-bold text-gray-900">
+                                            {{ $stats['anjuran_menunggu_respon'] ?? 0 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -300,6 +350,12 @@
                                         <p class="font-medium text-gray-900">Respon Anjuran</p>
                                         <p class="text-sm text-gray-600">Lihat dan respon anjuran yang diterbitkan</p>
                                     </div>
+                                    @if ($pendingAnjuran->count() > 0)
+                                        <div
+                                            class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center ml-auto">
+                                            {{ $pendingAnjuran->count() }}
+                                        </div>
+                                    @endif
                                 </a>
                             </div>
                         </div>

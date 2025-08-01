@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Anjuran;
 use App\Models\DokumenHubunganIndustrial;
 use App\Models\KepalaDinas;
+use App\Models\Pelapor;
+use App\Models\Terlapor;
 use App\Models\User;
 use App\Notifications\AnjuranPendingApprovalNotification;
 use App\Notifications\AnjuranApprovedNotification;
@@ -135,7 +137,22 @@ class AnjuranController extends Controller
 
     public function cetakPdf($id)
     {
-        $anjuran = Anjuran::findOrFail($id);
+        $anjuran = Anjuran::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor'])->findOrFail($id);
+        $user = Auth::user();
+
+        // Validasi akses untuk pelapor dan terlapor
+        if ($user->active_role === 'pelapor') {
+            $pelapor = Pelapor::where('user_id', $user->user_id)->first();
+            if (!$pelapor || $anjuran->dokumenHI->pengaduan->pelapor_id !== $pelapor->pelapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke anjuran ini');
+            }
+        } elseif ($user->active_role === 'terlapor') {
+            $terlapor = Terlapor::where('user_id', $user->user_id)->first();
+            if (!$terlapor || $anjuran->dokumenHI->pengaduan->terlapor_id !== $terlapor->terlapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke anjuran ini');
+            }
+        }
+
         $pdf = Pdf::loadView('dokumen.pdf.anjuran', compact('anjuran'));
         return $pdf->stream('anjuran.pdf');
     }

@@ -10,26 +10,32 @@
             font-family: 'Times New Roman', serif;
             line-height: 1.6;
             margin: 0;
-            padding: 40px;
+            padding: 0;
             color: #333;
             font-size: 12px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
+        .page {
+            padding: 40px 60px;
+            margin-bottom: 50px;
+            /* Memberikan ruang untuk footer fixed */
+            position: relative;
+            min-height: auto;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 16px;
+        .header {
+            text-align: center;
+            margin: 100px 0 10px 0;
+            /* Memberikan ruang untuk kop surat absolute */
             font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 16px;
+            position: relative;
         }
 
         .content {
-            margin-bottom: 30px;
+            margin: 0;
+            text-align: justify;
+            position: relative;
         }
 
         .info-section {
@@ -95,173 +101,114 @@
             line-height: 1.4;
         }
 
-        .divider {
-            border-top: 1px solid #000;
-            margin: 40px 0;
-        }
-
-        .signature-section {
-            margin-top: 60px;
-            text-align: right;
-        }
-
-        .signature-text {
-            font-weight: bold;
-        }
-
-        .signature-name {
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .signature-nip {
-            font-size: 12px;
-            color: #666;
-        }
-
         .page-break {
             page-break-before: always;
         }
 
+        /* Print styles */
         @media print {
-            body {
+            @page {
+                margin: 3cm 3cm 4cm 3cm;
+                size: A4;
+            }
+
+            @page :first {
+                margin: 3cm 3cm 4cm 3cm;
+            }
+
+            @page :left {
+                margin: 3cm 3cm 4cm 3cm;
+            }
+
+            @page :right {
+                margin: 3cm 3cm 4cm 3cm;
+            }
+
+            /* Memastikan kop surat muncul di setiap halaman */
+            .kop-surat {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                page-break-after: avoid;
+            }
+
+            /* Memastikan header tidak terlalu mepet di halaman selanjutnya */
+            .header {
+                margin-top: 150px;
+                /* Memberikan ruang untuk kop surat absolute */
+            }
+
+            .page {
+                padding: 40px 60px;
                 margin: 0;
-                padding: 30px;
+                margin-bottom: 100px;
+                page-break-inside: avoid;
+            }
+
+            .footer {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .content {
+                page-break-inside: auto;
+            }
+
+            .header {
+                page-break-after: avoid;
+            }
+
+            .kop-surat {
+                page-break-after: avoid;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 768px) {
+            .page {
+                padding: 20px 30px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <h1>
-            @if ($risalah->jenis_risalah === 'klarifikasi')
-                RISALAH KLARIFIKASI PERSELISIHAN HUBUNGAN INDUSTRIAL
-            @elseif ($risalah->jenis_risalah === 'mediasi')
-                RISALAH MEDIASI PERSELISIHAN HUBUNGAN INDUSTRIAL
-            @elseif ($risalah->jenis_risalah === 'penyelesaian')
-                RISALAH PENYELESAIAN PERSELISIHAN HUBUNGAN INDUSTRIAL
-            @else
-                RISALAH {{ strtoupper($risalah->jenis_risalah) }}
-            @endif
-        </h1>
-    </div>
-    <div class="divider"></div>
+    <div class="page">
+        <!-- Kop Surat menggunakan komponen -->
+        @include('components.pdf.kop-surat')
 
-    <div class="content">
-        <div class="info-section">
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">1.</td>
-                        <td class="info-label">Nama Perusahaan</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value">{{ $risalah->nama_perusahaan }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">2.</td>
-                        <td class="info-label">Jenis Usaha</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value">{{ $risalah->jenis_usaha }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">3.</td>
-                        <td class="info-label">Alamat Perusahaan</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value">{{ $risalah->alamat_perusahaan }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">4.</td>
-                        <td class="info-label">Nama Pekerja/Buruh/SP/SB</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value">{{ $risalah->nama_pekerja }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">5.</td>
-                        <td class="info-label">Alamat Pekerja/Buruh/SP/SB</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value">{{ $risalah->alamat_pekerja }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">6.</td>
-                        <td class="info-label">Tanggal dan Tempat Perundingan</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value">
-                            {{ $risalah->tanggal_perundingan ? $risalah->tanggal_perundingan->format('d/m/Y') : '-' }}
-                            di {{ $risalah->tempat_perundingan }}
-                        </td>
-                    </tr>
-                </table>
-            </div>
+        <div class="header">
+            <h5 class="text-center">
+                @if ($risalah->jenis_risalah === 'klarifikasi')
+                    RISALAH KLARIFIKASI PERSELISIHAN HUBUNGAN INDUSTRIAL
+                @elseif ($risalah->jenis_risalah === 'mediasi')
+                    RISALAH MEDIASI PERSELISIHAN HUBUNGAN INDUSTRIAL
+                @elseif ($risalah->jenis_risalah === 'penyelesaian')
+                    RISALAH PENYELESAIAN PERSELISIHAN HUBUNGAN INDUSTRIAL
+                @else
+                    RISALAH {{ strtoupper($risalah->jenis_risalah) }}
+                @endif
+            </h5>
         </div>
 
-        <div class="info-section">
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">7.</td>
-                        <td class="info-label">Pokok Masalah/Alasan Perselisihan</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value-long">{{ $risalah->pokok_masalah ?? '-' }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">8.</td>
-                        <td class="info-label">Keterangan/Pendapat Pekerja/Buruh/SP/SB</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value-long">{{ $risalah->pendapat_pekerja }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="info-row">
-                <table>
-                    <tr>
-                        <td class="info-number">9.</td>
-                        <td class="info-label">Keterangan/Pendapat Pengusaha</td>
-                        <td class="info-colon">:</td>
-                        <td class="info-value-long">{{ $risalah->pendapat_pengusaha }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            @if ($risalah->jenis_risalah === 'klarifikasi' && $detail)
+        <div class="content">
+            <div class="info-section">
                 <div class="info-row">
                     <table>
                         <tr>
-                            <td class="info-number">10.</td>
-                            <td class="info-label">Arahan Mediator</td>
+                            <td class="info-number">1.</td>
+                            <td class="info-label">Nama Perusahaan</td>
                             <td class="info-colon">:</td>
-                            <td class="info-value-long">{{ $detail->arahan_mediator ?? '-' }}</td>
+                            <td class="info-value">{{ $risalah->nama_perusahaan }}</td>
                         </tr>
                     </table>
                 </div>
@@ -269,29 +216,70 @@
                 <div class="info-row">
                     <table>
                         <tr>
-                            <td class="info-number">11.</td>
-                            <td class="info-label">Kesimpulan atau Hasil Klarifikasi</td>
+                            <td class="info-number">2.</td>
+                            <td class="info-label">Jenis Usaha</td>
+                            <td class="info-colon">:</td>
+                            <td class="info-value">{{ $risalah->jenis_usaha }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-row">
+                    <table>
+                        <tr>
+                            <td class="info-number">3.</td>
+                            <td class="info-label">Alamat Perusahaan</td>
+                            <td class="info-colon">:</td>
+                            <td class="info-value">{{ $risalah->alamat_perusahaan }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-row">
+                    <table>
+                        <tr>
+                            <td class="info-number">4.</td>
+                            <td class="info-label">Nama Pekerja/Buruh/SP/SB</td>
+                            <td class="info-colon">:</td>
+                            <td class="info-value">{{ $risalah->nama_pekerja }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-row">
+                    <table>
+                        <tr>
+                            <td class="info-number">5.</td>
+                            <td class="info-label">Alamat Pekerja/Buruh/SP/SB</td>
+                            <td class="info-colon">:</td>
+                            <td class="info-value">{{ $risalah->alamat_pekerja }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-row">
+                    <table>
+                        <tr>
+                            <td class="info-number">6.</td>
+                            <td class="info-label">Tanggal dan Tempat Perundingan</td>
                             <td class="info-colon">:</td>
                             <td class="info-value">
-                                @if ($detail->kesimpulan_klarifikasi === 'bipartit_lagi')
-                                    Sepakat untuk melakukan perundingan bipartit
-                                @elseif($detail->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
-                                    Sepakat akan melanjutkan penyelesaian melalui mediasi
-                                @else
-                                    {{ $detail->kesimpulan_klarifikasi ?? '-' }}
-                                @endif
+                                {{ $risalah->tanggal_perundingan ? $risalah->tanggal_perundingan->format('d/m/Y') : '-' }}
+                                di {{ $risalah->tempat_perundingan }}
                             </td>
                         </tr>
                     </table>
                 </div>
-            @elseif ($risalah->jenis_risalah === 'mediasi' && $detail)
+            </div>
+
+            <div class="info-section">
                 <div class="info-row">
                     <table>
                         <tr>
-                            <td class="info-number">10.</td>
-                            <td class="info-label">Sidang Ke</td>
+                            <td class="info-number">7.</td>
+                            <td class="info-label">Pokok Masalah/Alasan Perselisihan</td>
                             <td class="info-colon">:</td>
-                            <td class="info-value">{{ $detail->sidang_ke ?? '-' }}</td>
+                            <td class="info-value-long">{{ $risalah->pokok_masalah ?? '-' }}</td>
                         </tr>
                     </table>
                 </div>
@@ -299,10 +287,10 @@
                 <div class="info-row">
                     <table>
                         <tr>
-                            <td class="info-number">11.</td>
-                            <td class="info-label">Ringkasan Pembahasan</td>
+                            <td class="info-number">8.</td>
+                            <td class="info-label">Keterangan/Pendapat Pekerja/Buruh/SP/SB</td>
                             <td class="info-colon">:</td>
-                            <td class="info-value-long">{{ $detail->ringkasan_pembahasan ?? '-' }}</td>
+                            <td class="info-value-long">{{ $risalah->pendapat_pekerja }}</td>
                         </tr>
                     </table>
                 </div>
@@ -310,105 +298,185 @@
                 <div class="info-row">
                     <table>
                         <tr>
-                            <td class="info-number">12.</td>
-                            <td class="info-label">Kesepakatan Sementara</td>
+                            <td class="info-number">9.</td>
+                            <td class="info-label">Keterangan/Pendapat Pengusaha</td>
                             <td class="info-colon">:</td>
-                            <td class="info-value-long">{{ $detail->kesepakatan_sementara ?? '-' }}</td>
+                            <td class="info-value-long">{{ $risalah->pendapat_pengusaha }}</td>
                         </tr>
                     </table>
                 </div>
 
-                <div class="info-row">
-                    <table>
-                        <tr>
-                            <td class="info-number">13.</td>
-                            <td class="info-label">Ketidaksepakatan Sementara</td>
-                            <td class="info-colon">:</td>
-                            <td class="info-value-long">{{ $detail->ketidaksepakatan_sementara ?? '-' }}</td>
-                        </tr>
-                    </table>
-                </div>
+                @if ($risalah->jenis_risalah === 'klarifikasi' && $detail)
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">10.</td>
+                                <td class="info-label">Arahan Mediator</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">{{ $detail->arahan_mediator ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
 
-                <div class="info-row">
-                    <table>
-                        <tr>
-                            <td class="info-number">14.</td>
-                            <td class="info-label">Catatan Khusus</td>
-                            <td class="info-colon">:</td>
-                            <td class="info-value-long">{{ $detail->catatan_khusus ?? '-' }}</td>
-                        </tr>
-                    </table>
-                </div>
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">11.</td>
+                                <td class="info-label">Kesimpulan atau Hasil Klarifikasi</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value">
+                                    @if ($detail->kesimpulan_klarifikasi === 'bipartit_lagi')
+                                        Sepakat untuk melakukan perundingan bipartit
+                                    @elseif($detail->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
+                                        Sepakat akan melanjutkan penyelesaian melalui mediasi
+                                    @else
+                                        {{ $detail->kesimpulan_klarifikasi ?? '-' }}
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                @elseif ($risalah->jenis_risalah === 'mediasi' && $detail)
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">10.</td>
+                                <td class="info-label">Sidang Ke</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value">{{ $detail->sidang_ke ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
 
-                <div class="info-row">
-                    <table>
-                        <tr>
-                            <td class="info-number">15.</td>
-                            <td class="info-label">Rekomendasi Mediator</td>
-                            <td class="info-colon">:</td>
-                            <td class="info-value-long">{{ $detail->rekomendasi_mediator ?? '-' }}</td>
-                        </tr>
-                    </table>
-                </div>
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">11.</td>
+                                <td class="info-label">Ringkasan Pembahasan</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">{{ $detail->ringkasan_pembahasan ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
 
-                <div class="info-row">
-                    <table>
-                        <tr>
-                            <td class="info-number">16.</td>
-                            <td class="info-label">Status Sidang</td>
-                            <td class="info-colon">:</td>
-                            <td class="info-value">
-                                @if ($detail->status_sidang === 'selesai')
-                                    Selesai
-                                @elseif($detail->status_sidang === 'lanjut_sidang_berikutnya')
-                                    Lanjut Sidang Berikutnya
-                                @else
-                                    {{ $detail->status_sidang ?? '-' }}
-                                @endif
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            @elseif ($risalah->jenis_risalah === 'penyelesaian' && $detail)
-                <div class="info-row">
-                    <table>
-                        <tr>
-                            <td class="info-number">10.</td>
-                            <td class="info-label">Kesimpulan atau Hasil Perundingan</td>
-                            <td class="info-colon">:</td>
-                            <td class="info-value-long">
-                                {{ $detail->kesimpulan_penyelesaian ?? '-' }}
-                                <div class="keterangan-text">
-                                    Keterangan: dalam membuat Kesimpulan atau hasil perundingan agar ditegaskan
-                                    penyelesaian perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan
-                                    perundingan bipartit; atau b) sepakat akan melanjutkan penyelesaian melalui mediasi
-                                    dengan hasil perjanjian bersama; atau c) sepakat akan melanjutkan penyelesaian
-                                    melalui mediasi dengan hasil anjuran.
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            @endif
-        </div>
-    </div>
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">12.</td>
+                                <td class="info-label">Kesepakatan Sementara</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">{{ $detail->kesepakatan_sementara ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
 
-    @if ($risalah->jenis_risalah !== 'mediasi')
-        <div class="signature-section">
-            <div class="signature-text">Mediator Hubungan Industrial,</div>
-            <div class="signature-name">
-                {{ $risalah->jadwal->mediator->nama_mediator }}</div>
-            <div class="signature-nip">
-                @php
-                    $mediator = null;
-                    if ($risalah->jadwal && $risalah->jadwal->mediator) {
-                        $mediator = $risalah->jadwal->mediator;
-                    }
-                @endphp
-                NIP. {{ $mediator ? $mediator->nip : '-' }}
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">13.</td>
+                                <td class="info-label">Ketidaksepakatan Sementara</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">{{ $detail->ketidaksepakatan_sementara ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">14.</td>
+                                <td class="info-label">Catatan Khusus</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">{{ $detail->catatan_khusus ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">15.</td>
+                                <td class="info-label">Rekomendasi Mediator</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">{{ $detail->rekomendasi_mediator ?? '-' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">16.</td>
+                                <td class="info-label">Status Sidang</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value">
+                                    @if ($detail->status_sidang === 'selesai')
+                                        Selesai
+                                    @elseif($detail->status_sidang === 'lanjut_sidang_berikutnya')
+                                        Lanjut Sidang Berikutnya
+                                    @else
+                                        {{ $detail->status_sidang ?? '-' }}
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                @elseif ($risalah->jenis_risalah === 'penyelesaian' && $detail)
+                    <div class="info-row">
+                        <table>
+                            <tr>
+                                <td class="info-number">10.</td>
+                                <td class="info-label">Kesimpulan atau Hasil Perundingan</td>
+                                <td class="info-colon">:</td>
+                                <td class="info-value-long">
+                                    {{ $detail->kesimpulan_penyelesaian ?? '-' }}
+                                    <div class="keterangan-text">
+                                        Keterangan: dalam membuat Kesimpulan atau hasil perundingan agar ditegaskan
+                                        penyelesaian perselisihannya. Ada 3 alternatif, yaitu a) sepakat untuk melakukan
+                                        perundingan bipartit; atau b) sepakat akan melanjutkan penyelesaian melalui
+                                        mediasi
+                                        dengan hasil perjanjian bersama; atau c) sepakat akan melanjutkan penyelesaian
+                                        melalui mediasi dengan hasil anjuran.
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                @endif
             </div>
         </div>
-    @endif
+
+        <!-- Footer menggunakan komponen -->
+        @include('components.pdf.footer', [
+            'footerText' =>
+                'Risalah ' .
+                ucfirst($risalah->jenis_risalah) .
+                ' ini dikeluarkan oleh Mediator Hubungan Industrial Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo',
+            'approvalDate' => \Carbon\Carbon::parse($risalah->created_at)->translatedFormat('d F Y'),
+            'approvalTime' => \Carbon\Carbon::parse($risalah->created_at)->format('H:i'),
+        ])
+    </div>
+
+    <script>
+        // Memastikan kop surat muncul di setiap halaman
+        function ensureKopSuratVisible() {
+            const kopSurat = document.querySelector('.kop-surat');
+            if (kopSurat) {
+                kopSurat.style.display = 'block';
+                kopSurat.style.visibility = 'visible';
+                kopSurat.style.opacity = '1';
+            }
+        }
+
+        // Panggil fungsi setelah halaman load
+        window.addEventListener('load', function() {
+            setTimeout(ensureKopSuratVisible, 100);
+        });
+
+        // Panggil lagi saat scroll atau resize
+        window.addEventListener('scroll', ensureKopSuratVisible);
+        window.addEventListener('resize', ensureKopSuratVisible);
+    </script>
 </body>
 
 </html>

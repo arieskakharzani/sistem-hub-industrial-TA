@@ -61,6 +61,19 @@ class Anjuran extends Model
             if (empty($model->anjuran_id)) {
                 $model->anjuran_id = (string) Str::uuid();
             }
+            // Generate nomor_anjuran otomatis
+            if (empty($model->nomor_anjuran)) {
+                $year = now()->year;
+                $last = self::whereYear('created_at', $year)
+                    ->whereNotNull('nomor_anjuran')
+                    ->orderByDesc('nomor_anjuran')
+                    ->first();
+                $next = 1;
+                if ($last && preg_match('/ANJURAN\/' . $year . '\/(\\d{3})$/', $last->nomor_anjuran, $matches)) {
+                    $next = intval($matches[1]) + 1;
+                }
+                $model->nomor_anjuran = sprintf('ANJURAN/%d/%03d', $year, $next);
+            }
         });
     }
 
