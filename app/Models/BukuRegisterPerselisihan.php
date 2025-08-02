@@ -30,7 +30,6 @@ class BukuRegisterPerselisihan extends Model
         'penyelesaian_anjuran',
         'penyelesaian_risalah',
         'tindak_lanjut_phi',
-        'tindak_lanjut_ma',
         'keterangan',
     ];
 

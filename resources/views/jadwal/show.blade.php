@@ -79,11 +79,12 @@
                                 </div>
                                 <div class="ml-3">
                                     <h3 class="text-lg font-medium text-green-800">🎉
-                                        {{ ucfirst($jadwal->jenis_jadwal) }}
+                                        {{ $jadwal->jenis_jadwal === 'ttd_perjanjian_bersama' ? 'Pertemuan Penandatanganan Perjanjian Bersama' : ucfirst($jadwal->jenis_jadwal) }}
                                         Siap Dilaksanakan!</h3>
                                     <p class="text-green-700 mt-1">
                                         Kedua belah pihak telah mengkonfirmasi kehadiran.
-                                        {{ ucfirst($jadwal->jenis_jadwal) }} dapat dilaksanakan sesuai jadwal
+                                        {{ $jadwal->jenis_jadwal === 'ttd_perjanjian_bersama' ? 'Pertemuan Penandatanganan Perjanjian Bersama' : ucfirst($jadwal->jenis_jadwal) }}
+                                        dapat dilaksanakan sesuai jadwal
                                         pada <strong>{{ $jadwal->tanggal->format('d F Y') }}</strong>
                                         pukul <strong>{{ $jadwal->waktu->format('H:i') }} WIB</strong>.
                                     </p>
@@ -128,6 +129,41 @@
                                                         </path>
                                                     </svg>
                                                     Buat Risalah Klarifikasi
+                                                </a>
+                                            @endif
+                                        @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
+                                            @php
+                                                $dokumenHI = $jadwal->pengaduan->dokumenHI->first();
+                                                $perjanjianBersama = $dokumenHI
+                                                    ? $dokumenHI->perjanjianBersama->first()
+                                                    : null;
+                                            @endphp
+                                            @if ($perjanjianBersama)
+                                                <a href="{{ route('dokumen.perjanjian-bersama.show', $perjanjianBersama->perjanjian_bersama_id) }}"
+                                                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+                                                        </path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                        </path>
+                                                    </svg>
+                                                    Lihat Perjanjian Bersama
+                                                </a>
+                                            @else
+                                                <a href="{{ route('dokumen.perjanjian-bersama.create', $dokumenHI ? $dokumenHI->dokumen_hi_id : null) }}"
+                                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                        </path>
+                                                    </svg>
+                                                    Buat Perjanjian Bersama
                                                 </a>
                                             @endif
                                         @elseif ($jadwal->jenis_jadwal === 'mediasi')
@@ -240,7 +276,8 @@
                                 <div class="ml-3">
                                     <h3 class="text-lg font-medium text-yellow-800">⏳ Menunggu Konfirmasi Kehadiran
                                         Panggilan
-                                        {{ ucfirst($jadwal->jenis_jadwal) }}</h3>
+                                        {{ $jadwal->jenis_jadwal === 'ttd_perjanjian_bersama' ? 'Pertemuan Penandatanganan Perjanjian Bersama' : ucfirst($jadwal->jenis_jadwal) }}
+                                    </h3>
                                     <p class="text-yellow-700 mt-1">
                                         Masih menunggu konfirmasi kehadiran dari
                                         @if ($jadwal->konfirmasi_pelapor === 'pending' && $jadwal->konfirmasi_terlapor === 'pending')
@@ -272,6 +309,8 @@
                                     <h3 class="text-lg font-medium text-blue-800">
                                         @if ($jadwal->jenis_jadwal === 'klarifikasi')
                                             ✅ Klarifikasi Telah Selesai
+                                        @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
+                                            ✅ Pertemuan Penandatanganan Perjanjian Bersama Telah Selesai
                                         @else
                                             ✅ Mediasi Sidang Ke-{{ $jadwal->sidang_ke }} Telah Selesai
                                         @endif
@@ -284,6 +323,9 @@
                                             @else
                                                 Belum ada risalah klarifikasi yang dibuat.
                                             @endif
+                                        @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
+                                            Pertemuan penandatanganan perjanjian bersama telah dilaksanakan dan selesai.
+                                            Perjanjian bersama telah ditandatangani oleh kedua belah pihak.
                                         @else
                                             Mediasi sidang ke-{{ $jadwal->sidang_ke }} telah dilaksanakan dan selesai.
                                             @if ($jadwal->risalahPenyelesaian)
@@ -342,7 +384,37 @@
                                             Buat Risalah Klarifikasi
                                         </a>
                                     @endif
-                                @else
+                                @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
+                                    @php
+                                        $dokumenHI = $jadwal->pengaduan->dokumenHI->first();
+                                        $perjanjianBersama = $dokumenHI ? $dokumenHI->perjanjianBersama->first() : null;
+                                    @endphp
+                                    @if ($perjanjianBersama)
+                                        <a href="{{ route('dokumen.perjanjian-bersama.show', $perjanjianBersama->perjanjian_bersama_id) }}"
+                                            class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                            </svg>
+                                            Lihat Perjanjian Bersama
+                                        </a>
+                                    @else
+                                        <a href="{{ route('dokumen.perjanjian-bersama.create', $dokumenHI ? $dokumenHI->dokumen_hi_id : null) }}"
+                                            class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                </path>
+                                            </svg>
+                                            Buat Perjanjian Bersama
+                                        </a>
+                                    @endif
+                                @elseif ($jadwal->jenis_jadwal === 'mediasi')
                                     <div class="space-y-2">
                                         @if (
                                             $jadwal->risalahPenyelesaian &&
@@ -454,13 +526,17 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Mediator</label>
                                         <p class="text-sm text-gray-900">{{ $jadwal->mediator->nama_mediator }}</p>
                                     </div>
-                                    <tr>
-                                        <th>Jenis Jadwal</th>
-                                        <td>{{ ucfirst($jadwal->jenis_jadwal) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Sidang Ke-</th>
-                                        <td>{{ $jadwal->sidang_ke ?? '-' }}</td>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenis
+                                            Jadwal</label>
+                                        <p class="text-sm text-gray-900">
+                                            {{ $jadwal->jenis_jadwal === 'ttd_perjanjian_bersama' ? 'Pertemuan Penandatanganan Perjanjian Bersama' : ucfirst($jadwal->jenis_jadwal) }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Sidang Ke-</label>
+                                        <p class="text-sm text-gray-900">{{ $jadwal->sidang_ke ?? '-' }}</p>
+                                    </div>
                                     </tr>
                                 </div>
 

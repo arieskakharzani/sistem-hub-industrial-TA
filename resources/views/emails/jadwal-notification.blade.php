@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Informasi Jadwal {{ ucfirst($jadwal->jenis_jadwal) }}</title>
+    <title>Informasi Jadwal {{ $jadwal->getJenisJadwalLabel() }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -183,9 +183,9 @@
     <div class="container">
         <div class="header">
             <h1>
-                Informasi Jadwal {{ ucfirst($jadwal->jenis_jadwal) }}
+                Informasi Jadwal {{ $jadwal->getJenisJadwalLabel() }}
                 <span class="jenis-badge jenis-{{ $jadwal->jenis_jadwal }}">
-                    {{ ucfirst($jadwal->jenis_jadwal) }}
+                    {{ $jadwal->getJenisJadwalLabel() }}
                 </span>
             </h1>
             <p style="margin: 5px 0 0 0;">Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial Kab. Bungo</p>
@@ -195,15 +195,15 @@
 
         @if ($eventType === 'created')
             <div class="alert alert-info">
-                <strong>Informasi:</strong> Jadwal {{ $jadwal->jenis_jadwal }} baru telah dibuat.
+                <strong>Informasi:</strong> Jadwal {{ $jadwal->getJenisJadwalLabel() }} baru telah dibuat.
             </div>
         @elseif($eventType === 'updated')
             <div class="alert alert-warning">
-                <strong>Perubahan:</strong> Terdapat perubahan pada jadwal {{ $jadwal->jenis_jadwal }}.
+                <strong>Perubahan:</strong> Terdapat perubahan pada jadwal {{ $jadwal->getJenisJadwalLabel() }}.
             </div>
         @elseif($eventType === 'status_updated')
             <div class="alert alert-info">
-                <strong>Update Status:</strong> Status jadwal {{ $jadwal->jenis_jadwal }} telah diperbarui.
+                <strong>Update Status:</strong> Status jadwal {{ $jadwal->getJenisJadwalLabel() }} telah diperbarui.
             </div>
         @endif
 
@@ -213,7 +213,7 @@
                 <div class="info-item">
                     <div class="info-label">Jenis Jadwal</div>
                     <div class="info-value">
-                        {{ ucfirst($jadwal->jenis_jadwal) }}
+                        {{ $jadwal->getJenisJadwalLabel() }}
                         @if ($jadwal->sidang_ke)
                             <span style="color: #666; margin-left: 5px;">
                                 (Sidang ke-{{ $jadwal->sidang_ke }})
@@ -319,8 +319,10 @@
                 Harap datang tepat waktu sesuai jadwal yang telah ditentukan.
                 @if ($jadwal->jenis_jadwal === 'klarifikasi')
                     Bawa dokumen-dokumen yang diperlukan untuk proses klarifikasi.
-                @else
+                @elseif ($jadwal->jenis_jadwal === 'mediasi')
                     Bawa dokumen-dokumen yang diperlukan untuk proses mediasi.
+                @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
+                    Bawa dokumen-dokumen yang diperlukan untuk penandatanganan perjanjian bersama.
                 @endif
             </div>
             <div style="text-align: center; margin: 30px 0;">
@@ -335,7 +337,8 @@
         @elseif($jadwal->status_jadwal === 'ditunda')
             <div class="alert alert-warning">
                 <strong>⚠️ Perhatian:</strong><br>
-                Jadwal {{ $jadwal->jenis_jadwal }} ditunda. Anda akan mendapat pemberitahuan jadwal baru segera.
+                Jadwal {{ $jadwal->getJenisJadwalLabel() }} ditunda. Anda akan mendapat pemberitahuan jadwal baru
+                segera.
             </div>
             <div style="text-align: center; margin: 30px 0;">
                 <p style="margin-top: 30px; color: #555;">
@@ -348,7 +351,8 @@
         @elseif($jadwal->status_jadwal === 'dibatalkan')
             <div class="alert alert-warning">
                 <strong>❌ Informasi:</strong><br>
-                Jadwal {{ $jadwal->jenis_jadwal }} dibatalkan. Silakan hubungi mediator untuk informasi lebih lanjut.
+                Jadwal {{ $jadwal->getJenisJadwalLabel() }} dibatalkan. Silakan hubungi mediator untuk informasi lebih
+                lanjut.
             </div>
             <div style="text-align: center; margin: 30px 0;">
                 <p style="margin-top: 30px; color: #555;">
@@ -361,7 +365,7 @@
         @elseif($jadwal->status_jadwal === 'berlangsung')
             <div class="alert alert-warning">
                 <strong>Informasi:</strong><br>
-                Jadwal {{ $jadwal->jenis_jadwal }} sedang berlangsung.
+                Jadwal {{ $jadwal->getJenisJadwalLabel() }} sedang berlangsung.
             </div>
             <div style="text-align: center; margin: 30px 0;">
                 <p style="margin-top: 30px; color: #555;">
@@ -374,7 +378,7 @@
         @elseif($jadwal->status_jadwal === 'selesai')
             <div class="alert alert-warning">
                 <strong>Informasi:</strong><br>
-                Jadwal {{ $jadwal->jenis_jadwal }} telah selesai.
+                Jadwal {{ $jadwal->getJenisJadwalLabel() }} telah selesai.
             </div>
             <div style="text-align: center; margin: 30px 0;">
                 <p style="margin-top: 30px; color: #555;">

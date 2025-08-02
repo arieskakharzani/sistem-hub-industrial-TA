@@ -67,10 +67,16 @@ class NotificationController extends Controller
     public function show(DatabaseNotification $notification)
     {
         $notification->markAsRead();
+        $user = Auth::user();
 
         // Redirect ke jadwal jika ada
         if ($notification->data['jadwal_id'] ?? false) {
-            return redirect()->route('jadwal.show', $notification->data['jadwal_id']);
+            // Redirect berdasarkan role user
+            if ($user->active_role === 'mediator') {
+                return redirect()->route('jadwal.show', $notification->data['jadwal_id']);
+            } elseif (in_array($user->active_role, ['pelapor', 'terlapor'])) {
+                return redirect()->route('konfirmasi.show', $notification->data['jadwal_id']);
+            }
         }
 
         return redirect()->route('notifications.index');

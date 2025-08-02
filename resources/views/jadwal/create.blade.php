@@ -65,8 +65,8 @@
                                     <option value="">-- Pilih Pengaduan --</option>
                                     @foreach ($pengaduanList as $pengaduan)
                                         <option value="{{ $pengaduan->pengaduan_id }}"
-                                            {{ old('pengaduan_id') == $pengaduan->pengaduan_id ? 'selected' : '' }}>
-                                            {{ $pengaduan->perihal }}
+                                            {{ old('pengaduan_id', $selectedPengaduanId) == $pengaduan->pengaduan_id ? 'selected' : '' }}>
+                                            {{ $pengaduan->nomor_pengaduan }} - {{ $pengaduan->perihal }}
                                             ({{ $pengaduan->pelapor->nama_pelapor }})
                                         </option>
                                     @endforeach
@@ -87,7 +87,8 @@
                                     </label>
                                     <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal') }}"
                                         min="{{ date('Y-m-d') }}" class="w-full rounded-md border-gray-300" required>
-                                    <p class="text-xs text-gray-500 mt-1">Minimal tanggal hari ini ({{ date('d/m/Y') }})
+                                    <p class="text-xs text-gray-500 mt-1">Minimal tanggal hari ini
+                                        ({{ date('d/m/Y') }})
                                     </p>
                                 </div>
 
@@ -123,8 +124,15 @@
                                 <label for="jenis_jadwal" class="block text-sm font-medium text-gray-700 mb-2">Jenis
                                     Jadwal</label>
                                 <select name="jenis_jadwal" id="jenis_jadwal" class="form-select mt-1 block w-full">
-                                    <option value="mediasi">Mediasi</option>
-                                    <option value="klarifikasi">Klarifikasi</option>
+                                    <option value="mediasi" {{ $selectedJenisJadwal == 'mediasi' ? 'selected' : '' }}>
+                                        Mediasi</option>
+                                    <option value="klarifikasi"
+                                        {{ $selectedJenisJadwal == 'klarifikasi' ? 'selected' : '' }}>Klarifikasi
+                                    </option>
+                                    <option value="ttd_perjanjian_bersama"
+                                        {{ $selectedJenisJadwal == 'ttd_perjanjian_bersama' ? 'selected' : '' }}>
+                                        Pertemuan Penandatanganan Perjanjian Bersama
+                                    </option>
                                 </select>
                             </div>
                             {{-- Sidang Ke (jika jenis_jadwal=mediasi) --}}
@@ -132,8 +140,7 @@
                                 <label for="sidang_ke" class="block text-sm font-medium text-gray-700 mb-2">
                                     Sidang Ke- <span class="text-red-500">*</span>
                                 </label>
-                                <select name="sidang_ke" id="sidang_ke" class="w-full rounded-md border-gray-300"
-                                    required>
+                                <select name="sidang_ke" id="sidang_ke" class="w-full rounded-md border-gray-300">
                                     <option value="">-- Pilih Sidang --</option>
                                     <option value="1" {{ old('sidang_ke') == '1' ? 'selected' : '' }}>Sidang ke-1
                                     </option>
@@ -273,6 +280,18 @@
 
                 // Validasi form sebelum submit
                 form.addEventListener('submit', function(e) {
+                    console.log('Form submit triggered');
+
+                    // Validasi sidang_ke jika jenis jadwal adalah mediasi
+                    if (jenisJadwal.value === 'mediasi') {
+                        const sidangKe = document.getElementById('sidang_ke').value;
+                        if (!sidangKe) {
+                            e.preventDefault();
+                            alert('Sidang ke- harus dipilih untuk jadwal mediasi.');
+                            return false;
+                        }
+                    }
+
                     if (!validateTime()) {
                         e.preventDefault();
                         alert(
@@ -288,6 +307,8 @@
                         alert('Waktu harus dalam jam kerja (08:00 - 16:00).');
                         return false;
                     }
+
+                    console.log('Form validation passed, submitting...');
                 });
 
                 // Inisialisasi saat halaman dimuat
@@ -305,12 +326,23 @@
                 jenisJadwal.addEventListener('change', function() {
                     if (this.value === 'mediasi') {
                         sidangKeField.style.display = '';
+                        document.getElementById('sidang_ke').required = true;
                     } else {
                         sidangKeField.style.display = 'none';
+                        document.getElementById('sidang_ke').required = false;
+                        document.getElementById('sidang_ke').value = '';
                     }
                 });
+
                 // Trigger on page load
-                if (jenisJadwal.value === 'mediasi') sidangKeField.style.display = '';
+                if (jenisJadwal.value === 'mediasi') {
+                    sidangKeField.style.display = '';
+                    document.getElementById('sidang_ke').required = true;
+                } else {
+                    sidangKeField.style.display = 'none';
+                    document.getElementById('sidang_ke').required = false;
+                    document.getElementById('sidang_ke').value = '';
+                }
             });
         </script>
     </x-app-layout>

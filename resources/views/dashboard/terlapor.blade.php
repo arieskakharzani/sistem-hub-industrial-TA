@@ -105,7 +105,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {{-- Statistics --}}
                     <div class="lg:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="bg-white p-6 rounded-lg shadow-sm">
                                 <div class="flex items-center">
                                     <div class="p-3 bg-red-100 rounded-lg">
@@ -205,7 +205,7 @@
                                                         Mediator: {{ $item->mediator->nama_mediator ?? '-' }}
                                                     </p>
                                                     <p class="text-xs text-purple-700 mt-1">Jenis Jadwal: <span
-                                                            class="font-bold">{{ ucfirst($item->jenis_jadwal) }}</span>
+                                                            class="font-bold">{{ ucfirst($item->getJenisJadwalLabel()) }}</span>
                                                     </p>
                                                 </div>
                                                 <span
@@ -258,7 +258,7 @@
                                                         class="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors">
                                                         <span>✓</span>
                                                         <span>Konfirmasi Kehadiran
-                                                            {{ ucfirst($item->jenis_jadwal) }}</span>
+                                                            {{ ucfirst($item->getJenisJadwalLabel()) }}</span>
                                                     </a>
                                                 @else
                                                     <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
@@ -299,7 +299,7 @@
                         {{-- Quick Actions --}}
                         <div class="bg-white rounded-lg shadow-sm p-6">
                             <h4 class="text-lg font-semibold mb-4">Aksi Cepat</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
                                 <a href="{{ route('pengaduan.index-terlapor') }}"
                                     class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-yellow-50 hover:border-yellow-300 transition-colors">
                                     <div class="p-2 bg-orange-100 rounded-lg mr-3">
@@ -426,7 +426,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Call Center</p>
-                                        <p class="text-xs text-gray-600">(0746) 21234</p>
+                                        <p class="text-xs text-gray-600"> (0747) 21013</p>
                                     </div>
                                 </a>
 
@@ -442,7 +442,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Email Support</p>
-                                        <p class="text-xs text-gray-600">mediasi@disnaker.bungo.go.id</p>
+                                        <p class="text-xs text-gray-600">nakertrans@bungokab.go.id</p>
                                     </div>
                                 </a>
                             </div>

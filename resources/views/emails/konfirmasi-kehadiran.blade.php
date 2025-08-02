@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konfirmasi Kehadiran {{ ucfirst($jadwal->jenis_jadwal) }}</title>
+    <title>Konfirmasi Kehadiran {{ $jadwal->getJenisJadwalLabel() }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -97,7 +97,7 @@
 
 <body>
     <div class="header">
-        <h1>🗓️ Konfirmasi Kehadiran {{ ucfirst($jadwal->jenis_jadwal) }}</h1>
+        <h1>🗓️ Konfirmasi Kehadiran {{ $jadwal->getJenisJadwalLabel() }}</h1>
         <p>Sistem Informasi Pengaduan dan Penyelesaian Hubungan Industrial</p>
         <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo</p>
     </div>
@@ -130,11 +130,11 @@
         </div>
 
         <div class="info-box">
-            <h3>🗓️ Detail Jadwal {{ ucfirst($jadwal->jenis_jadwal) }}</h3>
+            <h3>🗓️ Detail Jadwal {{ $jadwal->getJenisJadwalLabel() }}</h3>
             <table class="details-table">
                 <tr>
                     <th>Jenis Jadwal</th>
-                    <td><strong>{{ ucfirst($jadwal->jenis_jadwal) }}</strong></td>
+                    <td><strong>{{ $jadwal->getJenisJadwalLabel() }}</strong></td>
                 </tr>
                 <tr>
                     <th>Tanggal</th>
@@ -205,7 +205,7 @@
                         diubah menjadi "Ditunda". Silakan lakukan koordinasi untuk penjadwalan ulang.</p>
                 @else
                     <p>✅ <strong>Semua Pihak Siap:</strong> Kedua belah pihak telah mengkonfirmasi kehadiran.
-                        Klarifikasi/mediasi
+                        {{ $jadwal->getJenisJadwalLabel() }}
                         dapat dilaksanakan sesuai jadwal.</p>
                 @endif
             @else

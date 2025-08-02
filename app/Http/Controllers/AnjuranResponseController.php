@@ -8,6 +8,7 @@ use App\Models\Terlapor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\AnjuranResponseNotification;
+use App\Notifications\AnjuranRejectedByPartiesNotification;
 
 class AnjuranResponseController extends Controller
 {
@@ -111,7 +112,7 @@ class AnjuranResponseController extends Controller
         $user = Auth::user();
         $anjuran = Anjuran::findOrFail($id);
 
-        // Validate access
+        // Validasi akses
         $hasAccess = false;
         $userRole = null;
 
@@ -167,6 +168,11 @@ class AnjuranResponseController extends Controller
         // Notify mediator about the response
         $this->notifyMediator($anjuran, $userRole, $request->response);
 
+        // If response is rejection, send special notification
+        if ($request->response === 'tidak_setuju') {
+            $this->notifyMediatorAboutRejection($anjuran, $userRole);
+        }
+
         return redirect()->route('anjuran-response.index-' . $userRole)
             ->with('success', 'Respon Anda telah berhasil disimpan');
     }
@@ -180,6 +186,18 @@ class AnjuranResponseController extends Controller
 
         if ($mediator && $mediator->user) {
             $mediator->user->notify(new AnjuranResponseNotification($anjuran, $userRole, $response));
+        }
+    }
+
+    /**
+     * Notify mediator about rejection
+     */
+    private function notifyMediatorAboutRejection($anjuran, $userRole)
+    {
+        $mediator = $anjuran->mediator();
+
+        if ($mediator && $mediator->user) {
+            $mediator->user->notify(new AnjuranRejectedByPartiesNotification($anjuran, $userRole));
         }
     }
 }

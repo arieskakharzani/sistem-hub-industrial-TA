@@ -28,7 +28,8 @@
         <x-slot name="header">
             <div class="flex items-center justify-between">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Konfirmasi Kehadiran {{ $jadwal->jenis_jadwal }}
+                    Konfirmasi Kehadiran
+                    {{ $jadwal->jenis_jadwal === 'ttd_perjanjian_bersama' ? 'Pertemuan Penandatanganan Perjanjian Bersama' : ucfirst($jadwal->jenis_jadwal) }}
                 </h2>
                 <a href="{{ route('konfirmasi.index') }}"
                     class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
@@ -173,8 +174,9 @@
                         {{-- Detail jadwal --}}
                         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                             <div class="px-6 py-4 border-b border-gray-200">
-                                <h3 class="text-lg font-semibold text-gray-900">Detail jadwal
-                                    {{ $jadwal->jenis_jadwal }}</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">Detail Jadwal
+                                    {{ $jadwal->jenis_jadwal === 'ttd_perjanjian_bersama' ? 'Pertemuan Penandatanganan Perjanjian Bersama' : ucfirst($jadwal->jenis_jadwal) }}
+                                </h3>
                             </div>
                             <div class="p-6">
                                 <div class="grid md:grid-cols-2 gap-6">
@@ -281,7 +283,8 @@
                                                 <span class="font-semibold">Siap Dilaksanakan</span>
                                             </div>
                                             <p class="text-green-700 text-sm mt-1">
-                                                Kedua belah pihak telah mengkonfirmasi kehadiran. Mediasi dapat
+                                                Kedua belah pihak telah mengkonfirmasi kehadiran.
+                                                {{ $jadwal->getJenisJadwalLabel() }} dapat
                                                 dilaksanakan sesuai jadwal.
                                             </p>
                                         @endif
@@ -330,7 +333,7 @@
                                                     <div>
                                                         <div class="font-medium text-green-800">✅ Saya akan hadir</div>
                                                         <div class="text-sm text-green-600">Saya akan menghadiri sesi
-                                                            {{ $jadwal->jenis_jadwal }} sesuai jadwal</div>
+                                                            {{ $jadwal->getJenisJadwalLabel() }} sesuai jadwal</div>
                                                     </div>
                                                 </label>
                                                 <label
@@ -459,8 +462,8 @@
                                 <span>Butuh Bantuan?</span>
                             </h4>
                             <div class="space-y-2 text-sm text-blue-700">
-                                <p>📧 <strong>Email:</strong> mediasi@disnaker.bungo.go.id</p>
-                                <p>📱 <strong>Telepon:</strong> (0746) 21234</p>
+                                <p>📧 <strong>Email:</strong> nakertrans@bungokab.go.id</p>
+                                <p>📱 <strong>Telepon:</strong>(0747) 21013</p>
                                 <p>🕒 <strong>Jam Layanan:</strong> Senin - Jumat, 08:00 - 16:00 WIB</p>
                             </div>
                         </div>

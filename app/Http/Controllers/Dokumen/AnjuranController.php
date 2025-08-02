@@ -15,8 +15,12 @@ use App\Notifications\AnjuranPendingApprovalNotification;
 use App\Notifications\AnjuranApprovedNotification;
 use App\Notifications\AnjuranRejectedNotification;
 use App\Notifications\AnjuranPublishedNotification;
+use App\Mail\FinalCaseDocumentsMail;
+use App\Mail\DraftPerjanjianBersamaMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AnjuranController extends Controller
 {
@@ -367,5 +371,151 @@ class AnjuranController extends Controller
                 $user->notify(new AnjuranPublishedNotification($anjuran));
             }
         }
+    }
+
+    /**
+     * Finalize case when anjuran is rejected
+     */
+    public function finalizeCase($id)
+    {
+        $anjuran = Anjuran::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor'])->findOrFail($id);
+        $user = Auth::user();
+
+        // Only mediator can finalize case
+        if ($user->active_role !== 'mediator') {
+            abort(403, 'Hanya mediator yang dapat menyelesaikan kasus');
+        }
+
+        // Check if response is complete
+        if (!$anjuran->isResponseComplete()) {
+            return redirect()->back()->with('error', 'Respon para pihak belum lengkap');
+        }
+
+        try {
+            // Update pengaduan status to selesai
+            $pengaduan = $anjuran->dokumenHI->pengaduan;
+            $pengaduan->update(['status' => 'selesai']);
+
+            // Check if both parties agree (success case)
+            if ($anjuran->isBothPartiesAgree()) {
+                // Send draft perjanjian bersama email
+                $this->sendDraftPerjanjianBersamaEmail($anjuran);
+            } else {
+                // Send final documents for rejected case
+                $this->sendFinalDocumentsToParties($anjuran);
+            }
+
+            // Generate laporan hasil mediasi and buku register perselisihan
+            $this->generateFinalReports($anjuran);
+
+            return redirect()->route('dokumen.anjuran.show', $anjuran->anjuran_id)
+                ->with('success', 'Kasus telah diselesaikan. Dokumen telah dikirim ke para pihak.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send final documents to parties
+     */
+    private function sendFinalDocumentsToParties($anjuran)
+    {
+        // Generate PDF risalah penyelesaian
+        $risalah = $anjuran->dokumenHI->risalah()->where('jenis_risalah', 'penyelesaian')->first();
+
+        if ($risalah) {
+            $risalahPdf = Pdf::loadView('dokumen.pdf.risalah', compact('risalah'));
+            $risalahPdfContent = $risalahPdf->output();
+        }
+
+        // Generate PDF anjuran
+        $anjuranPdf = Pdf::loadView('dokumen.pdf.anjuran', compact('anjuran'));
+        $anjuranPdfContent = $anjuranPdf->output();
+
+        // Send to pelapor
+        if ($anjuran->dokumenHI->pengaduan->pelapor->user->email) {
+            Mail::to($anjuran->dokumenHI->pengaduan->pelapor->user->email)
+                ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $risalahPdfContent ?? null, $anjuranPdfContent));
+        }
+
+        // Send to terlapor
+        if ($anjuran->dokumenHI->pengaduan->terlapor->email) {
+            Mail::to($anjuran->dokumenHI->pengaduan->terlapor->email)
+                ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $risalahPdfContent ?? null, $anjuranPdfContent));
+        }
+    }
+
+    /**
+     * Send draft perjanjian bersama email
+     */
+    private function sendDraftPerjanjianBersamaEmail($anjuran)
+    {
+        // Get perjanjian bersama
+        $perjanjianBersama = $anjuran->dokumenHI->perjanjianBersama->first();
+
+        if (!$perjanjianBersama) {
+            return;
+        }
+
+        // Generate PDF perjanjian bersama
+        $perjanjianPdf = Pdf::loadView('dokumen.pdf.perjanjian-bersama', compact('perjanjianBersama'));
+        $perjanjianPdfContent = $perjanjianPdf->output();
+
+        // Send to pelapor
+        if ($anjuran->dokumenHI->pengaduan->pelapor->user->email) {
+            Mail::to($anjuran->dokumenHI->pengaduan->pelapor->user->email)
+                ->send(new DraftPerjanjianBersamaMail($perjanjianBersama, 'pelapor', $perjanjianPdfContent));
+        }
+
+        // Send to terlapor
+        if ($anjuran->dokumenHI->pengaduan->terlapor->email) {
+            Mail::to($anjuran->dokumenHI->pengaduan->terlapor->email)
+                ->send(new DraftPerjanjianBersamaMail($perjanjianBersama, 'terlapor', $perjanjianPdfContent));
+        }
+    }
+
+    /**
+     * Generate final reports
+     */
+    private function generateFinalReports($anjuran)
+    {
+        $pengaduan = $anjuran->dokumenHI->pengaduan;
+
+        // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga anjuran
+        $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
+        $waktuPenyelesaian = $jadwalMediasiPertama ? now()->diffInDays($jadwalMediasiPertama->tanggal) . ' hari' : '-';
+
+        // Generate laporan hasil mediasi
+        $laporanHasilMediasi = \App\Models\LaporanHasilMediasi::create([
+            'laporan_id' => (string) Str::uuid(),
+            'dokumen_hi_id' => $anjuran->dokumen_hi_id,
+            'tanggal_penerimaan_pengaduan' => $pengaduan->tanggal_laporan,
+            'nama_pekerja' => $anjuran->nama_pekerja,
+            'alamat_pekerja' => $anjuran->alamat_pekerja,
+            'masa_kerja' => $pengaduan->masa_kerja ?? '-',
+            'nama_perusahaan' => $anjuran->nama_perusahaan,
+            'alamat_perusahaan' => $anjuran->alamat_perusahaan,
+            'jenis_usaha' => $anjuran->jenis_usaha,
+            'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
+            'permasalahan' => $pengaduan->perihal,
+            'pendapat_pekerja' => $anjuran->keterangan_pekerja,
+            'pendapat_pengusaha' => $anjuran->keterangan_pengusaha,
+            'upaya_penyelesaian' => 'Mediasi dengan anjuran yang ditolak oleh para pihak',
+        ]);
+
+        // Generate buku register perselisihan
+        $bukuRegister = \App\Models\BukuRegisterPerselisihan::create([
+            'buku_register_perselisihan_id' => (string) Str::uuid(),
+            'dokumen_hi_id' => $anjuran->dokumen_hi_id,
+            'tanggal_pencatatan' => $pengaduan->tanggal_laporan,
+            'pihak_mencatat' => $anjuran->dokumenHI->pengaduan->mediator->nama_mediator,
+            'pihak_pekerja' => $anjuran->nama_pekerja,
+            'pihak_pengusaha' => $anjuran->nama_perusahaan,
+            'perselisihan_phk' => 'ya',
+            'penyelesaian_mediasi' => 'ya',
+            'penyelesaian_anjuran' => 'ya',
+            'tindak_lanjut_phi' => 'ya',
+            'keterangan' => 'Kasus diselesaikan dengan anjuran yang ditolak oleh para pihak',
+        ]);
     }
 }

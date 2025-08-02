@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class Jadwal extends Model
 {
@@ -159,6 +160,71 @@ class Jadwal extends Model
             $this->konfirmasi_terlapor === 'tidak_hadir';
     }
 
+    /**
+     * Cek apakah deadline konfirmasi sudah lewat
+     * Deadline: 1 hari sebelum jadwal pada waktu yang sama
+     */
+    public function isConfirmationDeadlinePassed(): bool
+    {
+        $deadline = $this->getConfirmationDeadline();
+        return now()->isAfter($deadline);
+    }
+
+    /**
+     * Cek apakah jadwal sudah lewat waktu (overdue)
+     */
+    public function isOverdue(): bool
+    {
+        $jadwalDateTime = $this->tanggal->setTimeFrom($this->waktu);
+        return now()->isAfter($jadwalDateTime);
+    }
+
+    /**
+     * Tangani jadwal yang lewat waktu tanpa konfirmasi secara otomatis
+     */
+    public function handleOverdueJadwal(): void
+    {
+        if ($this->isOverdue() && !$this->sudahDikonfirmasiSemua()) {
+            // Update status menjadi dibatalkan jika tidak ada konfirmasi
+            $this->update(['status_jadwal' => 'dibatalkan']);
+
+            // Catat pembatalan otomatis
+            Log::info('🚨 Jadwal dibatalkan otomatis karena tidak ada konfirmasi', [
+                'jadwal_id' => $this->jadwal_id,
+                'tanggal' => $this->tanggal,
+                'waktu' => $this->waktu,
+                'konfirmasi_pelapor' => $this->konfirmasi_pelapor,
+                'konfirmasi_terlapor' => $this->konfirmasi_terlapor
+            ]);
+        }
+    }
+
+    /**
+     * Ambil deadline konfirmasi (1 hari sebelum jadwal pada waktu yang sama)
+     */
+    public function getConfirmationDeadline(): \Carbon\Carbon
+    {
+        // Ambil waktu jadwal dan kurangi 1 hari
+        $jadwalDateTime = $this->tanggal->copy()->setTime(
+            $this->waktu->hour,
+            $this->waktu->minute,
+            $this->waktu->second
+        );
+        return $jadwalDateTime->subDay();
+    }
+
+    /**
+     * Cek apakah deadline konfirmasi mendekati (dalam 24 jam)
+     */
+    public function isConfirmationDeadlineApproaching(): bool
+    {
+        $deadline = $this->getConfirmationDeadline();
+        $jamSampaiDeadline = now()->diffInHours($deadline, false);
+
+        // Return true jika deadline dalam 24 jam ke depan dan belum lewat
+        return $jamSampaiDeadline > 0 && $jamSampaiDeadline <= 24;
+    }
+
     // Method untuk mendapatkan warna badge status
     public function getStatusBadgeClass(): string
     {
@@ -208,13 +274,20 @@ class Jadwal extends Model
         ];
     }
 
-    //Methid untuk mendapatkan pilihan jenis jadwal
+    //Method untuk mendapatkan pilihan jenis jadwal
     public static function getJenisJadwalOptions(): array
     {
         return [
             'klarifikasi' => 'Klarifikasi',
-            'mediasi' => 'Mediasi'
+            'mediasi' => 'Mediasi',
+            'ttd_perjanjian_bersama' => 'Pertemuan Penandatanganan Perjanjian Bersama'
         ];
+    }
+
+    // Method untuk mendapatkan nama user-friendly dari jenis jadwal
+    public function getJenisJadwalLabel(): string
+    {
+        return self::getJenisJadwalOptions()[$this->jenis_jadwal] ?? ucfirst($this->jenis_jadwal);
     }
 
     // Method untuk mendapatkan pilihan konfirmasi

@@ -52,13 +52,14 @@
                         <div class="text-blue-800 text-sm">
                             @if ($jadwal->count() === 1 && $pendingJadwal)
                                 Jadwal yang akan Anda konfirmasi saat ini adalah <span class="font-semibold">Jadwal
-                                    {{ ucfirst($pendingJadwal->jenis_jadwal) }}</span> yang telah ditetapkan oleh
+                                    {{ $pendingJadwal->getJenisJadwalLabel() }}</span>
+                                yang telah ditetapkan oleh
                                 mediator. Silakan klik tombol <span class="font-semibold">Konfirmasi Kehadiran</span>
                                 untuk melanjutkan.
                             @else
                                 Halaman ini digunakan oleh <span class="font-semibold">pelapor</span> dan <span
                                     class="font-semibold">terlapor</span> untuk <span
-                                    class="font-semibold">mengonfirmasi jadwal panggilan klarifikasi atau mediasi</span>
+                                    class="font-semibold">mengonfirmasi jadwal</span>
                                 yang telah ditetapkan oleh mediator. Silakan klik tombol <span
                                     class="font-semibold">Konfirmasi Kehadiran</span> pada jadwal yang tersedia.
                             @endif
@@ -105,9 +106,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h1 class="text-3xl font-bold mb-2">🗓️ Jadwal </h1>
-                            <p class="text-white">Konfirmasi kehadiran Anda untuk panggilan klarifikasi/mediasi yang
-                                telah
-                                dijadwalkan</p>
+                            <p class="text-white">Konfirmasi kehadiran Anda untuk jadwal yang telah dijadwalkan</p>
                         </div>
                         <div class="text-right">
                             <div class="text-2xl font-bold">{{ $jadwal->count() }}</div>
@@ -211,6 +210,81 @@
                     </div>
                 </div>
 
+                {{-- Jadwal yang Perlu Dikonfirmasi Section --}}
+                @php
+                    $jadwalPending = $jadwal->where(
+                        $user->active_role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
+                        'pending',
+                    );
+                @endphp
+
+                @if ($jadwalPending->count() > 0)
+                    <div class="mt-8 bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 px-6 py-5 border-b border-yellow-200">
+                            <h3 class="text-lg font-semibold text-yellow-800">Jadwal yang Perlu Dikonfirmasi</h3>
+                            <p class="text-yellow-700 text-sm mt-1">Silakan konfirmasi kehadiran Anda untuk jadwal
+                                berikut</p>
+                        </div>
+                        <div class="p-6">
+                            @foreach ($jadwalPending as $item)
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center mb-2">
+                                                <span
+                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mr-3">
+                                                    {{ $item->getJenisJadwalLabel() }}
+                                                </span>
+                                                <span class="text-sm text-gray-600">
+                                                    {{ $item->pengaduan->nomor_pengaduan }}
+                                                </span>
+                                            </div>
+                                            <h4 class="text-lg font-semibold text-gray-900 mb-2">
+                                                {{ $item->pengaduan->perihal }}
+                                            </h4>
+                                            <div
+                                                class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+                                                <div>
+                                                    <span class="font-medium">Tanggal:</span>
+                                                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium">Waktu:</span>
+                                                    {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium">Tempat:</span>
+                                                    {{ $item->tempat }}
+                                                </div>
+                                            </div>
+                                            @if ($item->catatan_jadwal)
+                                                <div class="bg-white p-3 rounded border-l-4 border-blue-400 mb-4">
+                                                    <p class="text-sm text-gray-700">
+                                                        <span class="font-medium">Catatan:</span>
+                                                        {{ $item->catatan_jadwal }}
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="ml-4">
+                                            <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Konfirmasi Kehadiran
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Riwayat Jadwal Section --}}
                 <div class="mt-8 bg-white rounded-lg shadow-sm overflow-hidden">
                     <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
@@ -296,7 +370,7 @@
                                                     @endphp
                                                     <span
                                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $jenisClass }}">
-                                                        {{ ucfirst($item->jenis_jadwal) }}
+                                                        {{ $item->getJenisJadwalLabel() }}
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -373,7 +447,7 @@
                         </div>
                         <div>
                             <p class="font-medium mb-2">📞 Butuh Bantuan?</p>
-                            <p>Hubungi: (0746) 21234 atau email: mediasi@disnaker.bungo.go.id</p>
+                            <p>Hubungi: (0747) 21013 atau email: nakertrans@bungokab.go.id</p>
                         </div>
                     </div>
                 </div>

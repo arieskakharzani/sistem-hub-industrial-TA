@@ -15,15 +15,18 @@ class PerjanjianBersamaController extends Controller
     {
         $dokumenHI = DokumenHubunganIndustrial::with(['risalah' => function ($query) {
             $query->where('jenis_risalah', 'penyelesaian');
+        }, 'anjuran' => function ($query) {
+            $query->where('status_approval', 'published');
         }])->findOrFail($dokumen_hi_id);
 
         $risalah = $dokumenHI->risalah->first();
+        $anjuran = $dokumenHI->anjuran->first();
 
-        if (!$risalah) {
-            return redirect()->back()->with('error', 'Data risalah penyelesaian tidak ditemukan.');
+        if (!$risalah && !$anjuran) {
+            return redirect()->back()->with('error', 'Data risalah penyelesaian atau anjuran tidak ditemukan.');
         }
 
-        return view('dokumen.create-perjanjian-bersama', compact('dokumen_hi_id', 'risalah'));
+        return view('dokumen.create-perjanjian-bersama', compact('dokumen_hi_id', 'risalah', 'anjuran'));
     }
 
     public function store(Request $request)
@@ -128,10 +131,13 @@ class PerjanjianBersamaController extends Controller
         // Ubah status pengaduan menjadi 'selesai'
         $pengaduan->update(['status' => 'selesai']);
 
+        // Generate laporan otomatis
+        $this->generateFinalReports($perjanjian);
+
         // Kirim draft perjanjian bersama ke para pihak
         $this->kirimDraftPerjanjianBersama($pengaduan);
 
-        return redirect()->back()->with('success', 'Kasus telah selesai dan draft perjanjian bersama telah dikirim ke para pihak.');
+        return redirect()->back()->with('success', 'Kasus telah selesai, laporan telah dibuat, dan draft perjanjian bersama telah dikirim ke para pihak.');
     }
 
     /**
@@ -191,5 +197,50 @@ class PerjanjianBersamaController extends Controller
             \Log::error('Error mengirim draft Perjanjian Bersama: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
         }
+    }
+
+    /**
+     * Generate final reports untuk perjanjian bersama
+     */
+    private function generateFinalReports($perjanjian)
+    {
+        $pengaduan = $perjanjian->dokumenHI->pengaduan;
+        $anjuran = $perjanjian->dokumenHI->anjuran->first();
+
+        // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga perjanjian bersama
+        $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
+        $waktuPenyelesaian = $jadwalMediasiPertama ? now()->diffInDays($jadwalMediasiPertama->tanggal) . ' hari' : '-';
+
+        // Generate laporan hasil mediasi
+        $laporanHasilMediasi = \App\Models\LaporanHasilMediasi::create([
+            'laporan_id' => (string) \Illuminate\Support\Str::uuid(),
+            'dokumen_hi_id' => $perjanjian->dokumen_hi_id,
+            'tanggal_penerimaan_pengaduan' => $pengaduan->tanggal_laporan,
+            'nama_pekerja' => $perjanjian->nama_pekerja,
+            'alamat_pekerja' => $perjanjian->alamat_pekerja,
+            'masa_kerja' => $pengaduan->masa_kerja ?? '-',
+            'nama_perusahaan' => $perjanjian->perusahaan_pengusaha,
+            'alamat_perusahaan' => $perjanjian->alamat_pengusaha,
+            'jenis_usaha' => $anjuran ? $anjuran->jenis_usaha : '-',
+            'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
+            'permasalahan' => $pengaduan->perihal,
+            'pendapat_pekerja' => $anjuran ? $anjuran->keterangan_pekerja : '-',
+            'pendapat_pengusaha' => $anjuran ? $anjuran->keterangan_pengusaha : '-',
+            'upaya_penyelesaian' => 'Mediasi dengan perjanjian bersama yang disetujui oleh para pihak',
+        ]);
+
+        // Generate buku register perselisihan
+        $bukuRegister = \App\Models\BukuRegisterPerselisihan::create([
+            'buku_register_perselisihan_id' => (string) \Illuminate\Support\Str::uuid(),
+            'dokumen_hi_id' => $perjanjian->dokumen_hi_id,
+            'tanggal_pencatatan' => $pengaduan->tanggal_laporan,
+            'pihak_mencatat' => $pengaduan->mediator->nama_mediator,
+            'pihak_pekerja' => $perjanjian->nama_pekerja,
+            'pihak_pengusaha' => $perjanjian->nama_pengusaha,
+            'perselisihan_phk' => 'ya',
+            'penyelesaian_mediasi' => 'ya',
+            'penyelesaian_pb' => 'ya',
+            'keterangan' => 'Kasus diselesaikan dengan perjanjian bersama yang disetujui oleh para pihak',
+        ]);
     }
 }

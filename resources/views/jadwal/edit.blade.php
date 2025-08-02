@@ -123,6 +123,9 @@
                                     Mediasi</option>
                                 <option value="klarifikasi"
                                     {{ $jadwal->jenis_jadwal == 'klarifikasi' ? 'selected' : '' }}>Klarifikasi</option>
+                                <option value="ttd_perjanjian_bersama"
+                                    {{ $jadwal->jenis_jadwal == 'ttd_perjanjian_bersama' ? 'selected' : '' }}>
+                                    Pertemuan Penandatanganan Perjanjian Bersama</option>
                             </select>
                         </div>
                         <div class="mb-4" id="sidang_ke_field" style="display: none;">

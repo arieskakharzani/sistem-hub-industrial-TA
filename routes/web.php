@@ -147,7 +147,7 @@ Route::middleware(['auth', 'verified'])->prefix('jadwal')->name('jadwal.')->grou
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Routes khusus untuk Pelapor dan Terlapor
-    Route::middleware(['role:pelapor,terlapor'])->group(function () {
+    Route::middleware(['check.role:pelapor,terlapor'])->group(function () {
 
         // Konfirmasi jadwal - menggunakan view di folder Jadwal/
         Route::prefix('konfirmasi')->name('konfirmasi.')->group(function () {
@@ -195,6 +195,7 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     Route::post('/anjuran/{anjuran}/approve', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'approve'])->name('anjuran.approve');
     Route::post('/anjuran/{anjuran}/reject', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'reject'])->name('anjuran.reject');
     Route::post('/anjuran/{anjuran}/publish', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'publish'])->name('anjuran.publish');
+    Route::post('/anjuran/{anjuran}/finalize-case', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'finalizeCase'])->name('anjuran.finalize-case');
 
     // Route khusus untuk pending approval anjuran 
     Route::get('/anjuran/pending-approval', [AnjuranController::class, 'pendingApproval'])->name('anjuran.pending-approval');

@@ -70,7 +70,7 @@ class JadwalController extends Controller
     }
 
     // Halaman form buat jadwal baru
-    public function create(): View
+    public function create(Request $request): View
     {
         $user = Auth::user();
 
@@ -85,19 +85,24 @@ class JadwalController extends Controller
         }
 
         // Ambil pengaduan yang bisa dijadwalkan
-        // Untuk sidang mediasi berikutnya, pengaduan yang sudah pernah dijadwalkan tetap bisa dipilih
+        // Hanya pengaduan milik mediator yang bertanggung jawab dan memiliki anjuran
         $pengaduanList = Pengaduan::with('pelapor')
             ->where('mediator_id', $mediator->mediator_id)
             ->where('status', 'proses')
             ->whereDoesntHave('jadwal', function ($query) {
                 $query->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung']);
             })
-            ->whereDoesntHave('dokumenHI.risalah', function ($query) {
-                $query->where('jenis_risalah', 'penyelesaian');
+            ->whereHas('dokumenHI.anjuran', function ($query) {
+                $query->where('status_approval', 'published');
             })
             ->get();
 
-        return view('jadwal.create', compact('pengaduanList'));
+        // Ambil parameter dari request
+        $selectedPengaduanId = $request->get('pengaduan_id');
+        $selectedJenisJadwal = $request->get('jenis_jadwal');
+        $selectedSidangKe = $request->get('sidang_ke');
+
+        return view('jadwal.create', compact('pengaduanList', 'selectedPengaduanId', 'selectedJenisJadwal', 'selectedSidangKe'));
     }
 
     // Simpan jadwal baru

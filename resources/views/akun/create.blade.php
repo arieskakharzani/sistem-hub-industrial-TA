@@ -33,7 +33,7 @@
                         {{ __('Tambah Akun Terlapor') }}
                         @if (isset($pengaduan))
                             <span class="text-sm text-gray-500 font-normal">- Pengaduan
-                                #{{ $pengaduan->pengaduan_id }}</span>
+                                #{{ $pengaduan->nomor_pengaduan }}</span>
                         @endif
                     </h2>
                     <p class="text-gray-600 text-sm mt-1">

@@ -56,7 +56,8 @@
                                     Nama Pengusaha
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="nama_pengusaha" value="{{ old('nama_pengusaha') }}"
+                                <input type="text" name="nama_pengusaha"
+                                    value="{{ old('nama_pengusaha', $anjuran ? $anjuran->nama_pengusaha : '') }}"
                                     placeholder="Masukkan nama pengusaha" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
@@ -66,7 +67,8 @@
                                     Jabatan Pengusaha
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="jabatan_pengusaha" value="{{ old('jabatan_pengusaha') }}"
+                                <input type="text" name="jabatan_pengusaha"
+                                    value="{{ old('jabatan_pengusaha', $anjuran ? $anjuran->jabatan_pengusaha : '') }}"
                                     placeholder="Masukkan jabatan pengusaha" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
@@ -77,7 +79,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <input type="text" name="perusahaan_pengusaha"
-                                    value="{{ old('perusahaan_pengusaha', $risalah->nama_perusahaan) }}"
+                                    value="{{ old('perusahaan_pengusaha', $anjuran ? $anjuran->perusahaan_pengusaha : ($risalah ? $risalah->nama_perusahaan : '')) }}"
                                     placeholder="Masukkan nama perusahaan" readonly
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 bg-gray-50">
                             </div>
@@ -88,7 +90,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <input type="text" name="alamat_pengusaha"
-                                    value="{{ old('alamat_pengusaha', $risalah->alamat_perusahaan) }}"
+                                    value="{{ old('alamat_pengusaha', $anjuran ? $anjuran->alamat_pengusaha : ($risalah ? $risalah->alamat_perusahaan : '')) }}"
                                     placeholder="Masukkan alamat lengkap" readonly
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 bg-gray-50">
                             </div>
@@ -106,7 +108,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <input type="text" name="nama_pekerja"
-                                    value="{{ old('nama_pekerja', $risalah->nama_pekerja) }}"
+                                    value="{{ old('nama_pekerja', $anjuran ? $anjuran->nama_pekerja : ($risalah ? $risalah->nama_pekerja : '')) }}"
                                     placeholder="Masukkan nama pekerja" readonly
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 bg-gray-50">
                             </div>
@@ -116,7 +118,8 @@
                                     Jabatan Pekerja
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="jabatan_pekerja" value="{{ old('jabatan_pekerja') }}"
+                                <input type="text" name="jabatan_pekerja"
+                                    value="{{ old('jabatan_pekerja', $anjuran ? $anjuran->jabatan_pekerja : '') }}"
                                     placeholder="Masukkan jabatan pekerja" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
@@ -126,7 +129,8 @@
                                     Perusahaan
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="perusahaan_pekerja" value="{{ old('perusahaan_pekerja') }}"
+                                <input type="text" name="perusahaan_pekerja"
+                                    value="{{ old('perusahaan_pekerja', $anjuran ? $anjuran->perusahaan_pekerja : '') }}"
                                     placeholder="Masukkan nama perusahaan" required
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                             </div>
@@ -137,7 +141,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <input type="text" name="alamat_pekerja"
-                                    value="{{ old('alamat_pekerja', $risalah->alamat_pekerja) }}"
+                                    value="{{ old('alamat_pekerja', $anjuran ? $anjuran->alamat_pekerja : ($risalah ? $risalah->alamat_pekerja : '')) }}"
                                     placeholder="Masukkan alamat lengkap" readonly
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 bg-gray-50">
                             </div>
@@ -155,7 +159,7 @@
                             </label>
                             <textarea name="isi_kesepakatan" rows="6" required
                                 placeholder="Tuliskan detail kesepakatan yang telah dicapai antara kedua belah pihak"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('isi_kesepakatan') }}</textarea>
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('isi_kesepakatan', $anjuran ? $anjuran->isi_anjuran : ($risalah ? $risalah->detailPenyelesaian->kesimpulan_penyelesaian : '')) }}</textarea>
                             <p class="text-xs text-gray-500 italic">Mohon jelaskan dengan detail semua poin kesepakatan
                                 yang
                                 telah disetujui</p>

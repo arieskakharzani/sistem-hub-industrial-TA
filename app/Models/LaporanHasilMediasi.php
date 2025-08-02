@@ -18,7 +18,6 @@ class LaporanHasilMediasi extends Model
         'tanggal_penerimaan_pengaduan',
         'nama_pekerja',
         'alamat_pekerja',
-        'upah_terakhir',
         'masa_kerja',
         'nama_perusahaan',
         'alamat_perusahaan',
@@ -27,7 +26,6 @@ class LaporanHasilMediasi extends Model
         'permasalahan',
         'pendapat_pekerja',
         'pendapat_pengusaha',
-        'pendapat_saksi',
         'upaya_penyelesaian',
     ];
 

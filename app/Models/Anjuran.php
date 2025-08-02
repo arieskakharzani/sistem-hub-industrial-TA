@@ -187,4 +187,55 @@ class Anjuran extends Model
 
         $this->save();
     }
+
+    // Helper methods untuk status respon
+    public function isBothPartiesAgree(): bool
+    {
+        return $this->overall_response_status === 'both_agree';
+    }
+
+    public function isBothPartiesDisagree(): bool
+    {
+        return $this->overall_response_status === 'both_disagree';
+    }
+
+    public function isMixedResponse(): bool
+    {
+        return $this->overall_response_status === 'mixed';
+    }
+
+    public function isResponseComplete(): bool
+    {
+        return $this->bothPartiesResponded() && !$this->isResponseDeadlinePassed();
+    }
+
+    public function canCreatePerjanjianBersama(): bool
+    {
+        return $this->isBothPartiesAgree();
+    }
+
+    public function canFinalizeCase(): bool
+    {
+        return $this->isResponseComplete() && ($this->isBothPartiesAgree() || $this->isBothPartiesDisagree());
+    }
+
+    /**
+     * Cek apakah sudah ada jadwal TTD perjanjian bersama untuk anjuran ini
+     */
+    public function hasTtdPerjanjianBersamaSchedule(): bool
+    {
+        return $this->dokumenHI->pengaduan->jadwal()
+            ->where('jenis_jadwal', 'ttd_perjanjian_bersama')
+            ->exists();
+    }
+
+    /**
+     * Ambil jadwal TTD perjanjian bersama untuk anjuran ini
+     */
+    public function getTtdPerjanjianBersamaSchedule()
+    {
+        return $this->dokumenHI->pengaduan->jadwal()
+            ->where('jenis_jadwal', 'ttd_perjanjian_bersama')
+            ->first();
+    }
 }

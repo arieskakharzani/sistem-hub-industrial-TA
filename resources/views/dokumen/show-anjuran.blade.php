@@ -64,6 +64,153 @@
                         </div>
                     @endif
 
+                    <!-- Response Status Section (jika published) -->
+                    @if ($anjuran->status_approval === 'published')
+                        <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-semibold text-gray-900 mb-3">Status Respon Para Pihak</h4>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <!-- Pelapor Response -->
+                                <div class="p-3 bg-white border rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Pelapor</h5>
+                                    @if ($anjuran->hasPelaporResponded())
+                                        <div class="flex items-center">
+                                            @if ($anjuran->response_pelapor === 'setuju')
+                                                <span
+                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Setuju
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Tidak Setuju
+                                                </span>
+                                            @endif
+                                            <span class="text-xs text-gray-500 ml-2">
+                                                {{ $anjuran->response_at_pelapor ? $anjuran->response_at_pelapor->format('d/m/Y H:i') : '' }}
+                                            </span>
+                                        </div>
+                                        @if ($anjuran->response_note_pelapor)
+                                            <p class="text-sm text-gray-600 mt-1">{{ $anjuran->response_note_pelapor }}
+                                            </p>
+                                        @endif
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                            Menunggu Respon
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <!-- Terlapor Response -->
+                                <div class="p-3 bg-white border rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Terlapor</h5>
+                                    @if ($anjuran->hasTerlaporResponded())
+                                        <div class="flex items-center">
+                                            @if ($anjuran->response_terlapor === 'setuju')
+                                                <span
+                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Setuju
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Tidak Setuju
+                                                </span>
+                                            @endif
+                                            <span class="text-xs text-gray-500 ml-2">
+                                                {{ $anjuran->response_at_terlapor ? $anjuran->response_at_terlapor->format('d/m/Y H:i') : '' }}
+                                            </span>
+                                        </div>
+                                        @if ($anjuran->response_note_terlapor)
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                {{ $anjuran->response_note_terlapor }}</p>
+                                        @endif
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                            Menunggu Respon
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Overall Status -->
+                            @if ($anjuran->isResponseComplete())
+                                <div class="mt-4 p-3 border rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Status Keseluruhan</h5>
+                                    @if ($anjuran->isBothPartiesAgree())
+                                        <div class="flex items-center">
+                                            <span
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                                Kedua Pihak Setuju
+                                            </span>
+                                        </div>
+                                    @elseif ($anjuran->isBothPartiesDisagree())
+                                        <div class="flex items-center">
+                                            <span
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                                Kedua Pihak Tidak Setuju
+                                            </span>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center">
+                                            <span
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                                Respon Berbeda
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     <!-- Action Buttons -->
                     <div class="space-y-3">
                         @if (auth()->user()->active_role === 'mediator' && $anjuran->status_approval === 'draft')
@@ -71,7 +218,8 @@
                                 class="inline">
                                 @csrf
                                 <x-primary-button type="submit" class="bg-blue-500 hover:bg-blue-600">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                     </svg>
@@ -81,11 +229,12 @@
                         @endif
 
                         @if (auth()->user()->active_role === 'mediator' && $anjuran->status_approval === 'approved')
-                            <form action="{{ route('dokumen.anjuran.publish', $anjuran->anjuran_id) }}" method="POST"
-                                class="inline">
+                            <form action="{{ route('dokumen.anjuran.publish', $anjuran->anjuran_id) }}"
+                                method="POST" class="inline">
                                 @csrf
                                 <x-primary-button type="submit" class="bg-green-500 hover:bg-green-600">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                     </svg>
@@ -131,6 +280,130 @@
                                         Tolak Anjuran
                                     </x-danger-button>
                                 </form>
+                            </div>
+                        @endif
+
+                        <!-- Action Buttons untuk Mediator berdasarkan Response Status -->
+                        @if (auth()->user()->active_role === 'mediator' &&
+                                $anjuran->status_approval === 'published' &&
+                                $anjuran->isResponseComplete())
+                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <h4 class="font-semibold text-blue-900 mb-3">Aksi Berdasarkan Respon Para Pihak</h4>
+
+                                @if ($anjuran->isBothPartiesAgree())
+                                    <!-- Jika kedua pihak setuju -->
+                                    <div class="space-y-3">
+                                        <p class="text-blue-800">Kedua pihak telah menyetujui anjuran. Anda dapat:</p>
+                                        @if ($anjuran->hasTtdPerjanjianBersamaSchedule())
+                                            <!-- Jika jadwal sudah ada, tampilkan link lihat jadwal -->
+                                            @php
+                                                $jadwalTtd = $anjuran->getTtdPerjanjianBersamaSchedule();
+                                            @endphp
+                                            <a href="{{ route('jadwal.show', $jadwalTtd->jadwal_id) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow font-semibold transition">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                                Lihat Jadwal TTD Perjanjian Bersama
+                                            </a>
+                                        @else
+                                            <!-- Jika jadwal belum ada, tampilkan button buat jadwal -->
+                                            <a href="{{ route('jadwal.create', ['pengaduan_id' => $anjuran->dokumenHI->pengaduan->pengaduan_id, 'jenis_jadwal' => 'ttd_perjanjian_bersama']) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                    </path>
+                                                </svg>
+                                                Buat Jadwal TTD Perjanjian Bersama
+                                            </a>
+                                        @endif
+                                    </div>
+                                @elseif ($anjuran->isBothPartiesDisagree())
+                                    <!-- Jika kedua pihak tidak setuju -->
+                                    <div class="space-y-3">
+                                        <p class="text-red-800">Kedua pihak telah menolak anjuran. Anda dapat:</p>
+                                        <form
+                                            action="{{ route('dokumen.anjuran.finalize-case', $anjuran->anjuran_id) }}"
+                                            method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded shadow font-semibold transition">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Selesaikan Kasus
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <!-- Jika respon berbeda -->
+                                    <div class="space-y-3">
+                                        <p class="text-yellow-800">Para pihak memberikan respon yang berbeda. Anda
+                                            dapat:</p>
+                                        <div class="flex space-x-3">
+                                            @if ($anjuran->hasTtdPerjanjianBersamaSchedule())
+                                                <!-- Jika jadwal sudah ada, tampilkan link lihat jadwal -->
+                                                @php
+                                                    $jadwalTtd = $anjuran->getTtdPerjanjianBersamaSchedule();
+                                                @endphp
+                                                <a href="{{ route('jadwal.show', $jadwalTtd->jadwal_id) }}"
+                                                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow font-semibold transition">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+                                                        </path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                        </path>
+                                                    </svg>
+                                                    Lihat Jadwal TTD Perjanjian Bersama
+                                                </a>
+                                            @else
+                                                <!-- Jika jadwal belum ada, tampilkan button buat jadwal -->
+                                                <a href="{{ route('jadwal.create', ['pengaduan_id' => $anjuran->dokumenHI->pengaduan->pengaduan_id, 'jenis_jadwal' => 'ttd_perjanjian_bersama']) }}"
+                                                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                    Buat Jadwal TTD Perjanjian Bersama
+                                                </a>
+                                            @endif
+                                            <form
+                                                action="{{ route('dokumen.anjuran.finalize-case', $anjuran->anjuran_id) }}"
+                                                method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded shadow font-semibold transition">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    Selesaikan Kasus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @endif
                     </div>

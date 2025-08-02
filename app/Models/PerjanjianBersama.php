@@ -47,4 +47,9 @@ class PerjanjianBersama extends Model
     {
         return $this->belongsTo(DokumenHubunganIndustrial::class, 'dokumen_hi_id', 'dokumen_hi_id');
     }
+
+    public function anjuran()
+    {
+        return $this->dokumenHI->anjuran()->where('status_approval', 'published')->first();
+    }
 }

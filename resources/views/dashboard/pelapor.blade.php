@@ -272,6 +272,126 @@
                                     </div> --}}
                                 </div>
                             </div>
+
+                            <!-- Jadwal Section untuk Pengaduan Aktif -->
+                            @if ($jadwal->count() > 0)
+                                <div class="p-8 border-t border-gray-200">
+                                    <h4 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                                        <span>🗓️</span>
+                                        <span>Jadwal yang sedang Berjalan</span>
+                                        @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
+                                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                                {{ $jadwal->where('konfirmasi_pelapor', 'pending')->count() }}
+                                                menunggu konfirmasi
+                                            </span>
+                                        @endif
+                                    </h4>
+
+                                    <div class="space-y-4">
+                                        @foreach ($jadwal->take(3) as $item)
+                                            <div
+                                                class="border border-gray-200 rounded-lg p-4 {{ $item->konfirmasi_pelapor === 'pending' ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50' }}">
+                                                <div class="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <h5 class="font-semibold text-gray-800">
+                                                            {{ ucfirst($item->getJenisJadwalLabel()) }} -
+                                                            {{ $item->pengaduan->perihal }}
+                                                        </h5>
+                                                        <p class="text-sm text-gray-600 mb-1">
+                                                            Terlapor: {{ $item->pengaduan->nama_terlapor ?? '-' }}
+                                                        </p>
+                                                        <p class="text-sm text-gray-600 mb-2">
+                                                            Mediator: {{ $item->mediator->nama_mediator ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                    <span
+                                                        class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                                    </span>
+                                                </div>
+
+                                                <div class="grid md:grid-cols-3 gap-4 mb-3">
+                                                    <div>
+                                                        <p class="text-xs text-gray-500">Tanggal & Waktu</p>
+                                                        <p class="text-sm font-medium">
+                                                            {{ $item->tanggal->format('d M Y') }}<br>
+                                                            {{ $item->waktu->format('H:i') }} WIB
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-xs text-gray-500">Tempat</p>
+                                                        <p class="text-sm font-medium">{{ $item->tempat }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-xs text-gray-500">Status Jadwal</p>
+                                                        <span
+                                                            class="text-xs px-2 py-1 rounded-full {{ $item->getStatusBadgeClass() }}">
+                                                            {{ ucfirst($item->status_jadwal) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex justify-between items-center">
+                                                    <div class="flex items-center gap-4 text-sm">
+                                                        <div>
+                                                            <span class="text-gray-500">Pelapor:</span>
+                                                            <span
+                                                                class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                                {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Terlapor:</span>
+                                                            <span
+                                                                class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
+                                                                {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_terlapor)) }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    @if ($item->konfirmasi_pelapor === 'pending')
+                                                        <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                            class="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors">
+                                                            <span>✓</span>
+                                                            <span>Konfirmasi Kehadiran
+                                                                {{ ucfirst($item->getJenisJadwalLabel()) }}</span>
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                            class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                                            <span>Lihat Detail</span>
+                                                        </a>
+                                                    @endif
+                                                </div>
+
+                                                @if ($item->konfirmasi_pelapor === 'tidak_hadir' && $item->catatan_konfirmasi_pelapor)
+                                                    <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                        <p class="text-xs text-red-600 font-medium">Catatan Anda:</p>
+                                                        <p class="text-sm text-red-700">
+                                                            {{ $item->catatan_konfirmasi_pelapor }}</p>
+                                                    </div>
+                                                @elseif($item->konfirmasi_pelapor === 'hadir' && $item->catatan_konfirmasi_pelapor)
+                                                    <div
+                                                        class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                        <p class="text-xs text-green-600 font-medium">Catatan Anda:</p>
+                                                        <p class="text-sm text-green-700">
+                                                            {{ $item->catatan_konfirmasi_pelapor }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+
+                                        @if ($jadwal->count() > 3)
+                                            <div class="text-center">
+                                                <a href="{{ route('konfirmasi.index') }}"
+                                                    class="text-primary hover:text-primary-dark font-medium">
+                                                    Lihat semua jadwal ({{ $jadwal->count() }} total)
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @else
                         <!-- Empty State - Belum Ada Pengaduan Aktif -->
@@ -352,46 +472,122 @@
 
                         <!-- Jadwal Section (jika ada) -->
                         @if ($jadwal->count() > 0)
-                            <div class="mb-6">
-                                <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                                <h4 class="text-lg font-semibold mb-4 flex items-center gap-2">
                                     <span>🗓️</span>
                                     <span>Jadwal</span>
-                                </h5>
-                                @foreach ($jadwal->take(3) as $item)
-                                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-3">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <div>
-                                                <p class="font-semibold text-blue-800">
-                                                    {{ $item->tanggal->format('d F Y') }} -
-                                                    {{ $item->waktu->format('H:i') }} WIB
-                                                </p>
-                                                <p class="text-sm text-blue-600">{{ $item->tempat }}
-                                                </p>
-                                                <p class="text-xs text-blue-700 mt-1">Jenis Jadwal:
-                                                    <span class="font-bold">{{ ucfirst($item->jenis_jadwal) }}</span>
-                                                </p>
+                                    @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
+                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                            {{ $jadwal->where('konfirmasi_pelapor', 'pending')->count() }}
+                                            menunggu
+                                        </span>
+                                    @endif
+                                </h4>
+
+                                <div class="space-y-4">
+                                    @foreach ($jadwal->take(5) as $item)
+                                        <div
+                                            class="border border-gray-200 rounded-lg p-4 {{ $item->konfirmasi_pelapor === 'pending' ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50' }}">
+                                            <div class="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-800">
+                                                        Jadwal - {{ $item->pengaduan->perihal }}
+                                                    </h5>
+                                                    <p class="text-sm text-gray-600 mb-1">
+                                                        Terlapor: {{ $item->pengaduan->nama_terlapor ?? '-' }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 mb-2">
+                                                        Mediator: {{ $item->mediator->nama_mediator ?? '-' }}
+                                                    </p>
+                                                    <p class="text-xs text-purple-700 mt-1">Jenis Jadwal: <span
+                                                            class="font-bold">{{ ucfirst($item->getJenisJadwalLabel()) }}</span>
+                                                    </p>
+                                                </div>
+                                                <span
+                                                    class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                    {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                                </span>
                                             </div>
-                                            <span
-                                                class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
-                                                {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
-                                            </span>
+
+                                            <div class="grid md:grid-cols-3 gap-4 mb-3">
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Tanggal & Waktu</p>
+                                                    <p class="text-sm font-medium">
+                                                        {{ $item->tanggal->format('d M Y') }}<br>
+                                                        {{ $item->waktu->format('H:i') }} WIB
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Tempat</p>
+                                                    <p class="text-sm font-medium">{{ $item->tempat }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Status Jadwal</p>
+                                                    <span
+                                                        class="text-xs px-2 py-1 rounded-full {{ $item->getStatusBadgeClass() }}">
+                                                        {{ ucfirst($item->status_jadwal) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center gap-4 text-sm">
+                                                    <div>
+                                                        <span class="text-gray-500">Pelapor:</span>
+                                                        <span
+                                                            class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                            {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-gray-500">Terlapor:</span>
+                                                        <span
+                                                            class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
+                                                            {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_terlapor)) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                @if ($item->konfirmasi_pelapor === 'pending')
+                                                    <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                        class="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors">
+                                                        <span>✓</span>
+                                                        <span>Konfirmasi Kehadiran
+                                                            {{ ucfirst($item->getJenisJadwalLabel()) }}</span>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                        class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                                        <span>Lihat Detail</span>
+                                                    </a>
+                                                @endif
+                                            </div>
+
+                                            @if ($item->konfirmasi_pelapor === 'tidak_hadir' && $item->catatan_konfirmasi_pelapor)
+                                                <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                    <p class="text-xs text-red-600 font-medium">Catatan Anda:</p>
+                                                    <p class="text-sm text-red-700">
+                                                        {{ $item->catatan_konfirmasi_pelapor }}</p>
+                                                </div>
+                                            @elseif($item->konfirmasi_pelapor === 'hadir' && $item->catatan_konfirmasi_pelapor)
+                                                <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                    <p class="text-xs text-green-600 font-medium">Catatan Anda:</p>
+                                                    <p class="text-sm text-green-700">
+                                                        {{ $item->catatan_konfirmasi_pelapor }}</p>
+                                                </div>
+                                            @endif
                                         </div>
-                                        @if ($item->konfirmasi_pelapor === 'pending')
-                                            <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
-                                                class="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-700 transition-colors">
-                                                <span>✓</span>
-                                                <span>Konfirmasi Kehadiran
-                                                    {{ ucfirst($item->jenis_jadwal) }}</span>
+                                    @endforeach
+
+                                    @if ($jadwal->count() > 5)
+                                        <div class="text-center">
+                                            <a href="{{ route('konfirmasi.index') }}"
+                                                class="text-primary hover:text-primary-dark font-medium">
+                                                Lihat semua jadwal ({{ $jadwal->count() }} total)
                                             </a>
-                                        @endif
-                                    </div>
-                                @endforeach
-                                @if ($jadwal->count() > 3)
-                                    <a href="{{ route('konfirmasi.index') }}"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        Lihat semua jadwal ({{ $jadwal->count() }} total)
-                                    </a>
-                                @endif
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         @endif
 
@@ -504,11 +700,11 @@
                             <div class="space-y-2 text-sm">
                                 <div class="flex items-center gap-2 text-blue-700">
                                     <span>📧</span>
-                                    <span>Email: mediasi@disnaker.bungo.go.id</span>
+                                    <span>Email: nakertrans@bungokab.go.id </span>
                                 </div>
                                 <div class="flex items-center gap-2 text-blue-700">
                                     <span>📱</span>
-                                    <span>Telepon: (0746) 21234</span>
+                                    <span>Telepon: (0747) 21013</span>
                                 </div>
                                 <div class="flex items-center gap-2 text-blue-700">
                                     <span>🕒</span>
@@ -529,7 +725,7 @@
                     <h3 class="text-lg font-semibold text-gray-800">Statistik Saya</h3>
                 </div>
                 <div class="p-6">
-                    <div class="grid grid-cols-2 gap-4 mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                         <div
                             class="text-center p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                             <div class="text-3xl font-bold text-primary mb-1">{{ $stats['total_pengaduan'] }}
@@ -583,26 +779,6 @@
                             </div>
                         </a>
 
-                        @if ($jadwal->count() > 0)
-                            <a href="{{ route('konfirmasi.index') }}"
-                                class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 transform hover:translate-x-1 transition-all duration-300">
-                                <div
-                                    class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white">
-                                    🗓️
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium text-gray-800">Jadwal</div>
-                                    <div class="text-xs text-gray-600">Konfirmasi kehadiran</div>
-                                </div>
-                                @if ($stats['jadwal_menunggu_konfirmasi'] > 0)
-                                    <div
-                                        class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                        {{ $stats['jadwal_menunggu_konfirmasi'] }}
-                                    </div>
-                                @endif
-                            </a>
-                        @endif
-
                         <a href="{{ route('konfirmasi.index') }}"
                             class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transform hover:translate-x-1 transition-all duration-300">
                             <div
@@ -613,6 +789,12 @@
                                 <div class="text-sm font-medium text-gray-800">Jadwal Saya</div>
                                 <div class="text-xs text-gray-600">Konfirmasi kehadiran & riwayat jadwal</div>
                             </div>
+                            @if ($stats['jadwal_menunggu_konfirmasi'] > 0)
+                                <div
+                                    class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                    {{ $stats['jadwal_menunggu_konfirmasi'] }}
+                                </div>
+                            @endif
                         </a>
 
                         <a href="{{ route('anjuran-response.index-pelapor') }}"
@@ -650,7 +832,7 @@
                         </div>
                         <div class="flex-1">
                             <div class="text-sm font-medium text-gray-800">Hubungi Call Center</div>
-                            <div class="text-xs text-gray-600">(0746) 21234</div>
+                            <div class="text-xs text-gray-600">(0747) 21013</div>
                         </div>
                     </a>
 
@@ -662,19 +844,7 @@
                         </div>
                         <div class="flex-1">
                             <div class="text-sm font-medium text-gray-800">Email Support</div>
-                            <div class="text-xs text-gray-600">mediasi@disnaker.bungo.go.id</div>
-                        </div>
-                    </a>
-
-                    <a href="#"
-                        class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
-                            ❓
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-medium text-gray-800">FAQ & Panduan</div>
-                            <div class="text-xs text-gray-600">Pertanyaan umum</div>
+                            <div class="text-xs text-gray-600">nakertrans@bungokab.go.id</div>
                         </div>
                     </a>
                 </div>

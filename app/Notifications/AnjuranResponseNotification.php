@@ -46,12 +46,14 @@ class AnjuranResponseNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Respon Anjuran dari ' . $roleLabel)
-            ->greeting('Halo ' . $notifiable->name . '!')
-            ->line('Anda menerima respon anjuran dari ' . $roleLabel . '.')
-            ->line('Nomor Anjuran: ' . ($this->anjuran->nomor_anjuran ?? 'A-' . $this->anjuran->anjuran_id))
-            ->line('Respon: ' . $responseLabel)
-            ->action('Lihat Detail', route('dokumen.anjuran.show', $this->anjuran->anjuran_id))
-            ->line('Terima kasih telah menggunakan sistem SIPPPHI.');
+            ->view('emails.anjuran-response', [
+                'anjuran' => $this->anjuran,
+                'user' => $notifiable,
+                'userRole' => $this->userRole,
+                'roleLabel' => $roleLabel,
+                'response' => $this->response,
+                'responseLabel' => $responseLabel
+            ]);
     }
 
     /**

@@ -110,10 +110,17 @@
                                         <!-- Action Buttons -->
                                         <div class="mt-3 flex space-x-3">
                                             @if ($notification->data['jadwal_id'] ?? false)
-                                                <a href="{{ route('jadwal.show', $notification->data['jadwal_id']) }}"
-                                                    class="text-sm text-blue-600 hover:text-blue-800">
-                                                    Lihat Jadwal
-                                                </a>
+                                                @if (auth()->user()->active_role === 'mediator')
+                                                    <a href="{{ route('jadwal.show', $notification->data['jadwal_id']) }}"
+                                                        class="text-sm text-blue-600 hover:text-blue-800">
+                                                        Lihat Jadwal
+                                                    </a>
+                                                @elseif (in_array(auth()->user()->active_role, ['pelapor', 'terlapor']))
+                                                    <a href="{{ route('konfirmasi.show', $notification->data['jadwal_id']) }}"
+                                                        class="text-sm text-blue-600 hover:text-blue-800">
+                                                        Konfirmasi Jadwal
+                                                    </a>
+                                                @endif
                                             @endif
 
                                             @unless ($notification->read_at)
