@@ -156,7 +156,7 @@
             <!-- Main Content Grid -->
             <div class="grid lg:grid-cols-3 gap-8">
                 <!-- Main Content Section - Takes 2 columns -->
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 space-y-6">
 
                     @if ($activePengaduan)
                         <!-- Status Pengaduan Aktif -->
@@ -385,18 +385,115 @@
                                             <div class="text-center">
                                                 <a href="{{ route('konfirmasi.index') }}"
                                                     class="text-primary hover:text-primary-dark font-medium">
-                                                    Lihat semua jadwal ({{ $jadwal->count() }} total)
+                                                    Lihat semua jadwal
+                                                    ({{ $jadwal->count() }} total)
                                                 </a>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             @endif
+
+                            <!-- Next Steps -->
+                            <div class="space-y-4">
+                                <h5 class="text-lg font-semibold text-gray-800">Langkah Selanjutnya</h5>
+
+                                @if ($latestPengaduan->status == 'pending')
+                                    <div
+                                        class="flex items-start gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-yellow-200 rounded-full flex items-center justify-center text-yellow-700 font-bold text-sm flex-shrink-0">
+                                            ⏳</div>
+                                        <div>
+                                            <h6 class="font-semibold text-yellow-800 mb-1">Menunggu Review
+                                            </h6>
+                                            <p class="text-yellow-700 text-sm">Pengaduan Anda sedang direview
+                                                oleh
+                                                mediator. Harap menunggu konfirmasi selanjutnya.</p>
+                                        </div>
+                                    </div>
+                                @elseif($latestPengaduan->status == 'proses')
+                                    <div
+                                        class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
+                                            ✅</div>
+                                        <div>
+                                            <h6 class="font-semibold text-green-800 mb-1">Pengaduan Diterima
+                                            </h6>
+                                            <p class="text-green-700 text-sm">Pengaduan Anda sudah direview
+                                                dan
+                                                disetujui untuk proses mediasi.</p>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="flex items-start gap-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">
+                                            📅</div>
+                                        <div>
+                                            <h6 class="font-semibold text-blue-800 mb-1">Proses Mediasi
+                                                Berlangsung
+                                            </h6>
+                                            <p class="text-blue-700 text-sm">Mediasi sedang berlangsung.
+                                                @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
+                                                    Pastikan Anda telah mengkonfirmasi kehadiran untuk
+                                                    jadwal
+                                                    mediasi.
+                                                @else
+                                                    Harap menunggu hasil dari sesi mediasi.
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif($latestPengaduan->status == 'selesai')
+                                    <div
+                                        class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
+                                            🎉</div>
+                                        <div>
+                                            <h6 class="font-semibold text-green-800 mb-1">Mediasi Selesai
+                                            </h6>
+                                            <p class="text-green-700 text-sm">Proses mediasi telah selesai.
+                                                Lihat
+                                                detail pengaduan untuk hasil mediasi.</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Contact Info untuk Follow Up -->
+                            <div class="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+                                <h6 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                    <span>📞</span>
+                                    <span>Butuh Bantuan?</span>
+                                </h6>
+                                <p class="text-blue-700 text-sm mb-3">
+                                    Jika Anda memiliki pertanyaan atau memerlukan informasi lebih lanjut
+                                    tentang
+                                    status pengaduan, silakan hubungi:
+                                </p>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-center gap-2 text-blue-700">
+                                        <span>📧</span>
+                                        <span>Email: nakertrans@bungokab.go.id </span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-blue-700">
+                                        <span>📱</span>
+                                        <span>Telepon: (0747) 21013</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-blue-700">
+                                        <span>🕒</span>
+                                        <span>Jam Layanan: Senin - Jumat, 08:00 - 16:00 WIB</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     @else
-                        <!-- Empty State - Belum Ada Pengaduan Aktif -->
+                        <!-- No Active Pengaduan -->
                         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                            <!-- Empty State Illustration -->
                             <div class="text-center py-16 px-8 bg-gradient-to-br from-blue-50 to-indigo-50">
                                 <div class="text-8xl mb-6 opacity-70">📋</div>
                                 <h3 class="text-2xl font-semibold text-gray-800 mb-4">Belum Ada Pengaduan Aktif
@@ -468,477 +565,308 @@
                                 </div>
                             </div>
                         </div>
+                    @endif
 
+                    <!-- Jadwal Section (jika ada jadwal aktif) -->
+                    @if ($jadwal->where('status_jadwal', 'dijadwalkan')->count() > 0)
+                        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                            <h4 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>🗓️</span>
+                                <span>Jadwal</span>
+                                @if ($jadwal->where('status_jadwal', 'dijadwalkan')->where('konfirmasi_pelapor', 'pending')->count() > 0)
+                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                        {{ $jadwal->where('status_jadwal', 'dijadwalkan')->where('konfirmasi_pelapor', 'pending')->count() }}
+                                        menunggu
+                                    </span>
+                                @endif
+                            </h4>
 
-                        <!-- Jadwal Section (jika ada jadwal aktif) -->
-                        @if ($jadwal->where('status_jadwal', 'dijadwalkan')->count() > 0)
-                            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                                <h4 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                                    <span>🗓️</span>
-                                    <span>Jadwal</span>
-                                    @if ($jadwal->where('status_jadwal', 'dijadwalkan')->where('konfirmasi_pelapor', 'pending')->count() > 0)
-                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                                            {{ $jadwal->where('status_jadwal', 'dijadwalkan')->where('konfirmasi_pelapor', 'pending')->count() }}
-                                            menunggu
-                                        </span>
-                                    @endif
-                                </h4>
+                            <div class="space-y-4">
+                                @foreach ($jadwal->where('status_jadwal', 'dijadwalkan')->take(5) as $item)
+                                    <div
+                                        class="border border-gray-200 rounded-lg p-4 {{ $item->konfirmasi_pelapor === 'pending' ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50' }}">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">
+                                                    Jadwal - {{ $item->pengaduan->perihal }}
+                                                </h5>
+                                                <p class="text-sm text-gray-600 mb-1">
+                                                    Terlapor: {{ $item->pengaduan->nama_terlapor ?? '-' }}
+                                                </p>
+                                                <p class="text-sm text-gray-600 mb-2">
+                                                    Mediator: {{ $item->mediator->nama_mediator ?? '-' }}
+                                                </p>
+                                                <p class="text-xs text-purple-700 mt-1">Jenis Jadwal: <span
+                                                        class="font-bold">{{ ucfirst($item->getJenisJadwalLabel()) }}</span>
+                                                </p>
+                                            </div>
+                                            <span
+                                                class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                            </span>
+                                        </div>
 
-                                <div class="space-y-4">
-                                    @foreach ($jadwal->where('status_jadwal', 'dijadwalkan')->take(5) as $item)
-                                        <div
-                                            class="border border-gray-200 rounded-lg p-4 {{ $item->konfirmasi_pelapor === 'pending' ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50' }}">
-                                            <div class="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <h5 class="font-semibold text-gray-800">
-                                                        Jadwal - {{ $item->pengaduan->perihal }}
-                                                    </h5>
-                                                    <p class="text-sm text-gray-600 mb-1">
-                                                        Terlapor: {{ $item->pengaduan->nama_terlapor ?? '-' }}
-                                                    </p>
-                                                    <p class="text-sm text-gray-600 mb-2">
-                                                        Mediator: {{ $item->mediator->nama_mediator ?? '-' }}
-                                                    </p>
-                                                    <p class="text-xs text-purple-700 mt-1">Jenis Jadwal: <span
-                                                            class="font-bold">{{ ucfirst($item->getJenisJadwalLabel()) }}</span>
-                                                    </p>
-                                                </div>
+                                        <div class="grid md:grid-cols-3 gap-4 mb-3">
+                                            <div>
+                                                <p class="text-xs text-gray-500">Tanggal & Waktu</p>
+                                                <p class="text-sm font-medium">
+                                                    {{ $item->tanggal->format('d M Y') }}<br>
+                                                    {{ $item->waktu->format('H:i') }} WIB
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500">Tempat</p>
+                                                <p class="text-sm font-medium">{{ $item->tempat }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500">Status Jadwal</p>
                                                 <span
-                                                    class="text-xs px-2 py-1 rounded-full {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
-                                                    {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                                    class="text-xs px-2 py-1 rounded-full {{ $item->getStatusBadgeClass() }}">
+                                                    {{ ucfirst($item->status_jadwal) }}
                                                 </span>
                                             </div>
+                                        </div>
 
-                                            <div class="grid md:grid-cols-3 gap-4 mb-3">
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex items-center gap-4 text-sm">
                                                 <div>
-                                                    <p class="text-xs text-gray-500">Tanggal & Waktu</p>
-                                                    <p class="text-sm font-medium">
-                                                        {{ $item->tanggal->format('d M Y') }}<br>
-                                                        {{ $item->waktu->format('H:i') }} WIB
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-xs text-gray-500">Tempat</p>
-                                                    <p class="text-sm font-medium">{{ $item->tempat }}</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-xs text-gray-500">Status Jadwal</p>
+                                                    <span class="text-gray-500">Pelapor:</span>
                                                     <span
-                                                        class="text-xs px-2 py-1 rounded-full {{ $item->getStatusBadgeClass() }}">
-                                                        {{ ucfirst($item->status_jadwal) }}
+                                                        class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">Terlapor:</span>
+                                                    <span
+                                                        class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_terlapor)) }}
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div class="flex justify-between items-center">
-                                                <div class="flex items-center gap-4 text-sm">
-                                                    <div>
-                                                        <span class="text-gray-500">Pelapor:</span>
-                                                        <span
-                                                            class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('pelapor') }}">
-                                                            {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_pelapor)) }}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="text-gray-500">Terlapor:</span>
-                                                        <span
-                                                            class="ml-1 px-2 py-1 rounded-full text-xs {{ $item->getKonfirmasiBadgeClass('terlapor') }}">
-                                                            {{ ucfirst(str_replace('_', ' ', $item->konfirmasi_terlapor)) }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                @if ($item->konfirmasi_pelapor === 'pending')
-                                                    <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
-                                                        class="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors">
-                                                        <span>✓</span>
-                                                        <span>Konfirmasi Kehadiran
-                                                            {{ ucfirst($item->getJenisJadwalLabel()) }}</span>
-                                                    </a>
-                                                @else
-                                                    <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
-                                                        class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors">
-                                                        <span>Lihat Detail</span>
-                                                    </a>
-                                                @endif
-                                            </div>
-
-                                            @if ($item->konfirmasi_pelapor === 'tidak_hadir' && $item->catatan_konfirmasi_pelapor)
-                                                <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                    <p class="text-xs text-red-600 font-medium">Catatan Anda:</p>
-                                                    <p class="text-sm text-red-700">
-                                                        {{ $item->catatan_konfirmasi_pelapor }}</p>
-                                                </div>
-                                            @elseif($item->konfirmasi_pelapor === 'hadir' && $item->catatan_konfirmasi_pelapor)
-                                                <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                                    <p class="text-xs text-green-600 font-medium">Catatan Anda:</p>
-                                                    <p class="text-sm text-green-700">
-                                                        {{ $item->catatan_konfirmasi_pelapor }}</p>
-                                                </div>
+                                            @if ($item->konfirmasi_pelapor === 'pending')
+                                                <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                    class="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors">
+                                                    <span>✓</span>
+                                                    <span>Konfirmasi Kehadiran
+                                                        {{ ucfirst($item->getJenisJadwalLabel()) }}</span>
+                                                </a>
+                                            @else
+                                                <a href="{{ route('konfirmasi.show', $item->jadwal_id) }}"
+                                                    class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                                    <span>Lihat Detail</span>
+                                                </a>
                                             @endif
                                         </div>
-                                    @endforeach
 
-                                    @if ($jadwal->where('status_jadwal', 'dijadwalkan')->count() > 5)
-                                        <div class="text-center">
-                                            <a href="{{ route('konfirmasi.index') }}"
-                                                class="text-primary hover:text-primary-dark font-medium">
-                                                Lihat semua jadwal
-                                                ({{ $jadwal->where('status_jadwal', 'dijadwalkan')->count() }} total)
-                                            </a>
+                                        @if ($item->konfirmasi_pelapor === 'tidak_hadir' && $item->catatan_konfirmasi_pelapor)
+                                            <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                <p class="text-xs text-red-600 font-medium">Catatan Anda:</p>
+                                                <p class="text-sm text-red-700">
+                                                    {{ $item->catatan_konfirmasi_pelapor }}</p>
+                                            </div>
+                                        @elseif($item->konfirmasi_pelapor === 'hadir' && $item->catatan_konfirmasi_pelapor)
+                                            <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                <p class="text-xs text-green-600 font-medium">Catatan Anda:</p>
+                                                <p class="text-sm text-green-700">
+                                                    {{ $item->catatan_konfirmasi_pelapor }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+
+                                @if ($jadwal->where('status_jadwal', 'dijadwalkan')->count() > 5)
+                                    <div class="text-center">
+                                        <a href="{{ route('konfirmasi.index') }}"
+                                            class="text-primary hover:text-primary-dark font-medium">
+                                            Lihat semua jadwal
+                                            ({{ $jadwal->where('status_jadwal', 'dijadwalkan')->count() }} total)
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Statistics Widget -->
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">Statistik Saya</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                                <div
+                                    class="text-center p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                                    <div class="text-3xl font-bold text-primary mb-1">{{ $stats['total_pengaduan'] }}
+                                    </div>
+                                    <div class="text-xs text-gray-600 font-medium">Total Pengaduan</div>
+                                </div>
+                                <div
+                                    class="text-center p-5 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl border border-yellow-100">
+                                    <div class="text-3xl font-bold text-orange-600 mb-1">
+                                        {{ $stats['pengaduan_proses'] }}</div>
+                                    <div class="text-xs text-gray-600 font-medium">Dalam Proses</div>
+                                </div>
+                                <div
+                                    class="text-center p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
+                                    <div class="text-3xl font-bold text-green-600 mb-1">
+                                        {{ $stats['pengaduan_selesai'] }}</div>
+                                    <div class="text-xs text-gray-600 font-medium">Selesai</div>
+                                </div>
+                                <div
+                                    class="text-center p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                                    <div class="text-3xl font-bold text-purple-600 mb-1">
+                                        {{ $stats['jadwal_menunggu_konfirmasi'] }}</div>
+                                    <div class="text-xs text-gray-600 font-medium">Menunggu Konfirmasi</div>
+                                </div>
+                                <div
+                                    class="text-center p-5 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl border border-red-100">
+                                    <div class="text-3xl font-bold text-red-600 mb-1">
+                                        {{ $stats['anjuran_menunggu_respon'] ?? 0 }}</div>
+                                    <div class="text-xs text-gray-600 font-medium">Anjuran Menunggu Respon</div>
+                                </div>
+                                <div
+                                    class="text-center p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                                    <div class="text-3xl font-bold text-gray-600 mb-1">
+                                        {{ $stats['total_pengaduan'] - $stats['pengaduan_selesai'] - $stats['pengaduan_proses'] }}
+                                    </div>
+                                    <div class="text-xs text-gray-600 font-medium">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    @if ($pengaduans->count() > 0)
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-800">Aksi Cepat</h3>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <a href="{{ route('pengaduan.index') }}"
+                                    class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
+                                    <div
+                                        class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
+                                        📋
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-gray-800">Lihat Semua Pengaduan</div>
+                                        <div class="text-xs text-gray-600">Riwayat pengaduan saya</div>
+                                    </div>
+                                </a>
+
+                                <a href="{{ route('konfirmasi.index') }}"
+                                    class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transform hover:translate-x-1 transition-all duration-300">
+                                    <div
+                                        class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center text-white">
+                                        📅
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-gray-800">Jadwal Saya</div>
+                                        <div class="text-xs text-gray-600">Konfirmasi kehadiran & riwayat jadwal</div>
+                                    </div>
+                                    @if ($stats['jadwal_menunggu_konfirmasi'] > 0)
+                                        <div
+                                            class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                            {{ $stats['jadwal_menunggu_konfirmasi'] }}
                                         </div>
                                     @endif
-                                </div>
+                                </a>
+
+                                <a href="{{ route('anjuran-response.index-pelapor') }}"
+                                    class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-yellow-50 hover:border-yellow-300 transform hover:translate-x-1 transition-all duration-300">
+                                    <div
+                                        class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center text-white">
+                                        📋
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-gray-800">Respon Anjuran</div>
+                                        <div class="text-xs text-gray-600">Lihat dan respon anjuran yang diterbitkan
+                                        </div>
+                                    </div>
+                                    @if ($pendingAnjuran->count() > 0)
+                                        <div
+                                            class="w-5 h-10 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                            {{ $pendingAnjuran->count() }}
+                                        </div>
+                                    @endif
+                                </a>
                             </div>
-                        @endif
-
-
-
-                        <!-- Next Steps -->
-                        <div class="space-y-4">
-                            <h5 class="text-lg font-semibold text-gray-800">Langkah Selanjutnya</h5>
-
-                            @if ($latestPengaduan->status == 'pending')
-                                <div
-                                    class="flex items-start gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                                    <div
-                                        class="w-8 h-8 bg-yellow-200 rounded-full flex items-center justify-center text-yellow-700 font-bold text-sm flex-shrink-0">
-                                        1</div>
-                                    <div>
-                                        <h6 class="font-semibold text-yellow-800 mb-1">Menunggu Review
-                                            Mediator
-                                        </h6>
-                                        <p class="text-yellow-700 text-sm">Tim mediator sedang meninjau
-                                            pengaduan Anda. Proses ini biasanya memakan waktu 1-3 hari
-                                            kerja.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl">
-                                    <div
-                                        class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">
-                                        2</div>
-                                    <div>
-                                        <h6 class="font-semibold text-gray-600 mb-1">Penjadwalan
-                                            Mediasi</h6>
-                                        <p class="text-gray-600 text-sm">Setelah review, mediator akan
-                                            menghubungi Anda untuk penjadwalan sesi mediasi.</p>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl">
-                                    <div
-                                        class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">
-                                        3</div>
-                                    <div>
-                                        <h6 class="font-semibold text-gray-600 mb-1">Pelaksanaan
-                                            Mediasi</h6>
-                                        <p class="text-gray-600 text-sm">Mediasi akan dilaksanakan
-                                            sesuai
-                                            jadwal
-                                            yang telah disepakati.</p>
-                                    </div>
-                                </div>
-                            @elseif($latestPengaduan->status == 'proses')
-                                <div class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                    <div
-                                        class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
-                                        ✓</div>
-                                    <div>
-                                        <h6 class="font-semibold text-green-800 mb-1">Review Selesai
-                                        </h6>
-                                        <p class="text-green-700 text-sm">Pengaduan Anda sudah direview
-                                            dan
-                                            disetujui untuk proses mediasi.</p>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-start gap-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                    <div
-                                        class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">
-                                        📅</div>
-                                    <div>
-                                        <h6 class="font-semibold text-blue-800 mb-1">Proses Mediasi
-                                            Berlangsung
-                                        </h6>
-                                        <p class="text-blue-700 text-sm">Mediasi sedang berlangsung.
-                                            @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
-                                                Pastikan Anda telah mengkonfirmasi kehadiran untuk
-                                                jadwal
-                                                mediasi.
-                                            @else
-                                                Harap menunggu hasil dari sesi mediasi.
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
-                            @elseif($latestPengaduan->status == 'selesai')
-                                <div class="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                    <div
-                                        class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
-                                        🎉</div>
-                                    <div>
-                                        <h6 class="font-semibold text-green-800 mb-1">Mediasi Selesai
-                                        </h6>
-                                        <p class="text-green-700 text-sm">Proses mediasi telah selesai.
-                                            Lihat
-                                            detail pengaduan untuk hasil mediasi.</p>
-                                    </div>
-                                </div>
-                            @endif
                         </div>
+                    @endif
 
-                        <!-- Contact Info untuk Follow Up -->
-                        <div class="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
-                            <h6 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
-                                <span>📞</span>
-                                <span>Butuh Bantuan?</span>
-                            </h6>
-                            <p class="text-blue-700 text-sm mb-3">
-                                Jika Anda memiliki pertanyaan atau memerlukan informasi lebih lanjut
-                                tentang
-                                status pengaduan, silakan hubungi:
-                            </p>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex items-center gap-2 text-blue-700">
-                                    <span>📧</span>
-                                    <span>Email: nakertrans@bungokab.go.id </span>
+                    <!-- Help & Support -->
+                    {{-- <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">Bantuan & Dukungan</h3>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <a href="tel:074621234"
+                                class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
+                                    📞
                                 </div>
-                                <div class="flex items-center gap-2 text-blue-700">
-                                    <span>📱</span>
-                                    <span>Telepon: (0747) 21013</span>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-800">Hubungi Call Center</div>
+                                    <div class="text-xs text-gray-600">(0747) 21013</div>
                                 </div>
-                                <div class="flex items-center gap-2 text-blue-700">
+                            </a>
+
+                            <a href="mailto:mediasi@disnaker.bungo.go.id"
+                                class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
+                                    📧
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-800">Email Support</div>
+                                    <div class="text-xs text-gray-600">nakertrans@bungokab.go.id</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div> --}}
+
+                    <!-- Important Information -->
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">Informasi Penting</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                <h6 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
                                     <span>🕒</span>
-                                    <span>Jam Layanan: Senin - Jumat, 08:00 - 16:00 WIB</span>
-                                </div>
+                                    <span>Jam Layanan</span>
+                                </h6>
+                                <p class="text-blue-700 text-sm">Senin - Jumat<br>08:00 - 16:00 WIB</p>
                             </div>
-                        </div>
-                </div>
-            </div>
-            @endif
-        </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <!-- Statistics Widget -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Statistik Saya</h3>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <div
-                            class="text-center p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                            <div class="text-3xl font-bold text-primary mb-1">{{ $stats['total_pengaduan'] }}
+                            <div class="p-4 bg-green-50 border border-green-200 rounded-xl">
+                                <h6 class="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                                    <span>📄</span>
+                                    <span>Dokumen Diperlukan</span>
+                                </h6>
+                                <p class="text-green-700 text-sm">KTP, Surat Pemberitahuan PHK, Surat Teguran, dll.</p>
                             </div>
-                            <div class="text-xs text-gray-600 font-medium">Total Pengaduan</div>
-                        </div>
-                        <div
-                            class="text-center p-5 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl border border-yellow-100">
-                            <div class="text-3xl font-bold text-orange-600 mb-1">
-                                {{ $stats['pengaduan_proses'] }}</div>
-                            <div class="text-xs text-gray-600 font-medium">Dalam Proses</div>
-                        </div>
-                        <div
-                            class="text-center p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                            <div class="text-3xl font-bold text-green-600 mb-1">
-                                {{ $stats['pengaduan_selesai'] }}</div>
-                            <div class="text-xs text-gray-600 font-medium">Selesai</div>
-                        </div>
-                        <div
-                            class="text-center p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-                            <div class="text-3xl font-bold text-purple-600 mb-1">
-                                {{ $stats['jadwal_menunggu_konfirmasi'] }}</div>
-                            <div class="text-xs text-gray-600 font-medium">Menunggu Konfirmasi</div>
-                        </div>
-                        <div
-                            class="text-center p-5 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl border border-red-100">
-                            <div class="text-3xl font-bold text-red-600 mb-1">
-                                {{ $stats['anjuran_menunggu_respon'] ?? 0 }}</div>
-                            <div class="text-xs text-gray-600 font-medium">Anjuran Menunggu Respon</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Quick Actions -->
-            @if ($pengaduans->count() > 0)
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Aksi Cepat</h3>
-                    </div>
-                    <div class="p-6 space-y-3">
-                        <a href="{{ route('pengaduan.index') }}"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
-                            <div
-                                class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
-                                📋
+                            <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                                <h6 class="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                                    <span>🔒</span>
+                                    <span>Kerahasiaan Data</span>
+                                </h6>
+                                <p class="text-purple-700 text-sm">Data Anda akan dijaga kerahasiaannya sesuai UU
+                                    Ketenagakerjaan.</p>
                             </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-medium text-gray-800">Lihat Semua Pengaduan</div>
-                                <div class="text-xs text-gray-600">Riwayat pengaduan saya</div>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('konfirmasi.index') }}"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transform hover:translate-x-1 transition-all duration-300">
-                            <div
-                                class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center text-white">
-                                📅
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-medium text-gray-800">Jadwal Saya</div>
-                                <div class="text-xs text-gray-600">Konfirmasi kehadiran & riwayat jadwal</div>
-                            </div>
-                            @if ($stats['jadwal_menunggu_konfirmasi'] > 0)
-                                <div
-                                    class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                    {{ $stats['jadwal_menunggu_konfirmasi'] }}
-                                </div>
-                            @endif
-                        </a>
-
-                        <a href="{{ route('anjuran-response.index-pelapor') }}"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-yellow-50 hover:border-yellow-300 transform hover:translate-x-1 transition-all duration-300">
-                            <div
-                                class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center text-white">
-                                📋
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-medium text-gray-800">Respon Anjuran</div>
-                                <div class="text-xs text-gray-600">Lihat dan respon anjuran yang diterbitkan</div>
-                            </div>
-                            @if ($pendingAnjuran->count() > 0)
-                                <div
-                                    class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                    {{ $pendingAnjuran->count() }}
-                                </div>
-                            @endif
-                        </a>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Help & Support -->
-            {{-- <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Bantuan & Dukungan</h3>
-                </div>
-                <div class="p-6 space-y-3">
-                    <a href="tel:074621234"
-                        class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
-                            📞
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-medium text-gray-800">Hubungi Call Center</div>
-                            <div class="text-xs text-gray-600">(0747) 21013</div>
-                        </div>
-                    </a>
-
-                    <a href="mailto:mediasi@disnaker.bungo.go.id"
-                        class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-primary transform hover:translate-x-1 transition-all duration-300">
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white">
-                            📧
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-medium text-gray-800">Email Support</div>
-                            <div class="text-xs text-gray-600">nakertrans@bungokab.go.id</div>
-                        </div>
-                    </a>
-                </div>
-            </div> --}}
-
-            <!-- Important Information -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Informasi Penting</h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="bg-blue-50 border-l-4 border-primary p-4 rounded-r-lg">
-                        <div class="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
-                            <span>⏰</span>
-                            <span>Jam Layanan</span>
-                        </div>
-                        <div class="text-xs text-gray-600 leading-relaxed">
-                            Senin - Jumat: 08:00 - 16:00 WIB<br>
-                            Sabtu - Minggu: Tutup
-                        </div>
-                    </div>
-
-                    <div class="bg-blue-50 border-l-4 border-primary p-4 rounded-r-lg">
-                        <div class="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
-                            <span>📋</span>
-                            <span>Dokumen Diperlukan</span>
-                        </div>
-                        <div class="text-xs text-gray-600 leading-relaxed">
-                            Kontrak kerja, slip gaji, surat peringatan, risalah bipartit, bukti komunikasi
-                            dengan perusahaan, dan dokumen lain yang diperlukan.
-                        </div>
-                    </div>
-
-                    <div class="bg-blue-50 border-l-4 border-primary p-4 rounded-r-lg">
-                        <div class="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
-                            <span>🔒</span>
-                            <span>Kerahasiaan Data</span>
-                        </div>
-                        <div class="text-xs text-gray-600 leading-relaxed">
-                            Semua data dan informasi Anda dijamin kerahasiaannya sesuai dengan ketentuan yang
-                            berlaku.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
-        </div>
-
-        <script>
-            // Add interactivity to buttons
-            document.querySelectorAll('a[href="#"]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const text = this.textContent.trim();
-
-                    if (text.includes('FAQ')) {
-                        alert('Halaman FAQ akan segera tersedia.');
-                    }
-                });
-            });
-
-            // Welcome animation
-            window.addEventListener('load', function() {
-                const hero = document.querySelector('.bg-gradient-to-br');
-                if (hero) {
-                    hero.style.opacity = '0';
-                    hero.style.transform = 'translateY(20px)';
-
-                    setTimeout(() => {
-                        hero.style.transition = 'all 0.6s ease';
-                        hero.style.opacity = '1';
-                        hero.style.transform = 'translateY(0)';
-                    }, 100);
-                }
-            });
-
-            // Status animation
-            const statusBadges = document.querySelectorAll('.animate-pulse');
-            statusBadges.forEach(badge => {
-                badge.addEventListener('mouseenter', function() {
-                    this.classList.remove('animate-pulse');
-                });
-                badge.addEventListener('mouseleave', function() {
-                    this.classList.add('animate-pulse');
-                });
-            });
-        </script>
-
     </x-app-layout>
-
 </body>
 
 </html>

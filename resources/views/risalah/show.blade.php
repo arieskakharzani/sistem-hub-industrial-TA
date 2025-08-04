@@ -35,13 +35,23 @@
                 {{ __('Detail Risalah ' . ucfirst($risalah->jenis_risalah)) }}
             </h2>
             <div class="flex space-x-4">
-                <a href="{{ route('risalah.edit', $risalah) }}"
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
-                    Edit Risalah
-                </a>
+                @if (auth()->user()->active_role === 'mediator')
+                    <a href="{{ route('risalah.edit', $risalah) }}"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
+                        Edit Risalah
+                    </a>
+                @endif
                 <a href="{{ route('risalah.pdf', $risalah) }}" target="_blank"
                     class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
-                    Cetak PDF
+                    @if ($risalah->jenis_risalah === 'klarifikasi')
+                        Cetak Risalah Klarifikasi
+                    @elseif($risalah->jenis_risalah === 'mediasi')
+                        Cetak Risalah Mediasi
+                    @elseif($risalah->jenis_risalah === 'penyelesaian')
+                        Cetak Risalah Penyelesaian
+                    @else
+                        Cetak PDF
+                    @endif
                 </a>
             </div>
         </div>
@@ -327,7 +337,7 @@
                         @endif
 
                         <!-- Tanda Tangan -->
-                        <div class="text-center">
+                        {{-- <div class="text-center">
                             <p class="font-medium mb-2">Mediator Hubungan Industrial,</p>
                             <p class="font-medium mb-20">&nbsp;</p>
                             @php
@@ -338,7 +348,7 @@
                             @endphp
                             <p class="font-medium">{{ $mediator ? $mediator->nama_mediator : '-' }}</p>
                             <p class="text-gray-600">NIP. {{ $mediator ? $mediator->nip : '-' }}</p>
-                        </div>
+                        </div> --}}
 
                         {{-- TOMBOL AKSI --}}
                         <div class="mt-8 flex gap-4">

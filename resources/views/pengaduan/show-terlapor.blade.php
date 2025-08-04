@@ -102,10 +102,36 @@
                                     </a>
                                 @endif
 
-                                <a href="{{ route('laporan.hasil-mediasi.show', $pengaduan->pengaduan_id) }}"
-                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                                    📊 Lihat Laporan
-                                </a>
+                                @php
+                                    // Cek apakah kasus melalui mediasi atau langsung selesai di klarifikasi
+                                    $hasMediasiJadwal = $pengaduan
+                                        ->jadwal()
+                                        ->where('jenis_jadwal', 'mediasi')
+                                        ->exists();
+                                    $hasKlarifikasiRisalah = $pengaduan
+                                        ->jadwal()
+                                        ->whereHas('risalah', function ($q) {
+                                            $q->where('jenis_risalah', 'klarifikasi');
+                                        })
+                                        ->exists();
+                                @endphp
+
+                                @if ($hasMediasiJadwal)
+                                    <a href="{{ route('laporan.hasil-mediasi.show', $pengaduan->pengaduan_id) }}"
+                                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                        📊 Lihat Laporan
+                                    </a>
+                                @elseif($hasKlarifikasiRisalah)
+                                    <a href="{{ route(
+                                        'risalah.show',
+                                        $pengaduan->jadwal()->whereHas('risalah', function ($q) {
+                                                $q->where('jenis_risalah', 'klarifikasi');
+                                            })->first()->risalah()->where('jenis_risalah', 'klarifikasi')->first(),
+                                    ) }}"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                        📋 Risalah Klarifikasi
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

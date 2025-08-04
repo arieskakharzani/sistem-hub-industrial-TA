@@ -8,6 +8,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Risalah;
 use App\Models\Pengaduan;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class RisalahKlarifikasiNotification extends Notification implements ShouldQueue
 {
@@ -49,15 +51,39 @@ class RisalahKlarifikasiNotification extends Notification implements ShouldQueue
             $userName = $this->pengaduan->terlapor->nama_terlapor;
         }
 
+        // Generate PDF risalah klarifikasi
+        $pdf = $this->generateRisalahPDF();
+
+        // Simpan PDF sementara
+        $pdfPath = 'temp/risalah_klarifikasi_' . $this->risalah->risalah_id . '.pdf';
+        Storage::put($pdfPath, $pdf->output());
+
         return (new MailMessage)
             ->subject('Risalah Klarifikasi - Kasus Selesai')
-            ->greeting('Halo ' . $userName . ',')
-            ->line('Kasus perselisihan hubungan industrial dengan nomor pengaduan **' . $this->pengaduan->nomor_pengaduan . '** telah selesai.')
-            ->line('Berdasarkan hasil klarifikasi, kasus ini akan dilanjutkan dengan perundingan bipartit di luar ranah dinas.')
-            ->line('Risalah klarifikasi telah dibuat dan dapat diunduh melalui sistem.')
-            ->action('Lihat Detail Kasus', url('/pengaduan/' . $this->pengaduan->pengaduan_id))
-            ->line('Terima kasih telah menggunakan layanan kami.')
-            ->salutation('Salam, Tim SIPPPHI');
+            ->view('emails.kasus-selesai-klarifikasi', [
+                'userName' => $userName,
+                'pengaduan' => $this->pengaduan,
+                'risalah' => $this->risalah
+            ])
+            ->attach(Storage::path($pdfPath), [
+                'as' => 'Risalah_Klarifikasi_' . $this->pengaduan->nomor_pengaduan . '.pdf',
+                'mime' => 'application/pdf',
+            ]);
+    }
+
+    /**
+     * Generate PDF untuk risalah klarifikasi
+     */
+    private function generateRisalahPDF()
+    {
+        $risalah = $this->risalah->load(['jadwal.pengaduan.pelapor', 'jadwal.pengaduan.terlapor', 'detailKlarifikasi']);
+
+        $pdf = Pdf::loadView('risalah.pdf', [
+            'risalah' => $risalah,
+            'detail' => $risalah->detailKlarifikasi
+        ]);
+
+        return $pdf;
     }
 
     /**

@@ -51,12 +51,31 @@
                         <div>
                             <strong class="font-bold">Informasi</strong>
                             <span class="block sm:inline">Berikut adalah daftar pengaduan yang melibatkan
-                                perusahaan/instansi Anda.
+                                perusahaan Anda.
                                 Mohon tunggu informasi lebih lanjut mengenai jadwal dari mediator yang
                                 menangani.</span>
                         </div>
                     </div>
                 </div>
+
+                <!-- Alert Kasus Selesai -->
+                @if ($stats['selesai'] > 0)
+                    <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded relative">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <strong class="font-bold">Kasus Selesai</strong>
+                                <span class="block sm:inline">Ada {{ $stats['selesai'] }} kasus yang telah selesai
+                                    diproses.
+                                    Anda dapat melihat hasil akhir dan dokumen terkait di bawah ini.</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -147,6 +166,10 @@
                                             </th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Dokumen (Jika Selesai)
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Aksi
                                             </th>
                                         </tr>
@@ -207,6 +230,44 @@
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
                                                         {{ ucfirst($pengaduan->status) }}
                                                     </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if ($pengaduan->status === 'selesai')
+                                                        @php
+                                                            // Cek apakah kasus melalui mediasi atau langsung selesai di klarifikasi
+                                                            $hasMediasiJadwal = $pengaduan
+                                                                ->jadwal()
+                                                                ->where('jenis_jadwal', 'mediasi')
+                                                                ->exists();
+                                                            $hasKlarifikasiRisalah = $pengaduan
+                                                                ->jadwal()
+                                                                ->whereHas('risalah', function ($q) {
+                                                                    $q->where('jenis_risalah', 'klarifikasi');
+                                                                })
+                                                                ->exists();
+                                                        @endphp
+
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @if ($hasMediasiJadwal)
+                                                                <a href="{{ route('laporan.hasil-mediasi.show', $pengaduan->pengaduan_id) }}"
+                                                                    class="inline-flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📊 Laporan Hasil Mediasi
+                                                                </a>
+                                                            @elseif($hasKlarifikasiRisalah)
+                                                                <a href="{{ route(
+                                                                    'risalah.show',
+                                                                    $pengaduan->jadwal()->whereHas('risalah', function ($q) {
+                                                                            $q->where('jenis_risalah', 'klarifikasi');
+                                                                        })->first()->risalah()->where('jenis_risalah', 'klarifikasi')->first(),
+                                                                ) }}"
+                                                                    class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📋 Risalah Klarifikasi
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <span class="text-gray-400 text-xs">-</span>
+                                                    @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <a href="{{ route('pengaduan.show-terlapor', $pengaduan->pengaduan_id) }}"

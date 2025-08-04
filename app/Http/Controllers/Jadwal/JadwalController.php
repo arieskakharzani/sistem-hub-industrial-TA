@@ -84,18 +84,25 @@ class JadwalController extends Controller
             abort(403, 'Data mediator tidak ditemukan');
         }
 
-        // Ambil pengaduan yang bisa dijadwalkan
-        // Hanya pengaduan milik mediator yang bertanggung jawab dan memiliki anjuran
+        // Ambil pengaduan yang bisa dijadwalkan berdasarkan jenis jadwal
+        $jenisJadwal = $request->get('jenis_jadwal');
+
         $pengaduanList = Pengaduan::with('pelapor')
             ->where('mediator_id', $mediator->mediator_id)
             ->where('status', 'proses')
             ->whereDoesntHave('jadwal', function ($query) {
                 $query->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung']);
-            })
-            ->whereHas('dokumenHI.anjuran', function ($query) {
+            });
+
+        // Jika jenis jadwal adalah TTD perjanjian bersama, harus memiliki anjuran published
+        if ($jenisJadwal === 'ttd_perjanjian_bersama') {
+            $pengaduanList = $pengaduanList->whereHas('dokumenHI.anjuran', function ($query) {
                 $query->where('status_approval', 'published');
-            })
-            ->get();
+            });
+        }
+        // Untuk klarifikasi dan mediasi, tidak perlu dokumen HI
+
+        $pengaduanList = $pengaduanList->get();
 
         // Ambil parameter dari request
         $selectedPengaduanId = $request->get('pengaduan_id');

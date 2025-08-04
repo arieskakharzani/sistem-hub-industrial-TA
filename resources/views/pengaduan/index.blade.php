@@ -217,10 +217,40 @@
                                                                 </a>
                                                             @endif
 
-                                                            <a href="{{ route('laporan.hasil-mediasi.show', $pengaduan->pengaduan_id) }}"
-                                                                class="inline-flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
-                                                                📊 Laporan Hasil Mediasi
-                                                            </a>
+                                                            @php
+                                                                // Cek apakah kasus melalui mediasi atau langsung selesai di klarifikasi
+                                                                $hasMediasiJadwal = $pengaduan
+                                                                    ->jadwal()
+                                                                    ->where('jenis_jadwal', 'mediasi')
+                                                                    ->exists();
+                                                                $hasKlarifikasiJadwal = $pengaduan
+                                                                    ->jadwal()
+                                                                    ->where('jenis_jadwal', 'klarifikasi')
+                                                                    ->exists();
+                                                                $hasKlarifikasiRisalah = $pengaduan
+                                                                    ->jadwal()
+                                                                    ->whereHas('risalah', function ($q) {
+                                                                        $q->where('jenis_risalah', 'klarifikasi');
+                                                                    })
+                                                                    ->exists();
+                                                            @endphp
+
+                                                            @if ($hasMediasiJadwal)
+                                                                <a href="{{ route('laporan.hasil-mediasi.show', $pengaduan->pengaduan_id) }}"
+                                                                    class="inline-flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📊 Laporan Hasil Mediasi
+                                                                </a>
+                                                            @elseif($hasKlarifikasiRisalah)
+                                                                <a href="{{ route(
+                                                                    'risalah.show',
+                                                                    $pengaduan->jadwal()->whereHas('risalah', function ($q) {
+                                                                            $q->where('jenis_risalah', 'klarifikasi');
+                                                                        })->first()->risalah()->where('jenis_risalah', 'klarifikasi')->first(),
+                                                                ) }}"
+                                                                    class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📋 Risalah Klarifikasi
+                                                                </a>
+                                                            @endif
                                                         </div>
                                                     @else
                                                         <span class="text-gray-400 text-xs">-</span>

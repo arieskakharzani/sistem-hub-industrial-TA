@@ -28,15 +28,12 @@ class TerlaporAccountCreated extends Notification
     {
         return (new MailMessage)
             ->subject('Akun Terlapor - Sistem Pengaduan Hubungan Industrial')
-            ->greeting('Halo ' . $this->terlapor->nama_terlapor)
-            ->line('Akun Anda telah dibuat dalam Sistem Pengaduan dan Penyelesaian Hubungan Industrial.')
-            ->line('Berikut adalah informasi login Anda:')
-            ->line('**Email:** ' . $this->credentials['email'])
-            ->line('**Password:** ' . $this->credentials['password'])
-            ->line('**Nama Terlapor:** ' . $this->terlapor->nama_terlapor)
-            ->action('Login ke Sistem', url('/login'))
-            ->line('Harap segera login dan ubah password Anda untuk keamanan.')
-            ->line('Jika Anda memiliki pertanyaan, silakan hubungi nomor terkait.')
-            ->salutation('Terima kasih,<br>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo');
+            ->view('akun.terlapor-credentials', [
+                'nama_terlapor' => $this->terlapor->nama_terlapor,
+                'email' => $this->credentials['email'],
+                'password' => $this->credentials['password'],
+                'login_url' => url('/login'),
+                'pengaduan_id' => null
+            ]);
     }
 }
