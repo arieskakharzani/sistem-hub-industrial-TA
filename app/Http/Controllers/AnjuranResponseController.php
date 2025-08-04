@@ -173,6 +173,21 @@ class AnjuranResponseController extends Controller
             $this->notifyMediatorAboutRejection($anjuran, $userRole);
         }
 
+        // Check if both parties have responded
+        if ($anjuran->bothPartiesResponded()) {
+            // Notify mediator that both parties have responded
+            $this->notifyMediatorBothPartiesResponded($anjuran);
+
+            // Handle berdasarkan kondisi respon
+            if ($anjuran->isBothPartiesAgree()) {
+                // Kedua pihak setuju - dapat dibuat perjanjian bersama
+                $this->notifyMediatorCanCreatePB($anjuran);
+            } elseif ($anjuran->isBothPartiesDisagree() || $anjuran->isMixedResponse()) {
+                // Kedua pihak tidak setuju atau mixed response - mediator dapat finalisasi kasus
+                $this->notifyMediatorToFinalizeCase($anjuran);
+            }
+        }
+
         return redirect()->route('anjuran-response.index-' . $userRole)
             ->with('success', 'Respon Anda telah berhasil disimpan');
     }
@@ -198,6 +213,45 @@ class AnjuranResponseController extends Controller
 
         if ($mediator && $mediator->user) {
             $mediator->user->notify(new AnjuranRejectedByPartiesNotification($anjuran, $userRole));
+        }
+    }
+
+    /**
+     * Notify mediator that both parties have responded
+     */
+    private function notifyMediatorBothPartiesResponded($anjuran)
+    {
+        $mediator = $anjuran->mediator();
+
+        if ($mediator && $mediator->user) {
+            // Kirim notifikasi bahwa kedua pihak sudah memberikan respon
+            $mediator->user->notify(new \App\Notifications\AnjuranResponseNotification($anjuran, 'both_parties', 'completed'));
+        }
+    }
+
+    /**
+     * Notify mediator that they can create Perjanjian Bersama
+     */
+    private function notifyMediatorCanCreatePB($anjuran)
+    {
+        $mediator = $anjuran->mediator();
+
+        if ($mediator && $mediator->user) {
+            // Kirim notifikasi bahwa mediator dapat membuat perjanjian bersama
+            $mediator->user->notify(new \App\Notifications\AnjuranResponseNotification($anjuran, 'mediator', 'can_create_pb'));
+        }
+    }
+
+    /**
+     * Notify mediator that they can finalize the case
+     */
+    private function notifyMediatorToFinalizeCase($anjuran)
+    {
+        $mediator = $anjuran->mediator();
+
+        if ($mediator && $mediator->user) {
+            // Kirim notifikasi bahwa mediator dapat finalisasi kasus
+            $mediator->user->notify(new \App\Notifications\AnjuranResponseNotification($anjuran, 'mediator', 'can_finalize_case'));
         }
     }
 }

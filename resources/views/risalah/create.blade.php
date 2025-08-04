@@ -65,7 +65,8 @@
                                         Nama Perusahaan
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
-                                    <input type="text" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}"
+                                    <input type="text" name="nama_perusahaan"
+                                        value="{{ old('nama_perusahaan', $defaultData['nama_perusahaan'] ?? '') }}"
                                         placeholder="Masukkan nama perusahaan" required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                                 </div>
@@ -75,9 +76,12 @@
                                         Jenis Usaha
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
-                                    <input type="text" name="jenis_usaha" value="{{ old('jenis_usaha') }}"
-                                        placeholder="Masukkan jenis usaha" required
+                                    <input type="text" name="jenis_usaha"
+                                        value="{{ old('jenis_usaha', $defaultData['jenis_usaha'] ?? '') }}"
+                                        placeholder="Contoh: Perdagangan, Manufaktur, Jasa, dll." required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                                    <p class="text-xs text-gray-500 italic mt-1">⚠️ Pastikan untuk mengisi jenis usaha
+                                        yang sesuai dengan perusahaan</p>
                                 </div>
 
                                 <div class="space-y-2 md:col-span-2">
@@ -86,7 +90,7 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <input type="text" name="alamat_perusahaan"
-                                        value="{{ old('alamat_perusahaan') }}"
+                                        value="{{ old('alamat_perusahaan', $defaultData['alamat_perusahaan'] ?? '') }}"
                                         placeholder="Masukkan alamat lengkap perusahaan" required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                                 </div>
@@ -103,7 +107,8 @@
                                         Nama Pekerja/Buruh/SP/SB
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
-                                    <input type="text" name="nama_pekerja" value="{{ old('nama_pekerja') }}"
+                                    <input type="text" name="nama_pekerja"
+                                        value="{{ old('nama_pekerja', $defaultData['nama_pekerja'] ?? '') }}"
                                         placeholder="Masukkan nama pekerja" required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                                 </div>
@@ -113,7 +118,8 @@
                                         Alamat Pekerja/Buruh/SP/SB
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
-                                    <input type="text" name="alamat_pekerja" value="{{ old('alamat_pekerja') }}"
+                                    <input type="text" name="alamat_pekerja"
+                                        value="{{ old('alamat_pekerja', $defaultData['alamat_pekerja'] ?? '') }}"
                                         placeholder="Masukkan alamat lengkap pekerja" required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
                                 </div>
@@ -157,7 +163,7 @@
                                     </label>
                                     <textarea name="pokok_masalah" rows="4" required
                                         placeholder="Jelaskan pokok permasalahan atau alasan perselisihan"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('pokok_masalah') }}</textarea>
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('pokok_masalah', $defaultData['pokok_masalah'] ?? '') }}</textarea>
                                 </div>
 
                                 <div class="space-y-2 md:col-span-2">
@@ -165,7 +171,8 @@
                                         Pendapat Pekerja/Buruh/SP/SB
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
-                                    <textarea name="pendapat_pekerja" rows="4" required placeholder="Tuliskan pendapat dari pihak pekerja"
+                                    <textarea name="pendapat_pekerja" rows="4" required
+                                        placeholder="Tuliskan pendapat dari pihak pekerja/buruh/SP/SB mengenai permasalahan yang terjadi"
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('pendapat_pekerja') }}</textarea>
                                 </div>
 
@@ -174,7 +181,8 @@
                                         Pendapat Pengusaha
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
-                                    <textarea name="pendapat_pengusaha" rows="4" required placeholder="Tuliskan pendapat dari pihak pengusaha"
+                                    <textarea name="pendapat_pengusaha" rows="4" required
+                                        placeholder="Tuliskan pendapat dari pihak pengusaha mengenai permasalahan yang terjadi"
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300 resize-vertical">{{ old('pendapat_pengusaha') }}</textarea>
                                 </div>
                             </div>

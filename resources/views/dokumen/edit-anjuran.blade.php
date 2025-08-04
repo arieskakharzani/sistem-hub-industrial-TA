@@ -231,7 +231,7 @@
 
                         <!-- Submit Button -->
                         <div class="flex justify-end space-x-4 mt-8">
-                            <a href="{{ route('dokumen.anjuran.show', ['id' => $anjuran->anjuran_id]) }}"
+                            <a href="{{ route('dokumen.anjuran.show', $anjuran) }}"
                                 class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all duration-300">
                                 Batal
                             </a>

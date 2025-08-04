@@ -214,9 +214,21 @@ class Anjuran extends Model
         return $this->isBothPartiesAgree();
     }
 
+    /**
+     * Check if case can be finalized
+     * Kasus dapat diselesaikan jika kedua pihak sudah memberikan respon
+     * dan salah satu dari kondisi berikut terpenuhi:
+     * - Kedua pihak setuju (dapat dibuat PB)
+     * - Kedua pihak tidak setuju (anjuran ditolak)
+     * - Mixed response (satu setuju, satu tidak - anjuran ditolak)
+     */
     public function canFinalizeCase(): bool
     {
-        return $this->isResponseComplete() && ($this->isBothPartiesAgree() || $this->isBothPartiesDisagree());
+        return $this->isResponseComplete() && (
+            $this->isBothPartiesAgree() ||
+            $this->isBothPartiesDisagree() ||
+            $this->isMixedResponse()
+        );
     }
 
     /**

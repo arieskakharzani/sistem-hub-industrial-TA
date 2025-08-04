@@ -86,6 +86,16 @@ Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')
     // Kelola - KHUSUS UNTUK MEDIATOR
     Route::get('/kelola', [PengaduanController::class, 'kelola'])->name('kelola');
 
+    // Index untuk kepala dinas - mode lihat saja
+    Route::get('/index-kepala-dinas', [PengaduanController::class, 'indexKepalaDinas'])
+        ->middleware('check.role:kepala_dinas')
+        ->name('index-kepala-dinas');
+
+    // Show detail untuk kepala dinas - mode lihat saja
+    Route::get('/show-kepala-dinas/{pengaduan:pengaduan_id}', [PengaduanController::class, 'showKepalaDinas'])
+        ->middleware('check.role:kepala_dinas')
+        ->name('show-kepala-dinas');
+
     // Show, Edit, Update, Delete - dengan authorization di controller
     Route::get('/{pengaduan:pengaduan_id}', [PengaduanController::class, 'show'])->name('show');
     Route::get('/{pengaduan:pengaduan_id}/edit', [PengaduanController::class, 'edit'])->name('edit');
@@ -200,9 +210,9 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     // Route khusus untuk pending approval anjuran 
     Route::get('/anjuran/pending-approval', [AnjuranController::class, 'pendingApproval'])->name('anjuran.pending-approval');
 
+    // Route untuk show anjuran
+    Route::get('/anjuran/{anjuran}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
 
-
-    Route::get('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
     Route::get('/anjuran/{id}/edit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'edit'])->name('anjuran.edit');
     Route::put('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'update'])->name('anjuran.update');
     Route::delete('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'destroy'])->name('anjuran.destroy');
@@ -267,9 +277,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // Debug email tests
-Route::get('/debug/email-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEmail']);
-Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEventOnly']);
-Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);
+// Route::get('/debug/email-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEmail']);
+// Route::get('/debug/event-test', [\App\Http\Controllers\Debug\EmailTestController::class, 'testEventOnly']);
+// Route::get('/debug/basic-email', [\App\Http\Controllers\Debug\EmailTestController::class, 'testBasicEmail']);
 
 // Role Selection Routes
 Route::middleware(['auth'])->group(function () {
@@ -321,14 +331,14 @@ Route::middleware(['auth', 'verified'])->prefix('laporan')->name('laporan.')->gr
 });
 
 // Route untuk testing email
-Route::get('/test-email', function () {
-    try {
-        Mail::to('ecakharzani10@gmail.com')->queue(new \App\Mail\TestMail());
-        return 'Email test telah dikirim ke antrian. Silakan cek email Anda dalam beberapa saat.';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
+// Route::get('/test-email', function () {
+//     try {
+//         Mail::to('ecakharzani10@gmail.com')->queue(new \App\Mail\TestMail());
+//         return 'Email test telah dikirim ke antrian. Silakan cek email Anda dalam beberapa saat.';
+//     } catch (\Exception $e) {
+//         return 'Error: ' . $e->getMessage();
+//     }
+// });
 
 // Route untuk debugging auth
 // Route::get('/debug-auth', function () {

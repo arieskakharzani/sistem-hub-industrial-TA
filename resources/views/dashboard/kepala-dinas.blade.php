@@ -115,10 +115,10 @@
                 </div>
 
                 {{-- Quick Actions --}}
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
                     <h4 class="text-lg font-semibold mb-4">Aksi Cepat</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <a href="#"
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="{{ route('pengaduan.index-kepala-dinas') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors">
                             <div class="p-2 bg-blue-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -148,22 +148,7 @@
                             </div>
                         </a>
 
-                        <a href="#"
-                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors">
-                            <div class="p-2 bg-purple-100 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Laporan & Statistik</p>
-                                <p class="text-sm text-gray-600">Analisis performa</p>
-                            </div>
-                        </a>
-
-                        <a href="#"
+                        <a href="{{ route('laporan.index') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors">
                             <div class="p-2 bg-green-100 rounded-lg mr-3">
                                 <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -177,28 +162,6 @@
                                 <p class="text-sm text-gray-600">Semua Laporan</p>
                             </div>
                         </a>
-                    </div>
-                </div>
-
-                {{-- Executive Summary --}}
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h4 class="text-lg font-semibold mb-4">Ringkasan Eksekutif</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                            <div class="text-3xl font-bold text-blue-600 mb-2">14 Hari</div>
-                            <div class="text-sm text-gray-600 font-medium">Rata-rata Penyelesaian</div>
-                            <div class="text-xs text-gray-500 mt-1">Target: 21 hari</div>
-                        </div>
-                        <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                            <div class="text-3xl font-bold text-green-600 mb-2">4.2/5.0</div>
-                            <div class="text-sm text-gray-600 font-medium">Tingkat Kepuasan</div>
-                            <div class="text-xs text-gray-500 mt-1">Berdasarkan survey</div>
-                        </div>
-                        <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                            <div class="text-3xl font-bold text-purple-600 mb-2">8 Orang</div>
-                            <div class="text-sm text-gray-600 font-medium">Mediator Aktif</div>
-                            <div class="text-xs text-gray-500 mt-1">Tim mediasi</div>
-                        </div>
                     </div>
                 </div>
             </div>

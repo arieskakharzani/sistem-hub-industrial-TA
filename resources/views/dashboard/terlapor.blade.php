@@ -102,6 +102,34 @@
                     </div>
                 @endif
 
+                {{-- Alert Kasus Selesai --}}
+                @if (($stats['selesai'] ?? 0) > 0)
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6 rounded-r-xl">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-700">
+                                    <span class="font-medium">Kasus Selesai!</span>
+                                    Ada {{ $stats['selesai'] }} kasus yang telah selesai diproses.
+                                    Anda dapat melihat hasil akhir dan dokumen terkait di daftar pengaduan.
+                                </p>
+                            </div>
+                            <div class="ml-auto">
+                                <a href="{{ route('pengaduan.index-terlapor') }}"
+                                    class="bg-green-400 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    Lihat Daftar Pengaduan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {{-- Statistics --}}
                     <div class="lg:col-span-2">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Risalah;
 
 use App\Models\Risalah;
 use App\Models\Jadwal;
+use App\Models\Pengaduan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -18,7 +19,21 @@ class RisalahController extends Controller
     public function create($jadwalId, $jenis_risalah)
     {
         $jadwal = Jadwal::findOrFail($jadwalId);
-        return view('risalah.create', compact('jadwal', 'jenis_risalah'));
+
+        // Load relasi yang diperlukan
+        $jadwal->load(['pengaduan.pelapor', 'pengaduan.terlapor']);
+
+        // Data default untuk form
+        $defaultData = [
+            'nama_perusahaan' => $jadwal->pengaduan->terlapor->nama_terlapor ?? '',
+            'jenis_usaha' => '', // Kosong agar mediator harus mengisi
+            'alamat_perusahaan' => $jadwal->pengaduan->terlapor->alamat_kantor_cabang ?? '',
+            'nama_pekerja' => $jadwal->pengaduan->pelapor->nama_pelapor ?? '',
+            'alamat_pekerja' => $jadwal->pengaduan->pelapor->alamat_pelapor ?? '',
+            'pokok_masalah' => $jadwal->pengaduan->narasi_kasus ?? '',
+        ];
+
+        return view('risalah.create', compact('jadwal', 'jenis_risalah', 'defaultData'));
     }
 
     /**
@@ -73,6 +88,21 @@ class RisalahController extends Controller
         if ($pengaduan->terlapor && $pengaduan->terlapor->user) {
             $pengaduan->terlapor->user->notify(new \App\Notifications\RisalahKlarifikasiNotification($risalah, $pengaduan));
         }
+
+        // TRIGGER OTOMATIS: Jika kesimpulan klarifikasi adalah bipartit_lagi, selesaikan kasus
+        $detailKlarifikasi = $risalah->detailKlarifikasi;
+        if ($detailKlarifikasi && $detailKlarifikasi->kesimpulan_klarifikasi === 'bipartit_lagi') {
+            // Update status pengaduan menjadi selesai
+            $pengaduan->update(['status' => 'selesai']);
+
+            // Buat buku register otomatis
+            $this->createBukuRegisterOtomatis($pengaduan, 'klarifikasi_bipartit');
+
+            // Kirim email kasus selesai + risalah klarifikasi
+            $this->kirimEmailKasusSelesaiKlarifikasi($pengaduan, $risalah);
+
+            \Log::info('Kasus selesai otomatis melalui klarifikasi bipartit_lagi untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+        }
     }
 
     // Modifikasi method store untuk menggunakan handleKlarifikasiResult
@@ -113,17 +143,15 @@ class RisalahController extends Controller
         $data['jadwal_id'] = $jadwal->jadwal_id;
         $data['jenis_risalah'] = $jenis_risalah;
 
-        // Set dokumen_hi_id for penyelesaian risalah
-        if ($jenis_risalah === 'penyelesaian') {
-            $dokumenHI = $jadwal->pengaduan->dokumenHI()->first();
-            if (!$dokumenHI) {
-                $dokumenHI = new \App\Models\DokumenHubunganIndustrial();
-                $dokumenHI->dokumen_hi_id = \Illuminate\Support\Str::uuid();
-                $dokumenHI->pengaduan_id = $jadwal->pengaduan->pengaduan_id;
-                $dokumenHI->save();
-            }
-            $data['dokumen_hi_id'] = $dokumenHI->dokumen_hi_id;
+        // Set dokumen_hi_id for semua jenis risalah (klarifikasi, mediasi, penyelesaian)
+        $dokumenHI = $jadwal->pengaduan->dokumenHI()->first();
+        if (!$dokumenHI) {
+            $dokumenHI = new \App\Models\DokumenHubunganIndustrial();
+            $dokumenHI->dokumen_hi_id = \Illuminate\Support\Str::uuid();
+            $dokumenHI->pengaduan_id = $jadwal->pengaduan->pengaduan_id;
+            $dokumenHI->save();
         }
+        $data['dokumen_hi_id'] = $dokumenHI->dokumen_hi_id;
 
         // Simpan risalah utama
         $risalah = Risalah::create($data);
@@ -348,5 +376,101 @@ class RisalahController extends Controller
 
         return redirect()->route('dokumen.index')
             ->with('success', 'Risalah berhasil dihapus.');
+    }
+
+    /**
+     * Buat buku register otomatis ketika kasus selesai
+     * Method ini akan menganalisis jenis penyelesaian dan mengisi buku register sesuai dengan completionType
+     */
+    private function createBukuRegisterOtomatis(Pengaduan $pengaduan, string $completionType)
+    {
+        try {
+            // Cek apakah sudah ada buku register untuk pengaduan ini
+            $existingBukuRegister = \App\Models\BukuRegisterPerselisihan::whereHas('dokumenHI', function ($query) use ($pengaduan) {
+                $query->where('pengaduan_id', $pengaduan->pengaduan_id);
+            })->exists();
+
+            if ($existingBukuRegister) {
+                \Log::info('Buku register sudah ada untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+                return;
+            }
+
+            $dokumenHI = $pengaduan->dokumenHI;
+            if (!$dokumenHI) {
+                \Log::error('Dokumen HI tidak ditemukan untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+                return;
+            }
+
+            // Data dasar buku register
+            $bukuRegisterData = [
+                'dokumen_hi_id' => $dokumenHI->dokumen_hi_id,
+                'tanggal_pencatatan' => $pengaduan->tanggal_laporan->format('Y-m-d'), // Ambil dari tanggal laporan pengaduan
+                'pihak_mencatat' => $pengaduan->mediator->nama_mediator ?? 'Mediator',
+                'keterangan' => 'Dibuat otomatis saat kasus selesai',
+            ];
+
+            // Ambil data pekerja dan pengusaha dari risalah terkait
+            $risalah = $dokumenHI->risalah()->latest()->first();
+            if ($risalah) {
+                $bukuRegisterData['pihak_pekerja'] = $risalah->nama_pekerja ?? $pengaduan->pelapor->nama_pelapor ?? 'Pekerja';
+                $bukuRegisterData['pihak_pengusaha'] = $risalah->nama_perusahaan ?? $pengaduan->terlapor->nama_terlapor ?? 'Pengusaha';
+            } else {
+                // Fallback jika tidak ada risalah
+                $bukuRegisterData['pihak_pekerja'] = $pengaduan->pelapor->nama_pelapor ?? 'Pekerja';
+                $bukuRegisterData['pihak_pengusaha'] = $pengaduan->terlapor->nama_terlapor ?? 'Pengusaha';
+            }
+
+            // Analisis jenis perselisihan berdasarkan perihal pengaduan
+            $perihal = strtolower($pengaduan->perihal);
+            $bukuRegisterData['perselisihan_hak'] = str_contains($perihal, 'hak') ? 'ya' : 'tidak';
+            $bukuRegisterData['perselisihan_kepentingan'] = str_contains($perihal, 'kepentingan') ? 'ya' : 'tidak';
+            $bukuRegisterData['perselisihan_phk'] = str_contains($perihal, 'phk') ? 'ya' : 'tidak';
+            $bukuRegisterData['perselisihan_sp_sb'] = str_contains($perihal, 'serikat') ? 'ya' : 'tidak';
+
+            // Analisis proses penyelesaian berdasarkan completionType
+            switch ($completionType) {
+                case 'klarifikasi_bipartit':
+                    // Kasus selesai melalui klarifikasi dengan kesimpulan bipartit_lagi
+                    $bukuRegisterData['penyelesaian_bipartit'] = 'ya'; // Selalu ya karena sudah masuk dinas
+                    $bukuRegisterData['penyelesaian_klarifikasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_mediasi'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_anjuran'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_pb'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_risalah'] = 'ya'; // Ya karena ada risalah klarifikasi
+                    $bukuRegisterData['tindak_lanjut_phi'] = 'tidak';
+                    break;
+            }
+
+            // Buat buku register
+            \App\Models\BukuRegisterPerselisihan::create($bukuRegisterData);
+
+            \Log::info('Buku register berhasil dibuat otomatis untuk pengaduan: ' . $pengaduan->nomor_pengaduan . ' dengan completionType: ' . $completionType);
+        } catch (\Exception $e) {
+            \Log::error('Error creating buku register otomatis: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Kirim email kasus selesai dengan risalah klarifikasi
+     */
+    private function kirimEmailKasusSelesaiKlarifikasi(Pengaduan $pengaduan, Risalah $risalah)
+    {
+        try {
+            // Kirim ke pelapor
+            if ($pengaduan->pelapor && $pengaduan->pelapor->user) {
+                \Illuminate\Support\Facades\Mail::to($pengaduan->pelapor->user->email)
+                    ->send(new \App\Mail\KasusSelesaiKlarifikasiMail($pengaduan, $risalah));
+            }
+
+            // Kirim ke terlapor
+            if ($pengaduan->terlapor) {
+                \Illuminate\Support\Facades\Mail::to($pengaduan->terlapor->email_terlapor)
+                    ->send(new \App\Mail\KasusSelesaiKlarifikasiMail($pengaduan, $risalah));
+            }
+
+            \Log::info('Email kasus selesai klarifikasi berhasil dikirim untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+        } catch (\Exception $e) {
+            \Log::error('Error mengirim email kasus selesai klarifikasi: ' . $e->getMessage());
+        }
     }
 }

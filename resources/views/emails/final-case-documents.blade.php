@@ -75,7 +75,7 @@
         <div class="info-box">
             <h3>Dokumen yang Dilampirkan:</h3>
             <ul>
-                <li>Risalah Penyelesaian (PDF)</li>
+                <li>Laporan Hasil Mediasi (PDF)</li>
                 <li>Anjuran (PDF)</li>
             </ul>
             <p><strong>Catatan:</strong> Dokumen-dokumen ini dapat digunakan untuk melanjutkan ke tahap pengadilan

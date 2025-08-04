@@ -2,7 +2,8 @@
 
 namespace App\Mail;
 
-use App\Models\Anjuran;
+use App\Models\Pengaduan;
+use App\Models\Risalah;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -11,14 +12,13 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 
-class FinalCaseDocumentsMail extends Mailable
+class KasusSelesaiKlarifikasiMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     public function __construct(
-        public Anjuran $anjuran,
-        public ?string $risalahPdfContent = null,
-        public ?string $anjuranPdfContent = null
+        public Pengaduan $pengaduan,
+        public Risalah $risalah
     ) {}
 
     /**
@@ -27,7 +27,7 @@ class FinalCaseDocumentsMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Dokumen Final Kasus - ' . $this->anjuran->dokumenHI->pengaduan->nomor_pengaduan,
+            subject: 'Kasus Selesai - Klarifikasi Bipartit Lagi - ' . $this->pengaduan->nomor_pengaduan,
         );
     }
 
@@ -37,10 +37,10 @@ class FinalCaseDocumentsMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.final-case-documents',
+            view: 'emails.kasus-selesai-klarifikasi',
             with: [
-                'anjuran' => $this->anjuran,
-                'pengaduan' => $this->anjuran->dokumenHI->pengaduan,
+                'pengaduan' => $this->pengaduan,
+                'risalah' => $this->risalah,
             ]
         );
     }
@@ -54,20 +54,19 @@ class FinalCaseDocumentsMail extends Mailable
     {
         $attachments = [];
 
-        // Attach risalah penyelesaian PDF
-        if ($this->risalahPdfContent) {
-            $attachments[] = Attachment::fromData(
-                fn() => $this->risalahPdfContent,
-                'laporan_hasil_mediasi.pdf'
-            )->withMime('application/pdf');
-        }
+        // Attach risalah klarifikasi PDF
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('risalah.pdf', [
+                'risalah' => $this->risalah,
+                'detail' => $this->risalah->detailKlarifikasi
+            ]);
 
-        // Attach anjuran PDF
-        if ($this->anjuranPdfContent) {
             $attachments[] = Attachment::fromData(
-                fn() => $this->anjuranPdfContent,
-                'anjuran.pdf'
+                fn() => $pdf->output(),
+                'risalah_klarifikasi.pdf'
             )->withMime('application/pdf');
+        } catch (\Exception $e) {
+            \Log::error('Error creating PDF attachment for risalah klarifikasi: ' . $e->getMessage());
         }
 
         return $attachments;

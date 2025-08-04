@@ -95,13 +95,13 @@
             <p>Berdasarkan penolakan ini, Anda dapat:</p>
             <ol>
                 <li>Mengakses halaman detail anjuran untuk melihat respon lengkap</li>
-                <li>Menyelesaikan kasus dengan membuat laporan hasil penyelesaian</li>
+                <li>Menyelesaikan kasus dengan membuat laporan hasil mediasi</li>
                 <li>Mengirim dokumen yang diperlukan ke para pihak</li>
             </ol>
         </div>
 
         <div style="text-align: center; margin: 20px 0;">
-            <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}" class="button">
+            <a href="{{ route('dokumen.anjuran.show', $anjuran) }}" class="button">
                 Lihat Detail Anjuran
             </a>
         </div>

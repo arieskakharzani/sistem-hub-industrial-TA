@@ -103,7 +103,7 @@
                                 </a>
                             @elseif ($anjuran)
                                 {{-- Jika sudah ada Anjuran, tampilkan button Lihat saja --}}
-                                <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}"
+                                <a href="{{ route('dokumen.anjuran.show', $anjuran) }}"
                                     class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded shadow font-semibold transition">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -352,6 +352,47 @@
 
                         {{-- TOMBOL AKSI --}}
                         <div class="mt-8 flex gap-4">
+                            @if ($risalah->jenis_risalah === 'klarifikasi' && $detail)
+                                @php
+                                    $jadwal = optional($risalah->jadwal);
+                                    $pengaduanId = optional($jadwal)->pengaduan_id;
+                                    $hasMediasiSchedule = false;
+                                    if ($pengaduanId) {
+                                        $mediasiSchedule = optional($jadwal->pengaduan)
+                                            ->jadwal()
+                                            ->where('jenis_jadwal', 'mediasi')
+                                            ->first();
+                                        $hasMediasiSchedule = $mediasiSchedule !== null;
+                                    }
+                                @endphp
+                                @if ($detail->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
+                                    @if (!$hasMediasiSchedule)
+                                        <a href="{{ route('jadwal.create', ['pengaduan_id' => $pengaduanId, 'jenis_jadwal' => 'mediasi', 'sidang_ke' => 1]) }}"
+                                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow font-semibold transition">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                            </svg>
+                                            Buat Jadwal Mediasi
+                                        </a>
+                                    @else
+                                        <a href="{{ route('jadwal.show', $mediasiSchedule->jadwal_id) }}"
+                                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                            </svg>
+                                            Lihat Jadwal Mediasi
+                                        </a>
+                                    @endif
+                                @endif
+                            @endif
+
                             @if ($risalah->jenis_risalah === 'mediasi' && $detail)
                                 @php
                                     $sidangKe = $detail->sidang_ke ?? 1;

@@ -207,7 +207,7 @@
                                                     </button>
                                                 </form>
                                             @elseif ($dokumen->jenis_dokumen == 'Anjuran')
-                                                <a href="{{ route('dokumen.anjuran.show', $dokumen->id) }}"
+                                                <a href="{{ route('dokumen.anjuran.show', $dokumen->anjuran) }}"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
                                                 <form action="{{ route('dokumen.anjuran.destroy', $dokumen->id) }}"
                                                     method="POST" class="inline">

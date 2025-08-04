@@ -68,21 +68,39 @@ class LaporanService
             return null;
         }
 
-        // Generate laporan hasil mediasi
+        // Ambil data dari risalah terbaru
+        $risalah = $dokumenHI->risalah()->latest()->first();
+
+        // Ambil data dari anjuran jika ada
+        $anjuran = $dokumenHI->anjuran()->first();
+
+        // Ambil data dari perjanjian bersama jika ada
+        $perjanjianBersama = $dokumenHI->perjanjianBersama()->first();
+
+        // Hitung waktu penyelesaian dari jadwal mediasi pertama
+        $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
+        $waktuPenyelesaian = '-';
+        if ($jadwalMediasiPertama) {
+            $tanggalSelesai = $pengaduan->updated_at ?? now();
+            $selisihHari = abs($jadwalMediasiPertama->tanggal->diffInDays($tanggalSelesai));
+            $waktuPenyelesaian = round($selisihHari) . ' hari';
+        }
+
+        // Generate laporan hasil mediasi dengan data yang lebih lengkap
         $laporan = LaporanHasilMediasi::create([
             'dokumen_hi_id' => $dokumenHI->dokumen_hi_id,
             'tanggal_penerimaan_pengaduan' => $pengaduan->tanggal_laporan,
-            'nama_pekerja' => $pengaduan->pelapor->nama_pelapor ?? '-',
-            'alamat_pekerja' => $pengaduan->pelapor->alamat_pelapor ?? '-',
+            'nama_pekerja' => $risalah ? $risalah->nama_pekerja : ($pengaduan->pelapor->nama_pelapor ?? '-'),
+            'alamat_pekerja' => $risalah ? $risalah->alamat_pekerja : ($pengaduan->pelapor->alamat_pelapor ?? '-'),
             'upah_terakhir' => '-', // Bisa diisi dari data pengaduan jika ada
             'masa_kerja' => $pengaduan->masa_kerja,
-            'nama_perusahaan' => $pengaduan->terlapor->nama_terlapor ?? '-',
-            'alamat_perusahaan' => $pengaduan->terlapor->alamat_terlapor ?? '-',
-            'jenis_usaha' => '-', // Bisa diisi dari data terlapor jika ada
-            'waktu_penyelesaian_mediasi' => $pengaduan->updated_at->format('Y-m-d'),
-            'permasalahan' => $pengaduan->narasi_kasus,
-            'pendapat_pekerja' => '-', // Bisa diisi dari risalah jika ada
-            'pendapat_pengusaha' => '-', // Bisa diisi dari risalah jika ada
+            'nama_perusahaan' => $risalah ? $risalah->nama_perusahaan : ($pengaduan->terlapor->nama_terlapor ?? '-'),
+            'alamat_perusahaan' => $risalah ? $risalah->alamat_perusahaan : ($pengaduan->terlapor->alamat_kantor_cabang ?? '-'),
+            'jenis_usaha' => $risalah && !empty($risalah->jenis_usaha) ? $risalah->jenis_usaha : ($anjuran && !empty($anjuran->jenis_usaha) ? $anjuran->jenis_usaha : ($perjanjianBersama && !empty($perjanjianBersama->jenis_usaha) ? $perjanjianBersama->jenis_usaha : 'Tidak Diketahui')),
+            'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
+            'permasalahan' => $pengaduan->perihal,
+            'pendapat_pekerja' => $risalah ? $risalah->pendapat_pekerja : ($anjuran ? $anjuran->keterangan_pekerja : ($perjanjianBersama ? $perjanjianBersama->keterangan_pekerja : '-')),
+            'pendapat_pengusaha' => $risalah ? $risalah->pendapat_pengusaha : ($anjuran ? $anjuran->keterangan_pengusaha : ($perjanjianBersama ? $perjanjianBersama->keterangan_pengusaha : '-')),
             'pendapat_saksi' => '-', // Bisa diisi dari risalah jika ada
             'upaya_penyelesaian' => $this->getUpayaPenyelesaian($pengaduan),
         ]);
@@ -115,7 +133,7 @@ class LaporanService
             'nama_pelapor' => $pengaduan->pelapor->nama_pelapor ?? '-',
             'alamat_pelapor' => $pengaduan->pelapor->alamat_pelapor ?? '-',
             'nama_terlapor' => $pengaduan->terlapor->nama_terlapor ?? '-',
-            'alamat_terlapor' => $pengaduan->terlapor->alamat_terlapor ?? '-',
+            'alamat_terlapor' => $pengaduan->terlapor->alamat_kantor_cabang ?? '-',
             'perihal_perselisihan' => $pengaduan->perihal,
             'pokok_permasalahan' => $pengaduan->narasi_kasus,
             'upaya_penyelesaian' => $this->getUpayaPenyelesaian($pengaduan),

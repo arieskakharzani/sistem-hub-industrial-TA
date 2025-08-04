@@ -131,6 +131,8 @@ class JadwalController extends Controller
             // Validasi input
             $request->validate([
                 'pengaduan_id' => 'required|exists:pengaduans,pengaduan_id',
+                'jenis_jadwal' => 'nullable|in:klarifikasi,mediasi,ttd_perjanjian_bersama',
+                'sidang_ke' => 'nullable|integer|min:1|max:3',
                 'tanggal' => 'required|date|after_or_equal:today',
                 'waktu' => 'required|date_format:H:i',
                 'tempat' => 'required|string|max:255|min:5',
@@ -155,6 +157,11 @@ class JadwalController extends Controller
                 return back()->withErrors(['pengaduan_id' => 'Pengaduan ini sudah memiliki jadwal aktif']);
             }
 
+            // Validasi khusus untuk sidang_ke jika jenis jadwal adalah mediasi
+            if ($request->jenis_jadwal === 'mediasi' && !$request->sidang_ke) {
+                return back()->withErrors(['sidang_ke' => 'Sidang ke- harus dipilih untuk jadwal mediasi']);
+            }
+
             DB::beginTransaction();
             try {
                 // Log data pengaduan sebelum membuat jadwal
@@ -174,7 +181,7 @@ class JadwalController extends Controller
                     'waktu' => $request->waktu,
                     'tempat' => $request->tempat,
                     'jenis_jadwal' => $request->jenis_jadwal ?? 'mediasi',
-                    'sidang_ke' => $request->sidang_ke,
+                    'sidang_ke' => $request->jenis_jadwal === 'mediasi' ? ($request->sidang_ke ?? 1) : $request->sidang_ke,
                     'status_jadwal' => 'dijadwalkan',
                     'catatan_jadwal' => $request->catatan_jadwal
                 ]);

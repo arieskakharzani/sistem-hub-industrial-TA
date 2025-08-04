@@ -138,6 +138,42 @@
                                     {{ $bukuRegister->perselisihan_phk === 'ya' ? 'Ya' : 'Tidak' }}
                                 </span>
                             </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Perselisihan SP/SB</label>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $bukuRegister->perselisihan_sp_sb === 'ya' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $bukuRegister->perselisihan_sp_sb === 'ya' ? 'Ya' : 'Tidak' }}
+                                </span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Perselisihan Kepentingan</label>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $bukuRegister->perselisihan_kepentingan === 'ya' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $bukuRegister->perselisihan_kepentingan === 'ya' ? 'Ya' : 'Tidak' }}
+                                </span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Perselisihan Hak</label>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $bukuRegister->perselisihan_hak === 'ya' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $bukuRegister->perselisihan_hak === 'ya' ? 'Ya' : 'Tidak' }}
+                                </span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Penyelesaian Bipartit</label>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $bukuRegister->penyelesaian_bipartit === 'ya' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $bukuRegister->penyelesaian_bipartit === 'ya' ? 'Ya' : 'Tidak' }}
+                                </span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Penyelesaian Klarifikasi</label>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $bukuRegister->penyelesaian_klarifikasi === 'ya' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $bukuRegister->penyelesaian_klarifikasi === 'ya' ? 'Ya' : 'Tidak' }}
+                                </span>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Penyelesaian Mediasi</label>
                                 <span

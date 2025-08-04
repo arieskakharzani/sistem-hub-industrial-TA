@@ -245,6 +245,18 @@
                                                                     $q->where('jenis_risalah', 'klarifikasi');
                                                                 })
                                                                 ->exists();
+
+                                                            // Cek apakah ada anjuran
+                                                            $hasAnjuran = $pengaduan
+                                                                ->dokumenHI()
+                                                                ->whereHas('anjuran')
+                                                                ->exists();
+
+                                                            // Cek apakah ada perjanjian bersama
+                                                            $hasPerjanjianBersama = $pengaduan
+                                                                ->dokumenHI()
+                                                                ->whereHas('perjanjianBersama')
+                                                                ->exists();
                                                         @endphp
 
                                                         <div class="flex flex-wrap gap-1">
@@ -253,7 +265,23 @@
                                                                     class="inline-flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
                                                                     📊 Laporan Hasil Mediasi
                                                                 </a>
-                                                            @elseif($hasKlarifikasiRisalah)
+                                                            @endif
+
+                                                            @if ($hasAnjuran)
+                                                                <a href="{{ route('dokumen.anjuran.show', $pengaduan->dokumenHI()->whereHas('anjuran')->first()->anjuran()->first()) }}"
+                                                                    class="inline-flex items-center gap-1 bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📋 Anjuran
+                                                                </a>
+                                                            @endif
+
+                                                            @if ($hasPerjanjianBersama)
+                                                                <a href="{{ route('dokumen.perjanjian-bersama.show', $pengaduan->dokumenHI()->whereHas('perjanjianBersama')->first()->perjanjianBersama()->first()) }}"
+                                                                    class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium">
+                                                                    📄 Perjanjian Bersama
+                                                                </a>
+                                                            @endif
+
+                                                            @if ($hasKlarifikasiRisalah && !$hasMediasiJadwal)
                                                                 <a href="{{ route(
                                                                     'risalah.show',
                                                                     $pengaduan->jadwal()->whereHas('risalah', function ($q) {

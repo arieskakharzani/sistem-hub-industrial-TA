@@ -204,9 +204,9 @@
 
                                                         <div class="flex flex-wrap gap-1">
                                                             @if ($perjanjianBersama)
-                                                                <a href="{{ route('dokumen.show-perjanjian-bersama', $perjanjianBersama->perjanjian_bersama_id) }}"
+                                                                <a href="{{ route('dokumen.perjanjian-bersama.show', $perjanjianBersama->perjanjian_bersama_id) }}"
                                                                     class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium">
-                                                                    📄 PB
+                                                                    📄 Perjanjian Bersama
                                                                 </a>
                                                             @endif
 

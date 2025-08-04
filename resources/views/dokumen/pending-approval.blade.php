@@ -61,7 +61,7 @@
                                                 {{ Str::limit($anjuran->isi_anjuran, 60) }}
                                             </td>
                                             <td class="px-4 py-2 text-center">
-                                                <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}"
+                                                <a href="{{ route('dokumen.anjuran.show', $anjuran) }}"
                                                     class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-md transition">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">

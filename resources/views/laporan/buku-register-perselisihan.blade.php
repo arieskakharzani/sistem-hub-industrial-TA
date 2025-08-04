@@ -21,6 +21,27 @@
             }
         }
     </script>
+    <style>
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .badge-perselisihan {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -46,11 +67,37 @@
                             <h3 class="text-lg font-semibold text-gray-900">Buku Register Perselisihan</h3>
                             <p class="text-sm text-gray-600">
                                 @if ($user->active_role === 'mediator')
-                                    Buku register perselisihan untuk kasus yang Anda tangani
+                                    Buku register perselisihan untuk kasus perselisihan hubungan industrial
                                 @else
                                     Buku register perselisihan internal dinas
                                 @endif
                             </p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    🔵 Hak
+                                </span>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    🟢 Kepentingan
+                                </span>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    🔴 PHK
+                                </span>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    🟣 Serikat Pekerja
+                                </span>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    ⚪ Lainnya
+                                </span>
+                            </div>
+                            {{-- <div class="mt-2 text-xs text-gray-600">
+                                <strong>Keterangan Tindak Lanjut PHI:</strong> "Ya" jika anjuran mediator ditolak oleh
+                                salah satu atau kedua pihak
+                            </div> --}}
                         </div>
                         <a href="{{ route('laporan.index') }}"
                             class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
@@ -62,63 +109,109 @@
                 <!-- Register Table -->
                 <div class="bg-white rounded-lg shadow-sm">
                     @if ($bukuRegister->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
+                        <div class="overflow-x-auto table-responsive">
+                            <table class="min-w-full divide-y divide-gray-200 table-hover">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            No
+                                        </th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tanggal Pencatatan
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Pihak Pencatat
+                                        </th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Pihak Pekerja
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Pihak Pengusaha
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Pihak Mencatat
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Jenis Perselisihan
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Penyelesaian
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Proses Penyelesaian
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tindak Lanjut PHI
+                                        </th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Aksi
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($bukuRegister as $register)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @foreach ($bukuRegister as $index => $register)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                                {{ $index + 1 + ($bukuRegister->currentPage() - 1) * $bukuRegister->perPage() }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ \Carbon\Carbon::parse($register->tanggal_pencatatan)->format('d/m/Y') }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $register->pihak_pekerja }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $register->pihak_pengusaha }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $register->pihak_mencatat }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $register->pihak_pekerja }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $register->pihak_pengusaha }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                @php
+                                                    $jenisPerselisihan =
+                                                        $register->dokumenHI->pengaduan->perihal ?? 'Tidak Diketahui';
+                                                    $jenisClass = '';
+                                                    $jenisColor = '';
+
+                                                    if (str_contains(strtolower($jenisPerselisihan), 'serikat')) {
+                                                        $jenisClass = 'bg-purple-100 text-purple-800';
+                                                        $jenisColor = 'Serikat Pekerja';
+                                                    } elseif (str_contains(strtolower($jenisPerselisihan), 'hak')) {
+                                                        $jenisClass = 'bg-blue-100 text-blue-800';
+                                                        $jenisColor = 'Hak';
+                                                    } elseif (
+                                                        str_contains(strtolower($jenisPerselisihan), 'kepentingan')
+                                                    ) {
+                                                        $jenisClass = 'bg-green-100 text-green-800';
+                                                        $jenisColor = 'Kepentingan';
+                                                    } elseif (str_contains(strtolower($jenisPerselisihan), 'phk')) {
+                                                        $jenisClass = 'bg-red-100 text-red-800';
+                                                        $jenisColor = 'PHK';
+                                                    } else {
+                                                        $jenisClass = 'bg-gray-100 text-gray-800';
+                                                        $jenisColor = 'Lainnya';
+                                                    }
+                                                @endphp
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $jenisClass }}">
+                                                    {{ $jenisColor }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
                                                 <div class="flex flex-col space-y-1">
+                                                    @if ($register->penyelesaian_klarifikasi === 'ya')
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                                            Klarifikasi
+                                                        </span>
+                                                    @endif
                                                     @if ($register->penyelesaian_mediasi === 'ya')
                                                         <span
                                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                             Mediasi
-                                                        </span>
-                                                    @endif
-                                                    @if ($register->penyelesaian_pb === 'ya')
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                            Perjanjian Bersama
                                                         </span>
                                                     @endif
                                                     @if ($register->penyelesaian_anjuran === 'ya')
@@ -127,11 +220,54 @@
                                                             Anjuran
                                                         </span>
                                                     @endif
+                                                    @if ($register->penyelesaian_pb === 'ya')
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            Perjanjian Bersama
+                                                        </span>
+                                                    @endif
+                                                    @if ($register->penyelesaian_risalah === 'ya')
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                            Risalah
+                                                        </span>
+                                                    @endif
+                                                    @if (
+                                                        $register->penyelesaian_klarifikasi !== 'ya' &&
+                                                            $register->penyelesaian_mediasi !== 'ya' &&
+                                                            $register->penyelesaian_anjuran !== 'ya' &&
+                                                            $register->penyelesaian_pb !== 'ya' &&
+                                                            $register->penyelesaian_risalah !== 'ya')
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                            Belum Selesai
+                                                        </span>
+                                                    @endif
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                @php
+                                                    // Tindak Lanjut PHI = "Ya" jika anjuran ditolak oleh salah satu atau kedua pihak
+                                                    // Logika: Jika ada anjuran tapi tidak ada perjanjian bersama, berarti anjuran ditolak
+                                                    $tindakLanjut = 'Tidak';
+                                                    $tindakLanjutClass = 'bg-gray-100 text-gray-800';
+
+                                                    if (
+                                                        $register->penyelesaian_anjuran === 'ya' &&
+                                                        $register->penyelesaian_pb !== 'ya'
+                                                    ) {
+                                                        $tindakLanjut = 'Ya';
+                                                        $tindakLanjutClass = 'bg-red-100 text-red-800';
+                                                    }
+                                                @endphp
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $tindakLanjutClass }}">
+                                                    {{ $tindakLanjut }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                                 <a href="{{ route('laporan.buku-register.show', $register->buku_register_perselisihan_id) }}"
-                                                    class="text-primary hover:text-primary-dark">
+                                                    class="text-primary hover:text-primary-dark font-medium">
                                                     Lihat Detail
                                                 </a>
                                             </td>

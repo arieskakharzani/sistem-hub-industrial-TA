@@ -49,7 +49,7 @@
                                     $anjuran->response_pelapor === 'setuju' && $anjuran->response_terlapor === 'setuju';
                             @endphp
 
-                            @if ($anjuran->deadline_response_at && !$bothPartiesAgreed)
+                            @if ($anjuran->deadline_response_at && !$bothPartiesAgreed && $anjuran->dokumenHI->pengaduan->status !== 'selesai')
                                 <div class="text-right">
                                     <div class="text-sm text-gray-600">Batas Waktu Respon:</div>
                                     <div
@@ -64,7 +64,7 @@
                                         <div class="text-sm text-red-500">Batas waktu terlampaui</div>
                                     @endif
                                 </div>
-                            @elseif ($anjuran->deadline_response_at && $bothPartiesAgreed)
+                            @elseif ($anjuran->deadline_response_at && $bothPartiesAgreed && $anjuran->dokumenHI->pengaduan->status !== 'selesai')
                                 <div class="text-right">
                                     <div class="text-sm text-gray-600">Batas Waktu Respon:</div>
                                     <div class="text-lg font-semibold text-green-600">
@@ -99,7 +99,10 @@
                             </div>
                         </div>
                     </div>
-                @elseif ($anjuran->response_pelapor !== 'pending' && $anjuran->response_terlapor !== 'pending')
+                @elseif (
+                    $anjuran->response_pelapor !== 'pending' &&
+                        $anjuran->response_terlapor !== 'pending' &&
+                        $anjuran->dokumenHI->pengaduan->status !== 'selesai')
                     <!-- Alert ketika kedua pihak sudah merespon tapi tidak setuju -->
                     <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-6 rounded-r-xl">
                         <div class="flex items-center">
@@ -121,140 +124,146 @@
                     </div>
                 @endif
 
-                <!-- Status Respon -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Respon</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 class="font-medium text-gray-900 mb-2">Respon Pelapor</h4>
-                                @if ($anjuran->response_pelapor === 'pending')
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                                        Menunggu Respon
-                                    </span>
-                                @elseif ($anjuran->response_pelapor === 'setuju')
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        Setuju
-                                    </span>
-                                    @if ($anjuran->response_at_pelapor)
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            Direspon pada: {{ $anjuran->response_at_pelapor->format('d/m/Y H:i') }}
-                                        </div>
-                                    @endif
-                                @else
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                        Tidak Setuju
-                                    </span>
-                                    @if ($anjuran->response_at_pelapor)
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            Direspon pada: {{ $anjuran->response_at_pelapor->format('d/m/Y H:i') }}
-                                        </div>
-                                    @endif
-                                @endif
-
-                                @if ($anjuran->response_note_pelapor)
-                                    <div class="mt-2 text-sm">
-                                        <span class="font-medium">Catatan:</span>
-                                        <div class="bg-gray-50 p-2 rounded mt-1">{{ $anjuran->response_note_pelapor }}
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div>
-                                <h4 class="font-medium text-gray-900 mb-2">Respon Terlapor</h4>
-                                @if ($anjuran->response_terlapor === 'pending')
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                                        Menunggu Respon
-                                    </span>
-                                @elseif ($anjuran->response_terlapor === 'setuju')
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        Setuju
-                                    </span>
-                                    @if ($anjuran->response_at_terlapor)
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            Direspon pada: {{ $anjuran->response_at_terlapor->format('d/m/Y H:i') }}
-                                        </div>
-                                    @endif
-                                @else
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                        Tidak Setuju
-                                    </span>
-                                    @if ($anjuran->response_at_terlapor)
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            Direspon pada: {{ $anjuran->response_at_terlapor->format('d/m/Y H:i') }}
-                                        </div>
-                                    @endif
-                                @endif
-
-                                @if ($anjuran->response_note_terlapor)
-                                    <div class="mt-2 text-sm">
-                                        <span class="font-medium">Catatan:</span>
-                                        <div class="bg-gray-50 p-2 rounded mt-1">
-                                            {{ $anjuran->response_note_terlapor }}
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Respon -->
-                @php
-                    $responseField = $userRole === 'pelapor' ? 'response_pelapor' : 'response_terlapor';
-                    $hasResponded = $anjuran->$responseField !== 'pending';
-                @endphp
-
-                @if (!$hasResponded && $anjuran->canStillRespond())
+                <!-- Status Respon (jika kasus belum selesai) -->
+                @if ($anjuran->dokumenHI->pengaduan->status !== 'selesai')
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                         <div class="p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Berikan Respon Anda</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Respon</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-medium text-gray-900 mb-2">Respon Pelapor</h4>
+                                    @if ($anjuran->response_pelapor === 'pending')
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                            Menunggu Respon
+                                        </span>
+                                    @elseif ($anjuran->response_pelapor === 'setuju')
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                            Setuju
+                                        </span>
+                                        @if ($anjuran->response_at_pelapor)
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                Direspon pada: {{ $anjuran->response_at_pelapor->format('d/m/Y H:i') }}
+                                            </div>
+                                        @endif
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                            Tidak Setuju
+                                        </span>
+                                        @if ($anjuran->response_at_pelapor)
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                Direspon pada: {{ $anjuran->response_at_pelapor->format('d/m/Y H:i') }}
+                                            </div>
+                                        @endif
+                                    @endif
 
-                            <form action="{{ route('anjuran-response.submit', $anjuran->anjuran_id) }}" method="POST">
-                                @csrf
-
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Respon Anda *
-                                    </label>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center">
-                                            <input type="radio" name="response" value="setuju" class="mr-2"
-                                                required>
-                                            <span class="text-sm">Setuju dengan anjuran ini</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="radio" name="response" value="tidak_setuju" class="mr-2"
-                                                required>
-                                            <span class="text-sm">Tidak setuju dengan anjuran ini</span>
-                                        </label>
-                                    </div>
+                                    @if ($anjuran->response_note_pelapor)
+                                        <div class="mt-2 text-sm">
+                                            <span class="font-medium">Catatan:</span>
+                                            <div class="bg-gray-50 p-2 rounded mt-1">
+                                                {{ $anjuran->response_note_pelapor }}
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
-                                <div class="mb-6">
-                                    <label for="note" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Catatan (Opsional)
-                                    </label>
-                                    <textarea id="note" name="note" rows="3"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Berikan catatan respon tambahan jika diperlukan..."></textarea>
-                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900 mb-2">Respon Terlapor</h4>
+                                    @if ($anjuran->response_terlapor === 'pending')
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                            Menunggu Respon
+                                        </span>
+                                    @elseif ($anjuran->response_terlapor === 'setuju')
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                            Setuju
+                                        </span>
+                                        @if ($anjuran->response_at_terlapor)
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                Direspon pada:
+                                                {{ $anjuran->response_at_terlapor->format('d/m/Y H:i') }}
+                                            </div>
+                                        @endif
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                            Tidak Setuju
+                                        </span>
+                                        @if ($anjuran->response_at_terlapor)
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                Direspon pada:
+                                                {{ $anjuran->response_at_terlapor->format('d/m/Y H:i') }}
+                                            </div>
+                                        @endif
+                                    @endif
 
-                                <div class="flex justify-end">
-                                    <x-primary-button type="submit">
-                                        Kirim Respon
-                                    </x-primary-button>
+                                    @if ($anjuran->response_note_terlapor)
+                                        <div class="mt-2 text-sm">
+                                            <span class="font-medium">Catatan:</span>
+                                            <div class="bg-gray-50 p-2 rounded mt-1">
+                                                {{ $anjuran->response_note_terlapor }}
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Form Respon -->
+                    @php
+                        $responseField = $userRole === 'pelapor' ? 'response_pelapor' : 'response_terlapor';
+                        $hasResponded = $anjuran->$responseField !== 'pending';
+                    @endphp
+
+                    @if (!$hasResponded && $anjuran->canStillRespond())
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Berikan Respon Anda</h3>
+
+                                <form action="{{ route('anjuran-response.submit', $anjuran->anjuran_id) }}"
+                                    method="POST">
+                                    @csrf
+
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Respon Anda *
+                                        </label>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="response" value="setuju" class="mr-2"
+                                                    required>
+                                                <span class="text-sm">Setuju dengan anjuran ini</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="response" value="tidak_setuju"
+                                                    class="mr-2" required>
+                                                <span class="text-sm">Tidak setuju dengan anjuran ini</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <label for="note" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Catatan (Opsional)
+                                        </label>
+                                        <textarea id="note" name="note" rows="3"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Berikan catatan respon tambahan jika diperlukan..."></textarea>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <x-primary-button type="submit">
+                                            Kirim Respon
+                                        </x-primary-button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
                 @endif
 
                 <!-- Detail Anjuran Lengkap -->
@@ -266,8 +275,10 @@
                             <div>
                                 <h4 class="font-medium text-gray-900 mb-2">Informasi Pengusaha</h4>
                                 <div class="space-y-2 text-sm">
-                                    <div><span class="font-medium">Nama:</span> {{ $anjuran->nama_pengusaha }}</div>
-                                    <div><span class="font-medium">Jabatan:</span> {{ $anjuran->jabatan_pengusaha }}
+                                    <div><span class="font-medium">Nama:</span> {{ $anjuran->nama_pengusaha }}
+                                    </div>
+                                    <div><span class="font-medium">Jabatan:</span>
+                                        {{ $anjuran->jabatan_pengusaha }}
                                     </div>
                                     <div><span class="font-medium">Perusahaan:</span>
                                         {{ $anjuran->perusahaan_pengusaha }}</div>
@@ -284,7 +295,8 @@
                                     </div>
                                     <div><span class="font-medium">Perusahaan:</span>
                                         {{ $anjuran->perusahaan_pekerja }}</div>
-                                    <div><span class="font-medium">Alamat:</span> {{ $anjuran->alamat_pekerja }}</div>
+                                    <div><span class="font-medium">Alamat:</span> {{ $anjuran->alamat_pekerja }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -293,7 +305,8 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                             <!-- Keterangan Pekerja -->
                             <div>
-                                <h4 class="font-medium text-gray-900 mb-2">A. Keterangan pihak Pekerja/Buruh/Serikat
+                                <h4 class="font-medium text-gray-900 mb-2">A. Keterangan pihak
+                                    Pekerja/Buruh/Serikat
                                     Pekerja/Serikat Buruh:</h4>
                                 <div class="bg-gray-50 p-4 rounded-lg h-48 overflow-y-auto">
                                     <div class="text-sm text-gray-700">
@@ -336,7 +349,8 @@
                                 <h4 class="font-medium text-yellow-800 mb-2">INFORMASI APPROVAL</h4>
                                 <div class="text-yellow-700 text-sm">
                                     <p class="mb-2">
-                                        <strong>Status:</strong> Anjuran ini telah disetujui oleh Kepala Dinas Tenaga
+                                        <strong>Status:</strong> Anjuran ini telah disetujui oleh Kepala Dinas
+                                        Tenaga
                                         Kerja dan Transmigrasi
                                     </p>
                                     <p class="mb-2">

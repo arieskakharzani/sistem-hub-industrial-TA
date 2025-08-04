@@ -27,10 +27,7 @@ class LaporanController extends Controller
         // Statistik berdasarkan role
         $stats = $this->getLaporanStats($user);
 
-        // Laporan terbaru
-        $recentReports = $this->getRecentReports($user);
-
-        return view('laporan.index', compact('stats', 'recentReports', 'user'));
+        return view('laporan.index', compact('stats', 'user'));
     }
 
     /**
@@ -310,6 +307,22 @@ class LaporanController extends Controller
             abort(404, 'Laporan hasil mediasi tidak ditemukan.');
         }
 
+        // Ambil data dari risalah untuk override data laporan yang mungkin tidak lengkap
+        $dokumenHI = $laporanHasilMediasi->dokumenHI;
+        $risalah = $dokumenHI->risalah()->latest()->first();
+
+        // Jika ada risalah, gunakan data dari risalah untuk override
+        if ($risalah) {
+            // Override data laporan dengan data dari risalah
+            $laporanHasilMediasi->nama_pekerja = $risalah->nama_pekerja ?: $laporanHasilMediasi->nama_pekerja;
+            $laporanHasilMediasi->alamat_pekerja = $risalah->alamat_pekerja ?: $laporanHasilMediasi->alamat_pekerja;
+            $laporanHasilMediasi->nama_perusahaan = $risalah->nama_perusahaan ?: $laporanHasilMediasi->nama_perusahaan;
+            $laporanHasilMediasi->alamat_perusahaan = $risalah->alamat_perusahaan ?: $laporanHasilMediasi->alamat_perusahaan;
+            $laporanHasilMediasi->jenis_usaha = $risalah->jenis_usaha ?: $laporanHasilMediasi->jenis_usaha;
+            $laporanHasilMediasi->pendapat_pekerja = $risalah->pendapat_pekerja ?: $laporanHasilMediasi->pendapat_pekerja;
+            $laporanHasilMediasi->pendapat_pengusaha = $risalah->pendapat_pengusaha ?: $laporanHasilMediasi->pendapat_pengusaha;
+        }
+
         return view('laporan.show-hasil-mediasi', compact('laporanHasilMediasi', 'pengaduan', 'user'));
     }
 
@@ -379,6 +392,22 @@ class LaporanController extends Controller
         }
 
         $pengaduan = $laporanHasilMediasi->dokumenHI->pengaduan;
+
+        // Ambil data dari risalah untuk override data laporan yang mungkin tidak lengkap
+        $dokumenHI = $laporanHasilMediasi->dokumenHI;
+        $risalah = $dokumenHI->risalah()->latest()->first();
+
+        // Jika ada risalah, gunakan data dari risalah untuk override
+        if ($risalah) {
+            // Override data laporan dengan data dari risalah
+            $laporanHasilMediasi->nama_pekerja = $risalah->nama_pekerja ?: $laporanHasilMediasi->nama_pekerja;
+            $laporanHasilMediasi->alamat_pekerja = $risalah->alamat_pekerja ?: $laporanHasilMediasi->alamat_pekerja;
+            $laporanHasilMediasi->nama_perusahaan = $risalah->nama_perusahaan ?: $laporanHasilMediasi->nama_perusahaan;
+            $laporanHasilMediasi->alamat_perusahaan = $risalah->alamat_perusahaan ?: $laporanHasilMediasi->alamat_perusahaan;
+            $laporanHasilMediasi->jenis_usaha = $risalah->jenis_usaha ?: $laporanHasilMediasi->jenis_usaha;
+            $laporanHasilMediasi->pendapat_pekerja = $risalah->pendapat_pekerja ?: $laporanHasilMediasi->pendapat_pekerja;
+            $laporanHasilMediasi->pendapat_pengusaha = $risalah->pendapat_pengusaha ?: $laporanHasilMediasi->pendapat_pengusaha;
+        }
 
         // Generate PDF
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.pdf.laporan-hasil-mediasi', compact('laporanHasilMediasi', 'pengaduan'));

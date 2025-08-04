@@ -142,11 +142,14 @@
                                 </label>
                                 <select name="sidang_ke" id="sidang_ke" class="w-full rounded-md border-gray-300">
                                     <option value="">-- Pilih Sidang --</option>
-                                    <option value="1" {{ old('sidang_ke') == '1' ? 'selected' : '' }}>Sidang ke-1
+                                    <option value="1"
+                                        {{ old('sidang_ke', $selectedSidangKe) == '1' ? 'selected' : '' }}>Sidang ke-1
                                     </option>
-                                    <option value="2" {{ old('sidang_ke') == '2' ? 'selected' : '' }}>Sidang ke-2
+                                    <option value="2"
+                                        {{ old('sidang_ke', $selectedSidangKe) == '2' ? 'selected' : '' }}>Sidang ke-2
                                     </option>
-                                    <option value="3" {{ old('sidang_ke') == '3' ? 'selected' : '' }}>Sidang ke-3
+                                    <option value="3"
+                                        {{ old('sidang_ke', $selectedSidangKe) == '3' ? 'selected' : '' }}>Sidang ke-3
                                     </option>
                                 </select>
                             </div>
@@ -342,6 +345,13 @@
                     sidangKeField.style.display = 'none';
                     document.getElementById('sidang_ke').required = false;
                     document.getElementById('sidang_ke').value = '';
+                }
+
+                // Jika sidang_ke sudah dipilih, tampilkan field
+                const selectedSidangKe = document.getElementById('sidang_ke').value;
+                if (selectedSidangKe && jenisJadwal.value === 'mediasi') {
+                    sidangKeField.style.display = '';
+                    document.getElementById('sidang_ke').required = true;
                 }
             });
         </script>

@@ -1,5 +1,27 @@
 <x-app-layout>
     <x-slot name="header">
+        <style>
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out;
+            }
+
+            .alert-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+        </style>
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Detail Anjuran') }}
@@ -19,6 +41,89 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div
+                    class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow-sm animate-fade-in alert-hover transition-all duration-300">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h3 class="text-lg font-semibold text-green-800 mb-1">
+                                🎉 Berhasil!
+                            </h3>
+                            <p class="text-green-700">{{ session('success') }}</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button type="button" onclick="this.parentElement.parentElement.parentElement.remove()"
+                                class="text-green-400 hover:text-green-600 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div
+                    class="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg shadow-sm animate-fade-in alert-hover transition-all duration-300">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h3 class="text-lg font-semibold text-red-800 mb-1">
+                                ⚠️ Perhatian!
+                            </h3>
+                            <p class="text-red-700">{{ session('error') }}</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button type="button" onclick="this.parentElement.parentElement.parentElement.remove()"
+                                class="text-red-400 hover:text-red-600 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Status Kasus Selesai -->
+            @if (auth()->user()->active_role === 'mediator' && $anjuran->dokumenHI->pengaduan->status === 'selesai')
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-semibold text-green-800">✅ Kasus Telah Diselesaikan</h3>
+                                <p class="text-green-700 mt-1">
+                                    Kasus ini telah diselesaikan dan dokumen final telah dikirim ke para pihak.
+                                    Laporan hasil mediasi dan buku register perselisihan telah dibuat.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Status Approval Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
@@ -43,8 +148,8 @@
                         </span>
                     </div>
 
-                    <!-- Countdown Timer (jika published) -->
-                    @if ($anjuran->status_approval === 'published' && $anjuran->deadline_response_at)
+                    <!-- Countdown Timer (jika published dan belum ada respon lengkap) -->
+                    @if ($anjuran->status_approval === 'published' && $anjuran->deadline_response_at && !$anjuran->bothPartiesResponded())
                         <div class="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -58,6 +163,26 @@
                                         Para pihak memiliki waktu <strong>{{ $anjuran->getDaysUntilDeadline() }}
                                             hari</strong> lagi
                                         (hingga {{ $anjuran->deadline_response_at->format('d/m/Y H:i') }})
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Status Respon Lengkap (jika kedua pihak sudah respon) -->
+                    @if ($anjuran->status_approval === 'published' && $anjuran->bothPartiesResponded())
+                        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <div>
+                                    <h4 class="font-semibold text-green-800">✅ Respon Lengkap</h4>
+                                    <p class="text-green-700">
+                                        Kedua pihak telah memberikan respon. Mediator dapat melanjutkan ke tahap
+                                        berikutnya.
                                     </p>
                                 </div>
                             </div>
@@ -78,7 +203,8 @@
                                             @if ($anjuran->response_pelapor === 'setuju')
                                                 <span
                                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                        viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                                             clip-rule="evenodd"></path>
@@ -88,7 +214,8 @@
                                             @else
                                                 <span
                                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                        viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                                             clip-rule="evenodd"></path>
@@ -101,7 +228,8 @@
                                             </span>
                                         </div>
                                         @if ($anjuran->response_note_pelapor)
-                                            <p class="text-sm text-gray-600 mt-1">{{ $anjuran->response_note_pelapor }}
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                {{ $anjuran->response_note_pelapor }}
                                             </p>
                                         @endif
                                     @else
@@ -125,7 +253,8 @@
                                             @if ($anjuran->response_terlapor === 'setuju')
                                                 <span
                                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                        viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                                             clip-rule="evenodd"></path>
@@ -135,7 +264,8 @@
                                             @else
                                                 <span
                                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                        viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                                             clip-rule="evenodd"></path>
@@ -286,7 +416,8 @@
                         <!-- Action Buttons untuk Mediator berdasarkan Response Status -->
                         @if (auth()->user()->active_role === 'mediator' &&
                                 $anjuran->status_approval === 'published' &&
-                                $anjuran->isResponseComplete())
+                                $anjuran->isResponseComplete() &&
+                                $anjuran->dokumenHI->pengaduan->status !== 'selesai')
                             <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                 <h4 class="font-semibold text-blue-900 mb-3">Aksi Berdasarkan Respon Para Pihak</h4>
 
@@ -352,56 +483,21 @@
                                     <div class="space-y-3">
                                         <p class="text-yellow-800">Para pihak memberikan respon yang berbeda. Anda
                                             dapat:</p>
-                                        <div class="flex space-x-3">
-                                            @if ($anjuran->hasTtdPerjanjianBersamaSchedule())
-                                                <!-- Jika jadwal sudah ada, tampilkan link lihat jadwal -->
-                                                @php
-                                                    $jadwalTtd = $anjuran->getTtdPerjanjianBersamaSchedule();
-                                                @endphp
-                                                <a href="{{ route('jadwal.show', $jadwalTtd->jadwal_id) }}"
-                                                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow font-semibold transition">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-                                                        </path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                        </path>
-                                                    </svg>
-                                                    Lihat Jadwal TTD Perjanjian Bersama
-                                                </a>
-                                            @else
-                                                <!-- Jika jadwal belum ada, tampilkan button buat jadwal -->
-                                                <a href="{{ route('jadwal.create', ['pengaduan_id' => $anjuran->dokumenHI->pengaduan->pengaduan_id, 'jenis_jadwal' => 'ttd_perjanjian_bersama']) }}"
-                                                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                    Buat Jadwal TTD Perjanjian Bersama
-                                                </a>
-                                            @endif
-                                            <form
-                                                action="{{ route('dokumen.anjuran.finalize-case', $anjuran->anjuran_id) }}"
-                                                method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded shadow font-semibold transition">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                    Selesaikan Kasus
-                                                </button>
-                                            </form>
-                                        </div>
+                                        <form
+                                            action="{{ route('dokumen.anjuran.finalize-case', $anjuran->anjuran_id) }}"
+                                            method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded shadow font-semibold transition">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Selesaikan Kasus
+                                            </button>
+                                        </form>
                                     </div>
                                 @endif
                             </div>
@@ -538,6 +634,8 @@
                                 </p>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>

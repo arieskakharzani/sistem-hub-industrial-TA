@@ -59,13 +59,12 @@ class AnjuranController extends Controller
 
         $anjuran = Anjuran::create($data);
 
-        return redirect()->route('dokumen.anjuran.show', ['id' => $anjuran->anjuran_id])
+        return redirect()->route('dokumen.anjuran.show', $anjuran)
             ->with('success', 'Anjuran berhasil dibuat.');
     }
 
-    public function show($id)
+    public function show(Anjuran $anjuran)
     {
-        $anjuran = Anjuran::findOrFail($id);
         $user = Auth::user();
 
         // Load relasi yang diperlukan
@@ -124,7 +123,7 @@ class AnjuranController extends Controller
 
         $anjuran->update($data);
 
-        return redirect()->route('dokumen.anjuran.show', ['id' => $anjuran->anjuran_id])
+        return redirect()->route('dokumen.anjuran.show', $anjuran)
             ->with('success', 'Anjuran berhasil diperbarui.');
     }
 
@@ -376,9 +375,9 @@ class AnjuranController extends Controller
     /**
      * Finalize case when anjuran is rejected
      */
-    public function finalizeCase($id)
+    public function finalizeCase(Anjuran $anjuran)
     {
-        $anjuran = Anjuran::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor'])->findOrFail($id);
+        $anjuran->load(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor']);
         $user = Auth::user();
 
         // Only mediator can finalize case
@@ -408,7 +407,7 @@ class AnjuranController extends Controller
             // Generate laporan hasil mediasi and buku register perselisihan
             $this->generateFinalReports($anjuran);
 
-            return redirect()->route('dokumen.anjuran.show', $anjuran->anjuran_id)
+            return redirect()->route('dokumen.anjuran.show', $anjuran)
                 ->with('success', 'Kasus telah diselesaikan. Dokumen telah dikirim ke para pihak.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -420,28 +419,30 @@ class AnjuranController extends Controller
      */
     private function sendFinalDocumentsToParties($anjuran)
     {
-        // Generate PDF risalah penyelesaian
-        $risalah = $anjuran->dokumenHI->risalah()->where('jenis_risalah', 'penyelesaian')->first();
-
-        if ($risalah) {
-            $risalahPdf = Pdf::loadView('dokumen.pdf.risalah', compact('risalah'));
-            $risalahPdfContent = $risalahPdf->output();
-        }
-
         // Generate PDF anjuran
-        $anjuranPdf = Pdf::loadView('dokumen.pdf.anjuran', compact('anjuran'));
+        $anjuranPdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('dokumen.pdf.anjuran', compact('anjuran'));
         $anjuranPdfContent = $anjuranPdf->output();
 
-        // Send to pelapor
-        if ($anjuran->dokumenHI->pengaduan->pelapor->user->email) {
-            Mail::to($anjuran->dokumenHI->pengaduan->pelapor->user->email)
-                ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $risalahPdfContent ?? null, $anjuranPdfContent));
+        // Ambil laporan hasil mediasi terbaru untuk dokumen HI ini
+        $laporanHasilMediasi = $anjuran->dokumenHI->laporanHasilMediasi()->latest()->first();
+        $laporanPdfContent = null;
+        if ($laporanHasilMediasi) {
+            $laporanPdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.pdf.laporan-hasil-mediasi', [
+                'laporanHasilMediasi' => $laporanHasilMediasi
+            ]);
+            $laporanPdfContent = $laporanPdf->output();
         }
 
-        // Send to terlapor
+        // Kirim ke pelapor
+        if ($anjuran->dokumenHI->pengaduan->pelapor->user->email) {
+            \Mail::to($anjuran->dokumenHI->pengaduan->pelapor->user->email)
+                ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $laporanPdfContent, $anjuranPdfContent));
+        }
+
+        // Kirim ke terlapor
         if ($anjuran->dokumenHI->pengaduan->terlapor->email) {
-            Mail::to($anjuran->dokumenHI->pengaduan->terlapor->email)
-                ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $risalahPdfContent ?? null, $anjuranPdfContent));
+            \Mail::to($anjuran->dokumenHI->pengaduan->terlapor->email)
+                ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $laporanPdfContent, $anjuranPdfContent));
         }
     }
 
@@ -493,7 +494,10 @@ class AnjuranController extends Controller
             \Log::info('Waktu penyelesaian: ' . $jadwalMediasiPertama->tanggal->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
         }
 
-        // Generate laporan hasil mediasi - data dari Anjuran
+        // Ambil data dari risalah untuk laporan hasil mediasi
+        $risalah = $anjuran->dokumenHI->risalah()->latest()->first();
+
+        // Generate laporan hasil mediasi - data dari anjuran dan risalah
         $laporanHasilMediasi = \App\Models\LaporanHasilMediasi::create([
             'laporan_id' => (string) Str::uuid(),
             'dokumen_hi_id' => $anjuran->dokumen_hi_id,
@@ -501,9 +505,9 @@ class AnjuranController extends Controller
             'nama_pekerja' => $anjuran->nama_pekerja,
             'alamat_pekerja' => $anjuran->alamat_pekerja,
             'masa_kerja' => $pengaduan->masa_kerja ?? '-',
-            'nama_perusahaan' => $anjuran->nama_perusahaan,
-            'alamat_perusahaan' => $anjuran->alamat_perusahaan,
-            'jenis_usaha' => $anjuran->jenis_usaha ?: 'Tidak Diketahui',
+            'nama_perusahaan' => $anjuran->perusahaan_pengusaha,
+            'alamat_perusahaan' => $anjuran->alamat_pengusaha,
+            'jenis_usaha' => $risalah ? ($risalah->jenis_usaha ?: 'Tidak Diketahui') : 'Tidak Diketahui',
             'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
             'permasalahan' => $pengaduan->perihal,
             'pendapat_pekerja' => $anjuran->keterangan_pekerja ?: '-',
@@ -518,10 +522,13 @@ class AnjuranController extends Controller
             'tanggal_pencatatan' => $pengaduan->tanggal_laporan,
             'pihak_mencatat' => $anjuran->dokumenHI->pengaduan->mediator->nama_mediator,
             'pihak_pekerja' => $anjuran->nama_pekerja,
-            'pihak_pengusaha' => $anjuran->nama_perusahaan,
+            'pihak_pengusaha' => $anjuran->perusahaan_pengusaha,
             'perselisihan_phk' => 'ya',
+            'penyelesaian_bipartit' => 'ya', // karena sudah masuk ranah dinas
+            'penyelesaian_klarifikasi' => 'ya', // Ada risalah klarifikasi
             'penyelesaian_mediasi' => 'ya',
             'penyelesaian_anjuran' => 'ya',
+            'penyelesaian_risalah' => 'ya', // Ada risalah penyelesaian
             'tindak_lanjut_phi' => 'ya',
             'keterangan' => 'Kasus diselesaikan dengan anjuran yang ditolak oleh para pihak',
         ]);

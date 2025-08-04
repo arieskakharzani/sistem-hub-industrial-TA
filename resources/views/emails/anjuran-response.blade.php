@@ -244,7 +244,7 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}" class="action-button">
+                    <a href="{{ route('dokumen.anjuran.show', $anjuran) }}" class="action-button">
                         Lihat Detail Anjuran
                     </a>
                 </div>
