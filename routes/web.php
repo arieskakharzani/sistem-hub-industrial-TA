@@ -301,6 +301,19 @@ Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->gr
 // Laporan Routes
 Route::middleware(['auth', 'verified'])->prefix('laporan')->name('laporan.')->group(function () {
     Route::get('/', [LaporanController::class, 'index'])->name('index');
+
+    // Laporan Hasil Mediasi - untuk semua role
+    Route::get('/hasil-mediasi', [LaporanController::class, 'laporanHasilMediasi'])->name('hasil-mediasi');
+    Route::get('/hasil-mediasi/{pengaduan}', [LaporanController::class, 'showLaporanHasilMediasi'])->name('hasil-mediasi.show');
+    Route::get('/hasil-mediasi/{laporan}/cetak-pdf', [LaporanController::class, 'cetakPdfLaporanHasilMediasi'])->name('hasil-mediasi.cetak-pdf');
+
+    // Buku Register Perselisihan - hanya untuk mediator dan kepala dinas
+    Route::middleware(['check.role:mediator,kepala_dinas'])->group(function () {
+        Route::get('/buku-register', [LaporanController::class, 'bukuRegisterPerselisihan'])->name('buku-register');
+        Route::get('/buku-register/{id}', [LaporanController::class, 'showBukuRegister'])->name('buku-register.show');
+    });
+
+    // Routes lama (untuk backward compatibility)
     Route::get('/pihak-terkait', [LaporanController::class, 'laporanPihakTerkait'])->name('pihak-terkait');
     Route::get('/kasus-selesai', [LaporanController::class, 'laporanKasusSelesai'])->name('kasus-selesai');
     Route::get('/pengadilan-hi', [LaporanController::class, 'laporanPengadilanHI'])->name('pengadilan-hi');

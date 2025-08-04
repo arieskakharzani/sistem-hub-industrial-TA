@@ -262,7 +262,7 @@
         <!-- Footer menggunakan komponen -->
         @include('components.pdf.footer', [
             'footerText' =>
-                'Anjuran ini dikeluarkan secara resmi oleh Mediator Hubungan Industrial dan disetujui oleh Kepala Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo',
+                'Anjuran ini dikeluarkan oleh Mediator Hubungan Industrial dan disetujui oleh Kepala Dinas Tenaga Kerja dan Transmigrasi Kabupaten Bungo pada',
             'approvalDate' =>
                 $anjuran->status_approval === 'published'
                     ? \Carbon\Carbon::parse($anjuran->published_at)->translatedFormat('d F Y')

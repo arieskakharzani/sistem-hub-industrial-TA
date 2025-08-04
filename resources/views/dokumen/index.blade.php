@@ -271,14 +271,14 @@
                                                 {{ ($registerList->currentPage() - 1) * $registerList->perPage() + $index + 1 }}
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $register->nomor_register }}</td>
+                                                {{ $register->buku_register_perselisihan_id }}</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $register->tanggal_register ? \Carbon\Carbon::parse($register->tanggal_register)->format('d M Y') : '-' }}
+                                                {{ $register->tanggal_pencatatan ? \Carbon\Carbon::parse($register->tanggal_pencatatan)->format('d M Y') : '-' }}
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $register->pengaduan->perihal ?? '-' }}</td>
+                                                {{ optional($register->dokumenHI)->pengaduan->perihal ?? '-' }}</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $register->catatan ?? '-' }}</td>
+                                                {{ $register->keterangan ?? '-' }}</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 <a href="#"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
@@ -334,14 +334,14 @@
                                                 {{ ($laporanList->currentPage() - 1) * $laporanList->perPage() + $index + 1 }}
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $laporan->nomor_laporan }}</td>
+                                                {{ $laporan->laporan_id }}</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $laporan->tanggal ? \Carbon\Carbon::parse($laporan->tanggal)->format('d M Y') : '-' }}
+                                                {{ $laporan->tanggal_penerimaan_pengaduan ? \Carbon\Carbon::parse($laporan->tanggal_penerimaan_pengaduan)->format('d M Y') : '-' }}
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $laporan->pengaduan->perihal ?? '-' }}</td>
+                                                {{ optional($laporan->dokumenHI)->pengaduan->perihal ?? '-' }}</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $laporan->catatan ?? '-' }}</td>
+                                                {{ $laporan->upaya_penyelesaian ?? '-' }}</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 <a href="#"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>

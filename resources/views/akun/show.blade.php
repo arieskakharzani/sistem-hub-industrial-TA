@@ -26,6 +26,8 @@
 
         // Fungsi untuk menangani aktivasi/deaktivasi akun
         function handleAccountStatus(action, id) {
+            console.log('handleAccountStatus called:', action, id);
+
             if (!confirm('Yakin ingin ' + (action === 'activate' ? 'mengaktifkan' : 'menonaktifkan') + ' akun ini?')) {
                 return;
             }
@@ -41,11 +43,13 @@
                     _method: 'PATCH'
                 },
                 success: function(response) {
+                    console.log('Success response:', response);
                     alert(response.message);
                     location.reload();
                 },
                 error: function(xhr) {
                     console.error('Error:', xhr.responseJSON);
+                    console.error('Status:', xhr.status);
                     alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error || xhr.responseJSON?.message ||
                         'Unknown error'));
                 }
@@ -184,7 +188,7 @@
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Status Akun</dt>
                                     <dd class="mt-1">
-                                        @if (isset($terlapor->user) && $terlapor->status === 'active' && $terlapor->user->is_active)
+                                        @if (isset($terlapor->user) && $terlapor->is_active && $terlapor->user->is_active)
                                             <span
                                                 class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
@@ -226,7 +230,7 @@
 
                             <!-- Action Button -->
                             <div class="mt-6 pt-4 border-t border-gray-200">
-                                @if (isset($terlapor->user) && $terlapor->status === 'active' && $terlapor->user->is_active)
+                                @if (isset($terlapor->user) && $terlapor->is_active && $terlapor->user->is_active)
                                     <button onclick="handleAccountStatus('deactivate', '{{ $terlapor->terlapor_id }}')"
                                         class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
@@ -238,8 +242,7 @@
                                         Nonaktifkan Akun
                                     </button>
                                 @else
-                                    <button class="bg-green-600 hover:bg-green-700"
-                                        onclick="handleAccountStatus('activate', '{{ $terlapor->terlapor_id }}')"
+                                    <button onclick="handleAccountStatus('activate', '{{ $terlapor->terlapor_id }}')"
                                         class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">

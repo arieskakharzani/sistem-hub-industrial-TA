@@ -82,8 +82,8 @@ class DokumenController extends Controller
         // Tambahkan query parameters ke pagination links
         $pagedDokumenList->appends($request->query());
 
-        $registerList = BukuRegisterPerselisihan::with('pengaduan')->orderBy('tanggal_register', 'desc')->paginate(10, ['*'], 'register_page');
-        $laporanList = LaporanHasilMediasi::with('pengaduan')->orderBy('tanggal', 'desc')->paginate(10, ['*'], 'laporan_page');
+        $registerList = BukuRegisterPerselisihan::with('dokumenHI.pengaduan')->orderBy('tanggal_pencatatan', 'desc')->paginate(10, ['*'], 'register_page');
+        $laporanList = LaporanHasilMediasi::with('dokumenHI.pengaduan')->orderBy('tanggal_penerimaan_pengaduan', 'desc')->paginate(10, ['*'], 'laporan_page');
         return view('dokumen.index', compact('pagedDokumenList', 'jenisDokumenList', 'filter', 'registerList', 'laporanList'));
     }
 }

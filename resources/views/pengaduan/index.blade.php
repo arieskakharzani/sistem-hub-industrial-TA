@@ -211,15 +211,15 @@
                                                             @endif
 
                                                             @if ($anjuran)
-                                                                <a href="{{ route('dokumen.anjuran.show', $anjuran->anjuran_id) }}"
+                                                                <a href="{{ route('anjuran-response.show', $anjuran->anjuran_id) }}"
                                                                     class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium">
-                                                                    📋 A
+                                                                    📋 Anjuran
                                                                 </a>
                                                             @endif
 
-                                                            <a href="{{ route('laporan.index') }}"
+                                                            <a href="{{ route('laporan.hasil-mediasi.show', $pengaduan->pengaduan_id) }}"
                                                                 class="inline-flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
-                                                                📊 L
+                                                                📊 Laporan Hasil Mediasi
                                                             </a>
                                                         </div>
                                                     @else

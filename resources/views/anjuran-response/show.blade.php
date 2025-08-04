@@ -44,7 +44,12 @@
                                 </p>
                             </div>
 
-                            @if ($anjuran->deadline_response_at)
+                            @php
+                                $bothPartiesAgreed =
+                                    $anjuran->response_pelapor === 'setuju' && $anjuran->response_terlapor === 'setuju';
+                            @endphp
+
+                            @if ($anjuran->deadline_response_at && !$bothPartiesAgreed)
                                 <div class="text-right">
                                     <div class="text-sm text-gray-600">Batas Waktu Respon:</div>
                                     <div
@@ -59,10 +64,62 @@
                                         <div class="text-sm text-red-500">Batas waktu terlampaui</div>
                                     @endif
                                 </div>
+                            @elseif ($anjuran->deadline_response_at && $bothPartiesAgreed)
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-600">Batas Waktu Respon:</div>
+                                    <div class="text-lg font-semibold text-green-600">
+                                        {{ $anjuran->deadline_response_at->format('d F Y H:i') }}
+                                    </div>
+                                    <div class="text-sm text-green-500 font-medium">
+                                        ✅ Kedua pihak telah setuju
+                                    </div>
+                                </div>
                             @endif
                         </div>
                     </div>
                 </div>
+
+                <!-- Alert ketika kedua pihak setuju -->
+                @if ($bothPartiesAgreed)
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6 rounded-r-xl">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-700">
+                                    <span class="font-medium">Selamat!</span>
+                                    Kedua pihak telah menyetujui anjuran ini. Mediator akan segera menghubungi Anda
+                                    untuk langkah selanjutnya.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @elseif ($anjuran->response_pelapor !== 'pending' && $anjuran->response_terlapor !== 'pending')
+                    <!-- Alert ketika kedua pihak sudah merespon tapi tidak setuju -->
+                    <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-6 rounded-r-xl">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    <span class="font-medium">Perhatian!</span>
+                                    Kedua pihak telah memberikan respon namun tidak mencapai kesepakatan. Mediator akan
+                                    menghubungi Anda untuk langkah selanjutnya.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Status Respon -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">

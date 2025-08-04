@@ -470,22 +470,22 @@
                         </div>
 
 
-                        <!-- Jadwal Section (jika ada) -->
-                        @if ($jadwal->count() > 0)
+                        <!-- Jadwal Section (jika ada jadwal aktif) -->
+                        @if ($jadwal->where('status_jadwal', 'dijadwalkan')->count() > 0)
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                                 <h4 class="text-lg font-semibold mb-4 flex items-center gap-2">
                                     <span>🗓️</span>
                                     <span>Jadwal</span>
-                                    @if ($jadwal->where('konfirmasi_pelapor', 'pending')->count() > 0)
+                                    @if ($jadwal->where('status_jadwal', 'dijadwalkan')->where('konfirmasi_pelapor', 'pending')->count() > 0)
                                         <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                                            {{ $jadwal->where('konfirmasi_pelapor', 'pending')->count() }}
+                                            {{ $jadwal->where('status_jadwal', 'dijadwalkan')->where('konfirmasi_pelapor', 'pending')->count() }}
                                             menunggu
                                         </span>
                                     @endif
                                 </h4>
 
                                 <div class="space-y-4">
-                                    @foreach ($jadwal->take(5) as $item)
+                                    @foreach ($jadwal->where('status_jadwal', 'dijadwalkan')->take(5) as $item)
                                         <div
                                             class="border border-gray-200 rounded-lg p-4 {{ $item->konfirmasi_pelapor === 'pending' ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50' }}">
                                             <div class="flex justify-between items-start mb-3">
@@ -579,17 +579,20 @@
                                         </div>
                                     @endforeach
 
-                                    @if ($jadwal->count() > 5)
+                                    @if ($jadwal->where('status_jadwal', 'dijadwalkan')->count() > 5)
                                         <div class="text-center">
                                             <a href="{{ route('konfirmasi.index') }}"
                                                 class="text-primary hover:text-primary-dark font-medium">
-                                                Lihat semua jadwal ({{ $jadwal->count() }} total)
+                                                Lihat semua jadwal
+                                                ({{ $jadwal->where('status_jadwal', 'dijadwalkan')->count() }} total)
                                             </a>
                                         </div>
                                     @endif
                                 </div>
                             </div>
                         @endif
+
+
 
                         <!-- Next Steps -->
                         <div class="space-y-4">

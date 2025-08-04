@@ -29,20 +29,19 @@ class RisalahController extends Controller
         $pengaduan = $jadwal->pengaduan;
 
         if ($kesimpulan_klarifikasi === 'bipartit_lagi') {
-            // DULU: Status langsung selesai
-            // $pengaduan->status = 'selesai';
-            // $pengaduan->save();
-            // $jadwal->status_jadwal = 'selesai';
-            // $jadwal->save();
-            // return redirect()->route('pengaduan.show', $pengaduan)
-            //     ->with('success', 'Kasus selesai dan akan dilanjutkan dengan perundingan Bipartit');
+            // Update status pengaduan menjadi selesai
+            $pengaduan->status = 'selesai';
+            $pengaduan->save();
 
-            // SEKARANG: Status tetap 'proses', update catatan jika perlu
-            // Status akan diubah ke 'selesai' setelah dokumen ditandatangani dan didistribusikan
-            // Bisa tambahkan catatan internal jika ingin menandai kasus bipartit_lagi
-            // Contoh:
-            // $pengaduan->catatan_mediator = 'Kesimpulan klarifikasi: bipartit_lagi';
-            // $pengaduan->save();
+            // Update status jadwal menjadi selesai
+            $jadwal->status_jadwal = 'selesai';
+            $jadwal->save();
+
+            // Kirim email dan notifikasi risalah klarifikasi ke pelapor dan terlapor
+            $this->sendKlarifikasiNotifications($jadwal, $pengaduan);
+
+            return redirect()->route('pengaduan.show', $pengaduan)
+                ->with('success', 'Kasus selesai dan akan dilanjutkan dengan perundingan Bipartit. Risalah klarifikasi telah dikirim ke para pihak.');
         } else {
             // Jika hasil klarifikasi adalah mediasi, status pengaduan tetap proses
             $pengaduan->status = 'proses'; // Tetap proses karena akan lanjut ke mediasi
@@ -53,14 +52,26 @@ class RisalahController extends Controller
             return redirect()->route('risalah.show', ['pengaduan' => $pengaduan->pengaduan_id, 'jenis' => 'mediasi'])
                 ->with('success', 'Silahkan buat jadwal Mediasi');
         }
-        // Untuk bipartit_lagi, tetap redirect ke detail risalah/halaman pengaduan tanpa mengubah status
-        $latestRisalah = $jadwal->risalah()->latest()->first();
-        if ($latestRisalah) {
-            return redirect()->route('risalah.show', $latestRisalah->risalah_id)
-                ->with('success', 'Kesimpulan klarifikasi: Bipartit Lagi. Status akan selesai setelah dokumen ditandatangani dan didistribusikan.');
-        } else {
-            return redirect()->route('jadwal.show', $jadwal)
-                ->with('error', 'Tidak ada risalah yang ditemukan');
+    }
+
+    /**
+     * Kirim notifikasi risalah klarifikasi ke pelapor dan terlapor
+     */
+    private function sendKlarifikasiNotifications(Jadwal $jadwal, $pengaduan)
+    {
+        $risalah = $jadwal->risalah()->latest()->first();
+        if (!$risalah) {
+            return;
+        }
+
+        // Kirim ke pelapor
+        if ($pengaduan->pelapor && $pengaduan->pelapor->user) {
+            $pengaduan->pelapor->user->notify(new \App\Notifications\RisalahKlarifikasiNotification($risalah, $pengaduan));
+        }
+
+        // Kirim ke terlapor
+        if ($pengaduan->terlapor && $pengaduan->terlapor->user) {
+            $pengaduan->terlapor->user->notify(new \App\Notifications\RisalahKlarifikasiNotification($risalah, $pengaduan));
         }
     }
 

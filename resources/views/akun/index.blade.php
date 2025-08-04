@@ -105,7 +105,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        /{{ __('Manajemen Akun') }}
+                        {{ __('Manajemen Akun') }}
                     </h2>
                     <p class="text-gray-600 text-sm mt-1">Kelola akun pelapor dan terlapor untuk Sistem Informasi
                         Pengaduan dan Penyelesaian Hubungan Industrial Kab. Bungo
@@ -652,7 +652,7 @@
                                     <tbody class="bg-white divide-y divide-gray-200" id="terlapor-table">
                                         @foreach ($terlapors as $terlapor)
                                             <tr class="hover:bg-gray-50"
-                                                data-status="{{ $terlapor->status ?? 'inactive' }}"
+                                                data-status="{{ isset($terlapor->user) && $terlapor->is_active && $terlapor->user->is_active ? 'active' : 'inactive' }}"
                                                 data-search="{{ strtolower(($terlapor->nama_terlapor ?? '') . ' ' . ($terlapor->email_terlapor ?? '')) }}">
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div>
@@ -683,7 +683,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    @if (isset($terlapor->user) && ($terlapor->status ?? '') === 'active' && $terlapor->user->is_active)
+                                                    @if (isset($terlapor->user) && $terlapor->is_active && $terlapor->user->is_active)
                                                         <span
                                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                             <svg class="w-2 h-2 mr-1" fill="currentColor"
@@ -710,7 +710,7 @@
                                                     <a href="{{ route('mediator.akun.show', $terlapor->terlapor_id) }}"
                                                         class="text-indigo-600 hover:text-indigo-900">Detail</a>
 
-                                                    @if (isset($terlapor->user) && ($terlapor->status ?? '') === 'active' && $terlapor->user->is_active)
+                                                    @if (isset($terlapor->user) && $terlapor->is_active && $terlapor->user->is_active)
                                                         <button
                                                             onclick="handleAccountStatus('terlapor', 'deactivate', '{{ $terlapor->terlapor_id }}')"
                                                             class="text-red-600 hover:text-red-900">Nonaktifkan</button>

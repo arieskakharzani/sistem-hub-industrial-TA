@@ -449,44 +449,6 @@
                                                                 Proses
                                                             </button>
                                                         @endif
-
-                                                        @if ($pengaduan->status === 'proses')
-                                                            <button
-                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'selesai')"
-                                                                class="text-green-600 hover:text-green-900 transition-colors">
-                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M5 13l4 4L19 7"></path>
-                                                                </svg>
-                                                                Selesai
-                                                            </button>
-                                                            <button
-                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'ditunda')"
-                                                                class="text-orange-600 hover:text-orange-900 transition-colors ml-2">
-                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                                    </path>
-                                                                </svg>
-                                                                Tunda
-                                                            </button>
-                                                            <button
-                                                                onclick="updateStatus({{ $pengaduan->pengaduan_id }}, 'dibatalkan')"
-                                                                class="text-red-600 hover:text-red-900 transition-colors ml-2">
-                                                                <svg class="w-4 h-4 inline mr-1" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M6 18L18 6M6 6l12 12">
-                                                                    </path>
-                                                                </svg>
-                                                                Batalkan
-                                                            </button>
-                                                        @endif
                                                     @elseif ($currentUser->active_role === 'mediator' && !$isUnassigned)
                                                         <!-- Show disabled message for mediator non-assigned -->
                                                         <span class="text-gray-400 text-xs italic">

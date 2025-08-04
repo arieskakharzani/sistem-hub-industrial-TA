@@ -483,9 +483,17 @@ class AnjuranController extends Controller
 
         // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga anjuran
         $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
-        $waktuPenyelesaian = $jadwalMediasiPertama ? now()->diffInDays($jadwalMediasiPertama->tanggal) . ' hari' : '-';
+        $waktuPenyelesaian = '-';
+        if ($jadwalMediasiPertama) {
+            $tanggalSelesai = $anjuran->created_at ?? now();
+            // Gunakan abs() untuk memastikan nilai positif dan bulatkan
+            $selisihHari = abs($jadwalMediasiPertama->tanggal->diffInDays($tanggalSelesai));
+            $waktuPenyelesaian = round($selisihHari) . ' hari';
 
-        // Generate laporan hasil mediasi
+            \Log::info('Waktu penyelesaian: ' . $jadwalMediasiPertama->tanggal->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
+        }
+
+        // Generate laporan hasil mediasi - data dari Anjuran
         $laporanHasilMediasi = \App\Models\LaporanHasilMediasi::create([
             'laporan_id' => (string) Str::uuid(),
             'dokumen_hi_id' => $anjuran->dokumen_hi_id,
@@ -495,11 +503,11 @@ class AnjuranController extends Controller
             'masa_kerja' => $pengaduan->masa_kerja ?? '-',
             'nama_perusahaan' => $anjuran->nama_perusahaan,
             'alamat_perusahaan' => $anjuran->alamat_perusahaan,
-            'jenis_usaha' => $anjuran->jenis_usaha,
+            'jenis_usaha' => $anjuran->jenis_usaha ?: 'Tidak Diketahui',
             'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
             'permasalahan' => $pengaduan->perihal,
-            'pendapat_pekerja' => $anjuran->keterangan_pekerja,
-            'pendapat_pengusaha' => $anjuran->keterangan_pengusaha,
+            'pendapat_pekerja' => $anjuran->keterangan_pekerja ?: '-',
+            'pendapat_pengusaha' => $anjuran->keterangan_pengusaha ?: '-',
             'upaya_penyelesaian' => 'Mediasi dengan anjuran yang ditolak oleh para pihak',
         ]);
 

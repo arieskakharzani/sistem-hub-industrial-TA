@@ -145,120 +145,126 @@
 </head>
 
 <body>
-    <div class="header">
-        <div class="title">PERJANJIAN BERSAMA</div>
-    </div>
+    <!-- Kop Surat -->
+    @include('components.pdf.kop-surat')
 
-    <div class="content">
-        <p>
-            Pada hari {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('l') }}
-            tanggal {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('d') }}
-            bulan {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('F') }}
-            tahun {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('Y') }}
-            kami yang bertanda tangan di bawah ini:
-        </p>
-
-        <div class="party-info">
-            <div class="party-title">1. Pihak Pengusaha</div>
-            <table>
-                <tr>
-                    <td class="info-label">Nama</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->nama_pengusaha }}</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Jabatan</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->jabatan_pengusaha }}</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Perusahaan</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->perusahaan_pengusaha }}</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Alamat</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->alamat_pengusaha }}</td>
-                </tr>
-            </table>
-            <div class="party-description">Yang selanjutnya disebut Pihak Pengusaha.</div>
+    <div class="content" style="margin-top: 120px;">
+        <div class="header">
+            <div class="title">PERJANJIAN BERSAMA</div>
         </div>
 
-        <div class="party-info">
-            <div class="party-title">2. Pihak Pekerja/Buruh/SP/SB</div>
-            <table>
-                <tr>
-                    <td class="info-label">Nama</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->nama_pekerja }}</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Jabatan</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->jabatan_pekerja }}</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Perusahaan</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->perusahaan_pekerja }}</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Alamat</td>
-                    <td class="info-colon">:</td>
-                    <td class="info-value">{{ $perjanjian->alamat_pekerja }}</td>
-                </tr>
-            </table>
-            <div class="party-description">Yang selanjutnya disebut Pihak Pekerja/Buruh/SP/SB*)</div>
-        </div>
-
-        <div class="legal-basis">
+        <div class="content">
             <p>
-                Berdasarkan ketentuan Pasal 13 ayat (1) Undang-Undang Nomor 2 Tahun 2004 tentang Penyelesaian
-                Perselisihan
-                Hubungan Industrial, antara Pihak Pengusaha dan Pihak Pekerja/Buruh/SP/SB*) telah tercapai kesepakatan
-                penyelesaian perselisihan hubungan industrial melalui Mediasi sebagai berikut:
-            </p>
-        </div>
-
-        <div class="agreement-content">
-            {!! nl2br(e($perjanjian->isi_kesepakatan)) !!}
-        </div>
-
-        <div class="conclusion">
-            <p>
-                Kesepakatan ini merupakan perjanjian bersama yang berlaku sejak ditandatangani pihak-pihak berselisih.
+                Pada hari {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('l') }}
+                tanggal {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('d') }}
+                bulan {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('F') }}
+                tahun {{ \Carbon\Carbon::parse($perjanjian->created_at)->translatedFormat('Y') }}
+                kami yang bertanda tangan di bawah ini:
             </p>
 
-            <p>
-                Demikian Perjanjian Bersama ini dibuat dalam keadaan sadar tanpa paksaan dari pihak manapun, dan
-                dilaksanakan dengan penuh rasa tanggung jawab yang didasari itikad baik.
-            </p>
-        </div>
+            <div class="party-info">
+                <div class="party-title">1. Pihak Pengusaha</div>
+                <table>
+                    <tr>
+                        <td class="info-label">Nama</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->nama_pengusaha }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Jabatan</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->jabatan_pengusaha }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Perusahaan</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->perusahaan_pengusaha }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Alamat</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->alamat_pengusaha }}</td>
+                    </tr>
+                </table>
+                <div class="party-description">Yang selanjutnya disebut Pihak Pengusaha.</div>
+            </div>
 
-        <div class="signature-container">
-            <div class="signature-row">
-                <div class="signature-box">
-                    <p>Pihak Pengusaha,</p>
-                    <br><br>
-                    <p>({{ $perjanjian->nama_pengusaha }})</p>
-                </div>
-                <div class="signature-box">
-                    <p>Pihak Pekerja/Buruh/SP/SB,</p>
-                    <br><br>
-                    <p>({{ $perjanjian->nama_pekerja }})</p>
+            <div class="party-info">
+                <div class="party-title">2. Pihak Pekerja/Buruh/SP/SB</div>
+                <table>
+                    <tr>
+                        <td class="info-label">Nama</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->nama_pekerja }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Jabatan</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->jabatan_pekerja }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Perusahaan</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->perusahaan_pekerja }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Alamat</td>
+                        <td class="info-colon">:</td>
+                        <td class="info-value">{{ $perjanjian->alamat_pekerja }}</td>
+                    </tr>
+                </table>
+                <div class="party-description">Yang selanjutnya disebut Pihak Pekerja/Buruh/SP/SB*)</div>
+            </div>
+
+            <div class="legal-basis">
+                <p>
+                    Berdasarkan ketentuan Pasal 13 ayat (1) Undang-Undang Nomor 2 Tahun 2004 tentang Penyelesaian
+                    Perselisihan
+                    Hubungan Industrial, antara Pihak Pengusaha dan Pihak Pekerja/Buruh/SP/SB*) telah tercapai
+                    kesepakatan
+                    penyelesaian perselisihan hubungan industrial melalui Mediasi sebagai berikut:
+                </p>
+            </div>
+
+            <div class="agreement-content">
+                {!! nl2br(e($perjanjian->isi_kesepakatan)) !!}
+            </div>
+
+            <div class="conclusion">
+                <p>
+                    Kesepakatan ini merupakan perjanjian bersama yang berlaku sejak ditandatangani pihak-pihak
+                    berselisih.
+                </p>
+
+                <p>
+                    Demikian Perjanjian Bersama ini dibuat dalam keadaan sadar tanpa paksaan dari pihak manapun, dan
+                    dilaksanakan dengan penuh rasa tanggung jawab yang didasari itikad baik.
+                </p>
+            </div>
+
+            <div class="signature-container">
+                <div class="signature-row">
+                    <div class="signature-box">
+                        <p>Pihak Pengusaha,</p>
+                        <br><br>
+                        <p>({{ $perjanjian->nama_pengusaha }})</p>
+                    </div>
+                    <div class="signature-box">
+                        <p>Pihak Pekerja/Buruh/SP/SB,</p>
+                        <br><br>
+                        <p>({{ $perjanjian->nama_pekerja }})</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="mediator-signature">
-            <p>Menyaksikan</p>
-            <p>Mediator Hubungan Industrial,</p>
-            <br><br>
-            <p>({{ $perjanjian->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
-            <p>NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
+            <div class="mediator-signature">
+                <p>Menyaksikan</p>
+                <p>Mediator Hubungan Industrial,</p>
+                <br><br>
+                <p>({{ $perjanjian->dokumenHI->pengaduan->mediator->nama_mediator ?? '-' }})</p>
+                <p>NIP. {{ $perjanjian->dokumenHI->pengaduan->mediator->nip ?? '-' }}</p>
+            </div>
         </div>
-    </div>
 </body>
 
 </html>

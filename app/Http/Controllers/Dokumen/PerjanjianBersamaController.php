@@ -46,6 +46,20 @@ class PerjanjianBersamaController extends Controller
 
         $perjanjian = PerjanjianBersama::create($data);
 
+        // Update status jadwal TTD perjanjian bersama menjadi selesai
+        $pengaduan = $perjanjian->dokumenHI->pengaduan;
+        $jadwalTtd = \App\Models\Jadwal::whereHas('pengaduan', function ($query) use ($pengaduan) {
+            $query->where('pengaduan_id', $pengaduan->pengaduan_id);
+        })
+            ->where('jenis_jadwal', 'ttd_perjanjian_bersama')
+            ->where('status_jadwal', 'dijadwalkan')
+            ->first();
+
+        if ($jadwalTtd) {
+            $jadwalTtd->update(['status_jadwal' => 'selesai']);
+            \Log::info('Jadwal TTD perjanjian bersama berhasil diubah menjadi selesai: ' . $jadwalTtd->jadwal_id);
+        }
+
         // Redirect ke halaman detail perjanjian bersama
         return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
             ->with('success', 'Perjanjian Bersama berhasil dibuat.');
@@ -100,6 +114,20 @@ class PerjanjianBersamaController extends Controller
         ]);
 
         $perjanjian->update($data);
+
+        // Update status jadwal TTD perjanjian bersama menjadi selesai (jika belum)
+        $pengaduan = $perjanjian->dokumenHI->pengaduan;
+        $jadwalTtd = \App\Models\Jadwal::whereHas('pengaduan', function ($query) use ($pengaduan) {
+            $query->where('pengaduan_id', $pengaduan->pengaduan_id);
+        })
+            ->where('jenis_jadwal', 'ttd_perjanjian_bersama')
+            ->where('status_jadwal', 'dijadwalkan')
+            ->first();
+
+        if ($jadwalTtd) {
+            $jadwalTtd->update(['status_jadwal' => 'selesai']);
+            \Log::info('Jadwal TTD perjanjian bersama berhasil diubah menjadi selesai: ' . $jadwalTtd->jadwal_id);
+        }
 
         return redirect()->route('dokumen.perjanjian-bersama.show', ['id' => $perjanjian->perjanjian_bersama_id])
             ->with('success', 'Perjanjian Bersama berhasil diperbarui.');
@@ -166,13 +194,23 @@ class PerjanjianBersamaController extends Controller
 
             \Log::info('Perjanjian Bersama ditemukan: ' . $perjanjianBersama->perjanjian_bersama_id);
 
+            // Generate PDF perjanjian bersama
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('dokumen.pdf.perjanjian-bersama', [
+                'perjanjian' => $perjanjianBersama,
+                'pengaduan' => $pengaduan
+            ]);
+            $pdfContent = $pdf->output();
+
+            \Log::info('PDF content generated, size: ' . strlen($pdfContent) . ' bytes');
+
             // Email ke Pelapor
             if ($pengaduan->pelapor && $pengaduan->pelapor->user) {
                 $pelaporEmail = $pengaduan->pelapor->user->email;
                 \Log::info('Mengirim email ke pelapor: ' . $pelaporEmail);
 
+                \Log::info('Mengirim email ke pelapor dengan PDF content size: ' . strlen($pdfContent) . ' bytes');
                 \Illuminate\Support\Facades\Mail::to($pelaporEmail)
-                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($pengaduan, $perjanjianBersama, 'pelapor'));
+                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($perjanjianBersama, 'pelapor', $pdfContent));
 
                 \Log::info('Email berhasil dikirim ke pelapor: ' . $pelaporEmail);
             } else {
@@ -184,8 +222,9 @@ class PerjanjianBersamaController extends Controller
                 $terlaporEmail = $pengaduan->terlapor->email_terlapor;
                 \Log::info('Mengirim email ke terlapor: ' . $terlaporEmail);
 
+                \Log::info('Mengirim email ke terlapor dengan PDF content size: ' . strlen($pdfContent) . ' bytes');
                 \Illuminate\Support\Facades\Mail::to($terlaporEmail)
-                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($pengaduan, $perjanjianBersama, 'terlapor'));
+                    ->send(new \App\Mail\DraftPerjanjianBersamaMail($perjanjianBersama, 'terlapor', $pdfContent));
 
                 \Log::info('Email berhasil dikirim ke terlapor: ' . $terlaporEmail);
             } else {
@@ -209,9 +248,17 @@ class PerjanjianBersamaController extends Controller
 
         // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga perjanjian bersama
         $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
-        $waktuPenyelesaian = $jadwalMediasiPertama ? now()->diffInDays($jadwalMediasiPertama->tanggal) . ' hari' : '-';
+        $waktuPenyelesaian = '-';
+        if ($jadwalMediasiPertama) {
+            $tanggalSelesai = $perjanjian->created_at ?? now();
+            // Gunakan abs() untuk memastikan nilai positif dan bulatkan
+            $selisihHari = abs($jadwalMediasiPertama->tanggal->diffInDays($tanggalSelesai));
+            $waktuPenyelesaian = round($selisihHari) . ' hari';
 
-        // Generate laporan hasil mediasi
+            \Log::info('Waktu penyelesaian: ' . $jadwalMediasiPertama->tanggal->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
+        }
+
+        // Generate laporan hasil mediasi - data dari PerjanjianBersama
         $laporanHasilMediasi = \App\Models\LaporanHasilMediasi::create([
             'laporan_id' => (string) \Illuminate\Support\Str::uuid(),
             'dokumen_hi_id' => $perjanjian->dokumen_hi_id,
@@ -221,11 +268,11 @@ class PerjanjianBersamaController extends Controller
             'masa_kerja' => $pengaduan->masa_kerja ?? '-',
             'nama_perusahaan' => $perjanjian->perusahaan_pengusaha,
             'alamat_perusahaan' => $perjanjian->alamat_pengusaha,
-            'jenis_usaha' => $anjuran ? $anjuran->jenis_usaha : '-',
+            'jenis_usaha' => $anjuran ? ($anjuran->jenis_usaha ?? 'Tidak Diketahui') : ($perjanjian->jenis_usaha ?? 'Tidak Diketahui'),
             'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
             'permasalahan' => $pengaduan->perihal,
-            'pendapat_pekerja' => $anjuran ? $anjuran->keterangan_pekerja : '-',
-            'pendapat_pengusaha' => $anjuran ? $anjuran->keterangan_pengusaha : '-',
+            'pendapat_pekerja' => $anjuran ? ($anjuran->keterangan_pekerja ?: '-') : ($perjanjian->keterangan_pekerja ?: '-'),
+            'pendapat_pengusaha' => $anjuran ? ($anjuran->keterangan_pengusaha ?: '-') : ($perjanjian->keterangan_pengusaha ?: '-'),
             'upaya_penyelesaian' => 'Mediasi dengan perjanjian bersama yang disetujui oleh para pihak',
         ]);
 

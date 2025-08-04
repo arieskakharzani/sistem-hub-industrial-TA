@@ -71,7 +71,10 @@ class TerlaporService
             $terlapor->createAccount($user->user_id, $mediatorId);
 
             // Kirim notifikasi
-            $user->notify(new TerlaporAccountCreated($password));
+            $user->notify(new TerlaporAccountCreated([
+                'email' => $terlapor->email_terlapor,
+                'password' => $password
+            ], $terlapor));
 
             DB::commit();
             return $user;
@@ -150,10 +153,10 @@ class TerlaporService
         try {
             // Cek apakah email sudah ada di tabel pelapor
             $existingPelapor = \App\Models\Pelapor::where('email', $data['email_terlapor'])->first();
-            
+
             // Cek apakah email sudah ada di tabel terlapor
             $existingTerlapor = Terlapor::where('email_terlapor', $data['email_terlapor'])->first();
-            
+
             // Jika email sudah terdaftar sebagai pelapor
             if ($existingPelapor) {
                 // Cek apakah user sudah memiliki role terlapor
@@ -241,7 +244,10 @@ class TerlaporService
                 ]);
 
                 // Kirim notifikasi
-                $user->notify(new TerlaporAccountCreated($password));
+                $user->notify(new TerlaporAccountCreated([
+                    'email' => $data['email_terlapor'],
+                    'password' => $password
+                ], $existingTerlapor));
 
                 DB::commit();
 
@@ -282,7 +288,10 @@ class TerlaporService
             ]);
 
             // Kirim notifikasi
-            $user->notify(new TerlaporAccountCreated($password));
+            $user->notify(new TerlaporAccountCreated([
+                'email' => $data['email_terlapor'],
+                'password' => $password
+            ], $terlapor));
 
             // Jika ada pengaduan_id, update pengaduan
             if (isset($data['pengaduan_id'])) {

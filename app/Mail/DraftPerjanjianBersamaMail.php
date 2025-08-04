@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class DraftPerjanjianBersamaMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     public function __construct(
         public PerjanjianBersama $perjanjianBersama,
@@ -59,12 +59,18 @@ class DraftPerjanjianBersamaMail extends Mailable
 
         // Attach perjanjian bersama PDF
         if ($this->perjanjianPdfContent) {
+            \Log::info('Attaching PDF to email, content size: ' . strlen($this->perjanjianPdfContent) . ' bytes');
             $attachments[] = Attachment::fromData(
                 fn() => $this->perjanjianPdfContent,
                 'draft_perjanjian_bersama.pdf'
             )->withMime('application/pdf');
+
+            \Log::info('PDF attachment created successfully');
+        } else {
+            \Log::warning('PDF content is null or empty');
         }
 
+        \Log::info('Total attachments: ' . count($attachments));
         return $attachments;
     }
 }

@@ -249,4 +249,140 @@ class LaporanController extends Controller
 
         return $query->get();
     }
+
+    /**
+     * Laporan Hasil Mediasi - untuk semua role
+     */
+    public function laporanHasilMediasi()
+    {
+        $user = Auth::user();
+        $query = LaporanHasilMediasi::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor', 'dokumenHI.pengaduan.mediator']);
+
+        // Filter berdasarkan role
+        if ($user->active_role === 'pelapor') {
+            $pelapor = $user->pelapor;
+            $query->whereHas('dokumenHI.pengaduan', function ($q) use ($pelapor) {
+                $q->where('pelapor_id', $pelapor->pelapor_id);
+            });
+        } elseif ($user->active_role === 'terlapor') {
+            $terlapor = $user->terlapor;
+            $query->whereHas('dokumenHI.pengaduan', function ($q) use ($terlapor) {
+                $q->where('terlapor_id', $terlapor->terlapor_id);
+            });
+        } elseif ($user->active_role === 'mediator') {
+            // Mediator bisa lihat semua laporan hasil mediasi
+            // Tidak perlu filter berdasarkan mediator_id
+        }
+
+        $laporanHasilMediasi = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return view('laporan.hasil-mediasi', compact('laporanHasilMediasi', 'user'));
+    }
+
+    /**
+     * Show detail laporan hasil mediasi
+     */
+    public function showLaporanHasilMediasi($pengaduanId)
+    {
+        $user = Auth::user();
+        $pengaduan = Pengaduan::with(['pelapor', 'terlapor', 'mediator'])->findOrFail($pengaduanId);
+
+        // Authorization check
+        if ($user->active_role === 'pelapor') {
+            $pelapor = $user->pelapor;
+            if ($pengaduan->pelapor_id !== $pelapor->pelapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+            }
+        } elseif ($user->active_role === 'terlapor') {
+            $terlapor = $user->terlapor;
+            if ($pengaduan->terlapor_id !== $terlapor->terlapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+            }
+        } elseif (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        $laporanHasilMediasi = LaporanHasilMediasi::whereHas('dokumenHI.pengaduan', function ($q) use ($pengaduanId) {
+            $q->where('pengaduan_id', $pengaduanId);
+        })->first();
+
+        if (!$laporanHasilMediasi) {
+            abort(404, 'Laporan hasil mediasi tidak ditemukan.');
+        }
+
+        return view('laporan.show-hasil-mediasi', compact('laporanHasilMediasi', 'pengaduan', 'user'));
+    }
+
+    /**
+     * Buku Register Perselisihan - hanya untuk mediator dan kepala dinas
+     */
+    public function bukuRegisterPerselisihan()
+    {
+        $user = Auth::user();
+
+        // Authorization check
+        if (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
+            abort(403, 'Akses terbatas untuk internal dinas.');
+        }
+
+        $query = BukuRegisterPerselisihan::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor', 'dokumenHI.pengaduan.mediator']);
+
+        // Filter berdasarkan role
+        if ($user->active_role === 'mediator') {
+            // Mediator bisa lihat semua buku register perselisihan
+            // Tidak perlu filter berdasarkan mediator_id
+        }
+
+        $bukuRegister = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return view('laporan.buku-register-perselisihan', compact('bukuRegister', 'user'));
+    }
+
+    /**
+     * Show detail buku register perselisihan
+     */
+    public function showBukuRegister($id)
+    {
+        $user = Auth::user();
+
+        // Authorization check
+        if (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
+            abort(403, 'Akses terbatas untuk internal dinas.');
+        }
+
+        $bukuRegister = BukuRegisterPerselisihan::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor', 'dokumenHI.pengaduan.mediator'])->findOrFail($id);
+
+        return view('laporan.show-buku-register', compact('bukuRegister', 'user'));
+    }
+
+    /**
+     * Cetak PDF laporan hasil mediasi
+     */
+    public function cetakPdfLaporanHasilMediasi($laporanId)
+    {
+        $user = Auth::user();
+        $laporanHasilMediasi = LaporanHasilMediasi::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor', 'dokumenHI.pengaduan.mediator'])->findOrFail($laporanId);
+
+        // Authorization check
+        if ($user->active_role === 'pelapor') {
+            $pelapor = $user->pelapor;
+            if ($laporanHasilMediasi->dokumenHI->pengaduan->pelapor_id !== $pelapor->pelapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+            }
+        } elseif ($user->active_role === 'terlapor') {
+            $terlapor = $user->terlapor;
+            if ($laporanHasilMediasi->dokumenHI->pengaduan->terlapor_id !== $terlapor->terlapor_id) {
+                abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+            }
+        } elseif (!in_array($user->active_role, ['mediator', 'kepala_dinas'])) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        $pengaduan = $laporanHasilMediasi->dokumenHI->pengaduan;
+
+        // Generate PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.pdf.laporan-hasil-mediasi', compact('laporanHasilMediasi', 'pengaduan'));
+
+        return $pdf->stream('laporan-hasil-mediasi-' . $pengaduan->nomor_pengaduan . '.pdf');
+    }
 }

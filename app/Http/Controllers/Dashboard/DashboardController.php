@@ -79,12 +79,12 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Ambil jadwal yang belum selesai (seperti di dashboard terlapor)
+            // Ambil jadwal yang aktif (dijadwalkan) untuk ditampilkan
             $jadwal = Jadwal::with(['pengaduan', 'mediator'])
                 ->whereHas('pengaduan', function ($query) use ($pelapor) {
                     $query->where('pelapor_id', $pelapor->pelapor_id);
                 })
-                ->whereNotIn('status_jadwal', ['selesai', 'dibatalkan'])
+                ->where('status_jadwal', 'dijadwalkan')
                 ->orderBy('tanggal', 'asc')
                 ->get();
 

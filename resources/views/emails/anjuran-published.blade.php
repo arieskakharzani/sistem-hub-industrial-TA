@@ -181,7 +181,7 @@
 
             <p>Silakan login ke sistem untuk melihat detail anjuran dan memberikan respon Anda.</p>
 
-            <a href="{{ url('/anjuran/' . $anjuran->anjuran_id) }}" class="action-button">
+            <a href="{{ route('anjuran-response.show', $anjuran->anjuran_id) }}" class="action-button">
                 Lihat Detail Anjuran
             </a>
         </div>
