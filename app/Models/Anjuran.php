@@ -16,7 +16,6 @@ class Anjuran extends Model
     protected $fillable = [
         'anjuran_id',
         'dokumen_hi_id',
-        'kepala_dinas_id',
         'nama_pengusaha',
         'jabatan_pengusaha',
         'perusahaan_pengusaha',
@@ -42,7 +41,9 @@ class Anjuran extends Model
         'response_terlapor',
         'response_note_terlapor',
         'response_at_terlapor',
-        'overall_response_status'
+        'overall_response_status',
+        'created_at',
+        'updated_at'
     ];
 
     protected $casts = [
@@ -77,14 +78,36 @@ class Anjuran extends Model
         });
     }
 
-    public function dokumenHI(): BelongsTo
+    // Relasi ke dokumen HI
+    public function dokumenHI()
     {
         return $this->belongsTo(DokumenHubunganIndustrial::class, 'dokumen_hi_id', 'dokumen_hi_id');
     }
 
-    public function kepalaDinas(): BelongsTo
+    // Relasi ke pengaduan melalui dokumen HI
+    public function pengaduan()
     {
-        return $this->belongsTo(KepalaDinas::class, 'kepala_dinas_id', 'kepala_dinas_id');
+        return $this->hasOneThrough(
+            Pengaduan::class,
+            DokumenHubunganIndustrial::class,
+            'dokumen_hi_id',
+            'pengaduan_id',
+            'dokumen_hi_id',
+            'pengaduan_id'
+        );
+    }
+
+    // Relasi ke risalah melalui dokumen HI
+    public function risalah()
+    {
+        return $this->hasManyThrough(
+            Risalah::class,
+            DokumenHubunganIndustrial::class,
+            'dokumen_hi_id',
+            'dokumen_hi_id',
+            'dokumen_hi_id',
+            'dokumen_hi_id'
+        );
     }
 
     // Relasi ke mediator melalui dokumenHI dan pengaduan

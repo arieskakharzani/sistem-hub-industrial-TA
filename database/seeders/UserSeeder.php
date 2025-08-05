@@ -195,7 +195,7 @@ class UserSeeder extends Seeder
 
         // Kepala Dinas
         $userKepala = User::create([
-            'email' => 'kepaladinas@example.com',
+            'email' => 'ptbkelp@gmail.com',
             'password' => Hash::make('password'),
             'roles' => ['kepala_dinas'],
             'active_role' => 'kepala_dinas',
@@ -204,7 +204,7 @@ class UserSeeder extends Seeder
 
         KepalaDinas::create([
             'user_id' => $userKepala->user_id,
-            'nama_kepala_dinas' => 'Drs. Bambang Sutrisno, M.Si',
+            'nama_kepala_dinas' => 'Zamroni, S.Ag',
             'nip' => '1970010112345',
         ]);
     }

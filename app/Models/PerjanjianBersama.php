@@ -25,8 +25,9 @@ class PerjanjianBersama extends Model
         'perusahaan_pekerja',
         'alamat_pekerja',
         'isi_kesepakatan',
-        'nomor_perjanjian',
-        'tanggal_perjanjian'
+        'tanggal_perjanjian',
+        'created_at',
+        'updated_at'
     ];
 
     protected $casts = [

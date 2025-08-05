@@ -122,13 +122,21 @@
                                             @endif
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <span
-                                                class="px-3 py-1 text-xs font-semibold rounded-full
-                                                @if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi') bg-purple-100 text-purple-800
-                                                @elseif($dokumen->jenis_dokumen == 'Risalah Mediasi') bg-orange-100 text-orange-800
-                                                @elseif($dokumen->jenis_dokumen == 'Risalah Penyelesaian') bg-pink-100 text-pink-800
-                                                @elseif($dokumen->jenis_dokumen == 'Perjanjian Bersama') bg-blue-100 text-blue-800
-                                                @else bg-yellow-100 text-yellow-800 @endif">
+                                            @php
+                                                $badgeClasses = 'px-3 py-1 text-xs font-semibold rounded-full ';
+                                                if ($dokumen->jenis_dokumen == 'Risalah Klarifikasi') {
+                                                    $badgeClasses .= 'bg-purple-100 text-purple-800';
+                                                } elseif ($dokumen->jenis_dokumen == 'Risalah Mediasi') {
+                                                    $badgeClasses .= 'bg-orange-100 text-orange-800';
+                                                } elseif ($dokumen->jenis_dokumen == 'Risalah Penyelesaian') {
+                                                    $badgeClasses .= 'bg-pink-100 text-pink-800';
+                                                } elseif ($dokumen->jenis_dokumen == 'Perjanjian Bersama') {
+                                                    $badgeClasses .= 'bg-blue-100 text-blue-800';
+                                                } else {
+                                                    $badgeClasses .= 'bg-yellow-100 text-yellow-800';
+                                                }
+                                            @endphp
+                                            <span class="{{ $badgeClasses }}">
                                                 {{ $dokumen->jenis_dokumen }}
                                             </span>
                                         </td>
@@ -207,7 +215,7 @@
                                                     </button>
                                                 </form>
                                             @elseif ($dokumen->jenis_dokumen == 'Anjuran')
-                                                <a href="{{ route('dokumen.anjuran.show', $dokumen->anjuran) }}"
+                                                <a href="{{ route('dokumen.anjuran.show', $dokumen->id) }}"
                                                     class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
                                                 <form action="{{ route('dokumen.anjuran.destroy', $dokumen->id) }}"
                                                     method="POST" class="inline">
@@ -235,7 +243,7 @@
                 <br>
 
                 {{-- Tabel Buku Register Perselisihan --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
+                {{-- <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-lg font-semibold">Buku Register Perselisihan</h4>
@@ -296,9 +304,9 @@
                             <div class="mt-4">{{ $registerList->withQueryString()->links() }}</div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 {{-- Tabel Laporan Hasil Mediasi (placeholder) --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
+                {{-- <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-lg font-semibold">Laporan Hasil Mediasi</h4>
@@ -360,7 +368,7 @@
                             <div class="mt-4">{{ $laporanList->withQueryString()->links() }}</div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </x-app-layout>

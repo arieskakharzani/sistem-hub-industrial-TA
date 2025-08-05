@@ -64,8 +64,8 @@ class RisalahController extends Controller
             // Set jadwal klarifikasi sebagai selesai
             $jadwal->status_jadwal = 'selesai';
             $jadwal->save();
-            return redirect()->route('risalah.show', ['pengaduan' => $pengaduan->pengaduan_id, 'jenis' => 'mediasi'])
-                ->with('success', 'Silahkan buat jadwal Mediasi');
+            return redirect()->route('dokumen.index')
+                ->with('success', 'Klarifikasi selesai. Silahkan buat jadwal Mediasi untuk melanjutkan proses.');
         }
     }
 
@@ -197,14 +197,18 @@ class RisalahController extends Controller
                 'kesimpulan_penyelesaian' => $data['kesimpulan_penyelesaian'] ?? null,
             ]);
             \Log::info('RISALAH STORE: detail penyelesaian created', $detailPenyelesaian->toArray());
+
+            // Update status sidang mediasi menjadi 'selesai' ketika risalah penyelesaian dibuat
+            $this->updateMediasiStatusToSelesai($jadwal);
         }
 
         return redirect()->route('dokumen.index')->with('success', 'Risalah berhasil dibuat');
     }
 
     // Tampilkan detail risalah
-    public function show(Risalah $risalah)
+    public function show($id)
     {
+        $risalah = Risalah::findOrFail($id);
         // Load relasi yang diperlukan
         $risalah->load(['jadwal.pengaduan.dokumenHI']);
 
@@ -240,8 +244,9 @@ class RisalahController extends Controller
         ]);
     }
 
-    public function edit(Risalah $risalah)
+    public function edit($id)
     {
+        $risalah = Risalah::findOrFail($id);
         $jadwal = $risalah->jadwal;
         $jenis_risalah = $risalah->jenis_risalah;
         $detail = null;
@@ -255,8 +260,9 @@ class RisalahController extends Controller
         return view('risalah.edit', compact('risalah', 'jadwal', 'jenis_risalah', 'detail'));
     }
 
-    public function update(Request $request, Risalah $risalah)
+    public function update(Request $request, $id)
     {
+        $risalah = Risalah::findOrFail($id);
         if (!in_array($risalah->jenis_risalah, ['klarifikasi', 'mediasi', 'penyelesaian'])) {
             abort(404);
         }
@@ -352,8 +358,9 @@ class RisalahController extends Controller
         return redirect()->route('dokumen.index')->with('success', 'Risalah berhasil diperbarui');
     }
 
-    public function exportPDF(Risalah $risalah)
+    public function exportPDF($id)
     {
+        $risalah = Risalah::findOrFail($id);
         $detail = null;
         if ($risalah->jenis_risalah === 'klarifikasi') {
             $detail = $risalah->detailKlarifikasi;
@@ -447,6 +454,25 @@ class RisalahController extends Controller
             \Log::info('Buku register berhasil dibuat otomatis untuk pengaduan: ' . $pengaduan->nomor_pengaduan . ' dengan completionType: ' . $completionType);
         } catch (\Exception $e) {
             \Log::error('Error creating buku register otomatis: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update status sidang mediasi menjadi 'selesai' ketika risalah penyelesaian dibuat
+     */
+    private function updateMediasiStatusToSelesai(Jadwal $jadwal)
+    {
+        // Cari semua risalah mediasi yang terkait dengan pengaduan ini
+        $risalahMediasi = Risalah::whereHas('jadwal', function ($query) use ($jadwal) {
+            $query->where('pengaduan_id', $jadwal->pengaduan_id)
+                ->where('jenis_jadwal', 'mediasi');
+        })->where('jenis_risalah', 'mediasi')->get();
+
+        // Update status sidang menjadi 'selesai' untuk semua risalah mediasi
+        foreach ($risalahMediasi as $risalah) {
+            if ($risalah->detailMediasi) {
+                $risalah->detailMediasi->update(['status_sidang' => 'selesai']);
+            }
         }
     }
 

@@ -63,8 +63,9 @@ class AnjuranController extends Controller
             ->with('success', 'Anjuran berhasil dibuat.');
     }
 
-    public function show(Anjuran $anjuran)
+    public function show($id)
     {
+        $anjuran = Anjuran::findOrFail($id);
         $user = Auth::user();
 
         // Load relasi yang diperlukan
@@ -375,8 +376,9 @@ class AnjuranController extends Controller
     /**
      * Finalize case when anjuran is rejected
      */
-    public function finalizeCase(Anjuran $anjuran)
+    public function finalizeCase($id)
     {
+        $anjuran = Anjuran::findOrFail($id);
         $anjuran->load(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor']);
         $user = Auth::user();
 
@@ -395,17 +397,27 @@ class AnjuranController extends Controller
             $pengaduan = $anjuran->dokumenHI->pengaduan;
             $pengaduan->update(['status' => 'selesai']);
 
+            // Generate laporan hasil mediasi and buku register perselisihan FIRST
+            $this->generateFinalReports($anjuran);
+
             // Check if both parties agree (success case)
+            \Log::info('Finalizing case', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'overall_response_status' => $anjuran->overall_response_status,
+                'is_both_parties_agree' => $anjuran->isBothPartiesAgree(),
+                'response_pelapor' => $anjuran->response_pelapor,
+                'response_terlapor' => $anjuran->response_terlapor
+            ]);
+
             if ($anjuran->isBothPartiesAgree()) {
                 // Send draft perjanjian bersama email
+                \Log::info('Both parties agree, sending draft perjanjian bersama email');
                 $this->sendDraftPerjanjianBersamaEmail($anjuran);
             } else {
                 // Send final documents for rejected case
+                \Log::info('Mixed or disagreed response, sending final documents email');
                 $this->sendFinalDocumentsToParties($anjuran);
             }
-
-            // Generate laporan hasil mediasi and buku register perselisihan
-            $this->generateFinalReports($anjuran);
 
             return redirect()->route('dokumen.anjuran.show', $anjuran)
                 ->with('success', 'Kasus telah diselesaikan. Dokumen telah dikirim ke para pihak.');
@@ -426,23 +438,54 @@ class AnjuranController extends Controller
         // Ambil laporan hasil mediasi terbaru untuk dokumen HI ini
         $laporanHasilMediasi = $anjuran->dokumenHI->laporanHasilMediasi()->latest()->first();
         $laporanPdfContent = null;
+
+        \Log::info('Checking laporan hasil mediasi for email', [
+            'anjuran_id' => $anjuran->anjuran_id,
+            'dokumen_hi_id' => $anjuran->dokumen_hi_id,
+            'laporan_hasil_mediasi_found' => $laporanHasilMediasi ? true : false,
+            'laporan_id' => $laporanHasilMediasi ? $laporanHasilMediasi->laporan_id : null
+        ]);
+
         if ($laporanHasilMediasi) {
             $laporanPdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.pdf.laporan-hasil-mediasi', [
                 'laporanHasilMediasi' => $laporanHasilMediasi
             ]);
             $laporanPdfContent = $laporanPdf->output();
+            \Log::info('Laporan hasil mediasi PDF generated successfully');
+        } else {
+            \Log::warning('Laporan hasil mediasi not found, will send email without laporan PDF');
         }
 
         // Kirim ke pelapor
-        if ($anjuran->dokumenHI->pengaduan->pelapor->user->email) {
-            \Mail::to($anjuran->dokumenHI->pengaduan->pelapor->user->email)
+        $pelaporEmail = $anjuran->dokumenHI->pengaduan->pelapor->user->email;
+        \Log::info('Sending final documents to pelapor', [
+            'pelapor_email' => $pelaporEmail,
+            'pelapor_id' => $anjuran->dokumenHI->pengaduan->pelapor->pelapor_id,
+            'anjuran_id' => $anjuran->anjuran_id
+        ]);
+
+        if ($pelaporEmail) {
+            \Mail::to($pelaporEmail)
                 ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $laporanPdfContent, $anjuranPdfContent));
+            \Log::info('Final documents email sent to pelapor successfully');
+        } else {
+            \Log::warning('Pelapor email is empty, cannot send final documents email');
         }
 
         // Kirim ke terlapor
-        if ($anjuran->dokumenHI->pengaduan->terlapor->email) {
-            \Mail::to($anjuran->dokumenHI->pengaduan->terlapor->email)
+        $terlaporEmail = $anjuran->dokumenHI->pengaduan->terlapor->email_terlapor;
+        \Log::info('Sending final documents to terlapor', [
+            'terlapor_email' => $terlaporEmail,
+            'terlapor_id' => $anjuran->dokumenHI->pengaduan->terlapor->terlapor_id,
+            'anjuran_id' => $anjuran->anjuran_id
+        ]);
+
+        if ($terlaporEmail) {
+            \Mail::to($terlaporEmail)
                 ->send(new \App\Mail\FinalCaseDocumentsMail($anjuran, $laporanPdfContent, $anjuranPdfContent));
+            \Log::info('Final documents email sent to terlapor successfully');
+        } else {
+            \Log::warning('Terlapor email is empty, cannot send final documents email');
         }
     }
 
@@ -463,15 +506,35 @@ class AnjuranController extends Controller
         $perjanjianPdfContent = $perjanjianPdf->output();
 
         // Send to pelapor
-        if ($anjuran->dokumenHI->pengaduan->pelapor->user->email) {
-            Mail::to($anjuran->dokumenHI->pengaduan->pelapor->user->email)
+        $pelaporEmail = $anjuran->dokumenHI->pengaduan->pelapor->user->email;
+        \Log::info('Sending draft perjanjian bersama to pelapor', [
+            'pelapor_email' => $pelaporEmail,
+            'pelapor_id' => $anjuran->dokumenHI->pengaduan->pelapor->pelapor_id,
+            'anjuran_id' => $anjuran->anjuran_id
+        ]);
+
+        if ($pelaporEmail) {
+            Mail::to($pelaporEmail)
                 ->send(new DraftPerjanjianBersamaMail($perjanjianBersama, 'pelapor', $perjanjianPdfContent));
+            \Log::info('Draft perjanjian bersama email sent to pelapor successfully');
+        } else {
+            \Log::warning('Pelapor email is empty, cannot send draft perjanjian bersama email');
         }
 
         // Send to terlapor
-        if ($anjuran->dokumenHI->pengaduan->terlapor->email) {
-            Mail::to($anjuran->dokumenHI->pengaduan->terlapor->email)
+        $terlaporEmail = $anjuran->dokumenHI->pengaduan->terlapor->email_terlapor;
+        \Log::info('Sending draft perjanjian bersama to terlapor', [
+            'terlapor_email' => $terlaporEmail,
+            'terlapor_id' => $anjuran->dokumenHI->pengaduan->terlapor->terlapor_id,
+            'anjuran_id' => $anjuran->anjuran_id
+        ]);
+
+        if ($terlaporEmail) {
+            Mail::to($terlaporEmail)
                 ->send(new DraftPerjanjianBersamaMail($perjanjianBersama, 'terlapor', $perjanjianPdfContent));
+            \Log::info('Draft perjanjian bersama email sent to terlapor successfully');
+        } else {
+            \Log::warning('Terlapor email is empty, cannot send draft perjanjian bersama email');
         }
     }
 
@@ -481,6 +544,26 @@ class AnjuranController extends Controller
     private function generateFinalReports($anjuran)
     {
         $pengaduan = $anjuran->dokumenHI->pengaduan;
+
+        // Cek apakah sudah ada laporan hasil mediasi untuk dokumen HI ini
+        $existingLaporan = \App\Models\LaporanHasilMediasi::where('dokumen_hi_id', $anjuran->dokumen_hi_id)->first();
+        if ($existingLaporan) {
+            \Log::info('Laporan hasil mediasi sudah ada, skipping creation', [
+                'existing_laporan_id' => $existingLaporan->laporan_id,
+                'anjuran_id' => $anjuran->anjuran_id
+            ]);
+            return;
+        }
+
+        // Cek apakah sudah ada buku register perselisihan untuk dokumen HI ini
+        $existingBukuRegister = \App\Models\BukuRegisterPerselisihan::where('dokumen_hi_id', $anjuran->dokumen_hi_id)->first();
+        if ($existingBukuRegister) {
+            \Log::info('Buku register perselisihan sudah ada, skipping creation', [
+                'existing_buku_register_id' => $existingBukuRegister->buku_register_perselisihan_id,
+                'anjuran_id' => $anjuran->anjuran_id
+            ]);
+            return;
+        }
 
         // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga anjuran
         $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
@@ -497,6 +580,10 @@ class AnjuranController extends Controller
         // Ambil data dari risalah untuk laporan hasil mediasi
         $risalah = $anjuran->dokumenHI->risalah()->latest()->first();
 
+        // Ambil pendapat aktual dari response anjuran
+        $pendapatPekerja = $this->getPendapatPekerja($anjuran);
+        $pendapatPengusaha = $this->getPendapatPengusaha($anjuran);
+
         // Generate laporan hasil mediasi - data dari anjuran dan risalah
         $laporanHasilMediasi = \App\Models\LaporanHasilMediasi::create([
             'laporan_id' => (string) Str::uuid(),
@@ -510,9 +597,17 @@ class AnjuranController extends Controller
             'jenis_usaha' => $risalah ? ($risalah->jenis_usaha ?: 'Tidak Diketahui') : 'Tidak Diketahui',
             'waktu_penyelesaian_mediasi' => $waktuPenyelesaian,
             'permasalahan' => $pengaduan->perihal,
-            'pendapat_pekerja' => $anjuran->keterangan_pekerja ?: '-',
-            'pendapat_pengusaha' => $anjuran->keterangan_pengusaha ?: '-',
-            'upaya_penyelesaian' => 'Mediasi dengan anjuran yang ditolak oleh para pihak',
+            'pendapat_pekerja' => $pendapatPekerja,
+            'pendapat_pengusaha' => $pendapatPengusaha,
+            'upaya_penyelesaian' => $this->getUpayaPenyelesaian($anjuran),
+        ]);
+
+        \Log::info('Laporan hasil mediasi created', [
+            'laporan_id' => $laporanHasilMediasi->laporan_id,
+            'dokumen_hi_id' => $laporanHasilMediasi->dokumen_hi_id,
+            'anjuran_id' => $anjuran->anjuran_id,
+            'pendapat_pekerja' => $pendapatPekerja,
+            'pendapat_pengusaha' => $pendapatPengusaha
         ]);
 
         // Generate buku register perselisihan
@@ -532,5 +627,43 @@ class AnjuranController extends Controller
             'tindak_lanjut_phi' => 'ya',
             'keterangan' => 'Kasus diselesaikan dengan anjuran yang ditolak oleh para pihak',
         ]);
+
+        \Log::info('Buku register perselisihan created', [
+            'buku_register_id' => $bukuRegister->buku_register_perselisihan_id,
+            'dokumen_hi_id' => $bukuRegister->dokumen_hi_id,
+            'anjuran_id' => $anjuran->anjuran_id
+        ]);
+    }
+
+    /**
+     * Get pendapat pekerja dari keterangan anjuran
+     */
+    private function getPendapatPekerja($anjuran)
+    {
+        return $anjuran->keterangan_pekerja ?: '-';
+    }
+
+    /**
+     * Get pendapat pengusaha dari keterangan anjuran
+     */
+    private function getPendapatPengusaha($anjuran)
+    {
+        return $anjuran->keterangan_pengusaha ?: '-';
+    }
+
+    /**
+     * Get upaya penyelesaian berdasarkan response
+     */
+    private function getUpayaPenyelesaian($anjuran)
+    {
+        if ($anjuran->isBothPartiesAgree()) {
+            return 'Mediasi dengan anjuran yang disetujui oleh para pihak';
+        } elseif ($anjuran->isBothPartiesDisagree()) {
+            return 'Mediasi dengan anjuran yang ditolak oleh para pihak';
+        } elseif ($anjuran->isMixedResponse()) {
+            return 'Mediasi dengan anjuran yang ditolak oleh salah satu pihak';
+        } else {
+            return 'Mediasi dengan anjuran yang ditolak oleh para pihak';
+        }
     }
 }

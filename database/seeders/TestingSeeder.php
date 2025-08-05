@@ -168,8 +168,7 @@ class TestingSeeder extends Seeder
         DB::table('dokumen_hubungan_industrial')->insert([
             'dokumen_hi_id' => $dokumenHiId,
             'pengaduan_id' => $pengaduanId,
-            'jenis_dokumen' => 'risalah_klarifikasi',
-            'tanggal_dokumen' => now(),
+            'jenis_dokumen' => 'risalah',
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -203,7 +202,6 @@ class TestingSeeder extends Seeder
             'dokumen_hi_id' => $dokumenPBId,
             'pengaduan_id' => $pengaduanId,
             'jenis_dokumen' => 'perjanjian_bersama',
-            'tanggal_dokumen' => now(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -220,7 +218,7 @@ class TestingSeeder extends Seeder
             'perusahaan_pekerja' => 'PT Test Terlapor',
             'alamat_pekerja' => 'Jl. Test No. 1',
             'isi_kesepakatan' => 'Kesepakatan penyelesaian perselisihan',
-            'nomor_perjanjian' => '001/PB/TEST/2024',
+            // 'nomor_perjanjian' => '001/PB/TEST/2024', // Field dihapus
             'tanggal_perjanjian' => now(),
             'created_at' => now(),
             'updated_at' => now()
@@ -233,7 +231,7 @@ class TestingSeeder extends Seeder
             'dokumen_hi_id' => $dokumenAnjuranId,
             'pengaduan_id' => $pengaduanId,
             'jenis_dokumen' => 'anjuran',
-            'tanggal_dokumen' => now(),
+            // 'tanggal_dokumen' => now(), // Field dihapus
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -241,7 +239,6 @@ class TestingSeeder extends Seeder
         DB::table('anjuran')->insert([
             'anjuran_id' => $anjuranId,
             'dokumen_hi_id' => $dokumenAnjuranId,
-            'kepala_dinas_id' => $kepalaDinasId,
             'nama_pengusaha' => 'Test Pengusaha',
             'jabatan_pengusaha' => 'Direktur',
             'perusahaan_pengusaha' => 'PT Test Terlapor',
@@ -255,7 +252,6 @@ class TestingSeeder extends Seeder
             'pertimbangan_hukum' => 'Pertimbangan hukum untuk kasus ini',
             'isi_anjuran' => 'Isi anjuran penyelesaian perselisihan',
             'nomor_anjuran' => '001/AJ/TEST/2024',
-            'tanggal_anjuran' => now(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -360,8 +356,7 @@ class TestingSeeder extends Seeder
         DB::table('dokumen_hubungan_industrial')->insert([
             'dokumen_hi_id' => $dokumenHiKlarifikasi1Id,
             'pengaduan_id' => $pengaduan1Id,
-            'jenis_dokumen' => 'risalah_klarifikasi',
-            'tanggal_dokumen' => now()->subDays(7),
+            'jenis_dokumen' => 'risalah',
             'created_at' => now()->subDays(7),
             'updated_at' => now()
         ]);
@@ -498,8 +493,7 @@ class TestingSeeder extends Seeder
         DB::table('dokumen_hubungan_industrial')->insert([
             'dokumen_hi_id' => $dokumenHiKlarifikasi2Id,
             'pengaduan_id' => $pengaduan2Id,
-            'jenis_dokumen' => 'risalah_klarifikasi',
-            'tanggal_dokumen' => now()->subDays(7),
+            'jenis_dokumen' => 'risalah',
             'created_at' => now()->subDays(7),
             'updated_at' => now()
         ]);
@@ -553,8 +547,7 @@ class TestingSeeder extends Seeder
         DB::table('dokumen_hubungan_industrial')->insert([
             'dokumen_hi_id' => $dokumenHiMediasi2Id,
             'pengaduan_id' => $pengaduan2Id,
-            'jenis_dokumen' => 'risalah_penyelesaian',
-            'tanggal_dokumen' => now()->subDays(3),
+            'jenis_dokumen' => 'risalah',
             'created_at' => now()->subDays(3),
             'updated_at' => now()
         ]);

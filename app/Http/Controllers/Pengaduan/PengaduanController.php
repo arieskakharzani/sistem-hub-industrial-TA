@@ -652,8 +652,43 @@ class PengaduanController extends Controller
         $pengaduan->status = $status;
         $pengaduan->save();
 
+        // Jika status diubah menjadi 'proses' dan sebelumnya 'selesai', hapus laporan yang sudah ada
+        if ($status === 'proses' && $pengaduan->getOriginal('status') === 'selesai') {
+            $this->cleanupReportsWhenStatusChangedToProses($pengaduan);
+        }
+
         return redirect()->back()
             ->with('success', 'Status pengaduan berhasil diperbarui');
+    }
+
+    /**
+     * Cleanup laporan dan buku register ketika status diubah menjadi 'proses'
+     */
+    private function cleanupReportsWhenStatusChangedToProses(Pengaduan $pengaduan)
+    {
+        try {
+            // Hapus laporan hasil mediasi yang terkait dengan pengaduan ini
+            $deletedLaporan = \App\Models\LaporanHasilMediasi::whereHas('dokumenHI', function ($query) use ($pengaduan) {
+                $query->where('pengaduan_id', $pengaduan->pengaduan_id);
+            })->delete();
+
+            // Hapus buku register perselisihan yang terkait dengan pengaduan ini
+            $deletedBukuRegister = \App\Models\BukuRegisterPerselisihan::whereHas('dokumenHI', function ($query) use ($pengaduan) {
+                $query->where('pengaduan_id', $pengaduan->pengaduan_id);
+            })->delete();
+
+            \Log::info('Cleanup reports when status changed to proses', [
+                'pengaduan_id' => $pengaduan->pengaduan_id,
+                'nomor_pengaduan' => $pengaduan->nomor_pengaduan,
+                'deleted_laporan_count' => $deletedLaporan,
+                'deleted_buku_register_count' => $deletedBukuRegister
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error cleaning up reports: ' . $e->getMessage(), [
+                'pengaduan_id' => $pengaduan->pengaduan_id,
+                'nomor_pengaduan' => $pengaduan->nomor_pengaduan
+            ]);
+        }
     }
 
     /**

@@ -367,28 +367,33 @@
                                 @endphp
                                 @if ($detail->kesimpulan_klarifikasi === 'lanjut_ke_tahap_mediasi')
                                     @if (!$hasMediasiSchedule)
-                                        <a href="{{ route('jadwal.create', ['pengaduan_id' => $pengaduanId, 'jenis_jadwal' => 'mediasi', 'sidang_ke' => 1]) }}"
-                                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow font-semibold transition">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                            </svg>
-                                            Buat Jadwal Mediasi
-                                        </a>
+                                        <div class="flex justify-center">
+                                            <a href="{{ route('jadwal.create', ['pengaduan_id' => $pengaduanId, 'jenis_jadwal' => 'mediasi', 'sidang_ke' => 1]) }}"
+                                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                                Buat Jadwal Mediasi
+                                            </a>
+                                        </div>
                                     @else
-                                        <a href="{{ route('jadwal.show', $mediasiSchedule->jadwal_id) }}"
-                                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                </path>
-                                            </svg>
-                                            Lihat Jadwal Mediasi
-                                        </a>
+                                        <div class="flex justify-center">
+                                            <a href="{{ route('jadwal.show', $mediasiSchedule->jadwal_id) }}"
+                                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                                Lihat Jadwal Mediasi
+                                            </a>
+                                        </div>
                                     @endif
                                 @endif
                             @endif
@@ -411,35 +416,112 @@
                                             ->first();
                                         $hasNextSchedule = $nextSchedule !== null;
                                     }
+
+                                    // Cek apakah sudah ada risalah penyelesaian
+                                    $risalahPenyelesaian = \App\Models\Risalah::whereHas('jadwal', function (
+                                        $query,
+                                    ) use ($jadwal) {
+                                        $query->where('pengaduan_id', $jadwal->pengaduan_id);
+                                    })
+                                        ->where('jenis_risalah', 'penyelesaian')
+                                        ->first();
                                 @endphp
-                                @if ($statusSidang === 'lanjut_sidang_berikutnya' && $sidangKe < 3)
-                                    @if (!$hasNextSchedule)
-                                        <a href="{{ route('jadwal.create', ['pengaduan_id' => $pengaduanId, 'sidang_ke' => $sidangKe + 1]) }}"
-                                            class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded shadow font-semibold transition">
-                                            <span>➕</span> Lanjut ke Mediasi Berikutnya (Sidang ke-{{ $sidangKe + 1 }})
-                                        </a>
-                                        <a href="{{ route('risalah.create', [$jadwalId, 'penyelesaian']) }}"
-                                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
-                                            <span>📄</span> Selesai Mediasi
-                                        </a>
-                                    @else
-                                        <a href="{{ route('jadwal.show', $nextSchedule->jadwal_id) }}"
-                                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow font-semibold transition">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+
+                                @if ($risalahPenyelesaian)
+                                    {{-- Jika sudah ada risalah penyelesaian, tampilkan alert dan link ke risalah penyelesaian --}}
+                                    <div
+                                        class="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-400 rounded-lg shadow-sm">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <div
+                                                    class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                    <svg class="w-5 h-5 text-green-600" fill="currentColor"
+                                                        viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4 flex-1">
+                                                <h4 class="text-lg font-semibold text-green-800 mb-1">🎉 Mediasi
+                                                    Selesai</h4>
+                                                <p class="text-green-700 text-sm leading-relaxed">
+                                                    Proses mediasi telah berhasil diselesaikan dan risalah penyelesaian
+                                                    telah dibuat.
+                                                    Anda dapat melihat detail hasil mediasi melalui risalah
+                                                    penyelesaian.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-center">
+                                        <a href="{{ route('risalah.show', $risalahPenyelesaian->risalah_id) }}"
+                                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
                                                 </path>
-                                            </svg> Lihat Jadwal Sidang ke-{{ $sidangKe + 1 }}
+                                            </svg>
+                                            Lihat Risalah Penyelesaian
                                         </a>
+                                    </div>
+                                @elseif ($statusSidang === 'lanjut_sidang_berikutnya' && $sidangKe < 3)
+                                    @if (!$hasNextSchedule)
+                                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                            <a href="{{ route('jadwal.create', ['pengaduan_id' => $pengaduanId, 'sidang_ke' => $sidangKe + 1]) }}"
+                                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                                Lanjut ke Mediasi Berikutnya (Sidang ke-{{ $sidangKe + 1 }})
+                                            </a>
+                                            <a href="{{ route('risalah.create', [$jadwalId, 'penyelesaian']) }}"
+                                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Selesai Mediasi
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="flex justify-center">
+                                            <a href="{{ route('jadwal.show', $nextSchedule->jadwal_id) }}"
+                                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                                Lihat Jadwal Sidang ke-{{ $sidangKe + 1 }}
+                                            </a>
+                                        </div>
                                     @endif
                                 @elseif ($statusSidang === 'selesai' || ($sidangKe == 3 && $statusSidang === 'lanjut_sidang_berikutnya'))
-                                    <a href="{{ route('risalah.create', [$jadwalId, 'penyelesaian']) }}"
-                                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition">
-                                        <span>📄</span> Buat Risalah Penyelesaian
-                                    </a>
+                                    <div class="flex justify-center">
+                                        <a href="{{ route('risalah.create', [$jadwalId, 'penyelesaian']) }}"
+                                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg shadow-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Buat Risalah Penyelesaian
+                                        </a>
+                                    </div>
                                 @endif
                             @endif
 

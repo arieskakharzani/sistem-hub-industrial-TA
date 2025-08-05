@@ -11,12 +11,11 @@ class DokumenHubunganIndustrial extends Model
     protected $primaryKey = 'dokumen_hi_id';
     public $incrementing = false;
     protected $keyType = 'string';
-    
+
     protected $fillable = [
         'dokumen_hi_id',
         'pengaduan_id',
         'jenis_dokumen',
-        'tanggal_dokumen',
         'created_at',
         'updated_at'
     ];
@@ -51,7 +50,7 @@ class DokumenHubunganIndustrial extends Model
     public function perjanjianBersama()
     {
         return $this->hasMany(PerjanjianBersama::class, 'dokumen_hi_id', 'dokumen_hi_id');
-    }   
+    }
 
     public function anjuran()
     {

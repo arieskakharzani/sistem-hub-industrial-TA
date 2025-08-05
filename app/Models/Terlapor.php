@@ -85,7 +85,7 @@ class Terlapor extends Model
     public function deactivateAccount()
     {
         $this->update(['is_active' => false]);
-        
+
         if ($this->user) {
             $this->user->update(['is_active' => false]);
         }
@@ -94,7 +94,7 @@ class Terlapor extends Model
     public function activateAccount()
     {
         $this->update(['is_active' => true]);
-        
+
         if ($this->user) {
             $this->user->update(['is_active' => true]);
         }
@@ -142,8 +142,8 @@ class Terlapor extends Model
     public static function findByCompanyInfo($namaPerusahaan, $email)
     {
         return static::where('nama_terlapor', $namaPerusahaan)
-                    ->where('email_terlapor', $email)
-                    ->first();
+            ->where('email_terlapor', $email)
+            ->first();
     }
 
     public function isAccountActive()

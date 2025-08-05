@@ -107,8 +107,8 @@
         </div>
 
         <div class="footer">
-            <p>Email ini dikirim secara otomatis oleh sistem SIPPPHI.</p>
-            <p>Jika ada pertanyaan, silakan hubungi administrator sistem.</p>
+            <p>Email ini dikirim secara otomatis oleh sistem.</p>
+            <p>Jika ada pertanyaan, silakan hubungi kami.</p>
         </div>
     </div>
 </body>

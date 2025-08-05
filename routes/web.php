@@ -201,24 +201,24 @@ Route::middleware(['auth', 'verified'])->prefix('dokumen')->name('dokumen.')->gr
     Route::get('/anjuran/create/{dokumen_hi_id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'create'])->name('anjuran.create');
     Route::post('/anjuran/store', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'store'])->name('anjuran.store');
 
-    Route::post('/anjuran/{anjuran}/submit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'submit'])->name('anjuran.submit');
-    Route::post('/anjuran/{anjuran}/approve', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'approve'])->name('anjuran.approve');
-    Route::post('/anjuran/{anjuran}/reject', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'reject'])->name('anjuran.reject');
-    Route::post('/anjuran/{anjuran}/publish', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'publish'])->name('anjuran.publish');
-    Route::post('/anjuran/{anjuran}/finalize-case', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'finalizeCase'])->name('anjuran.finalize-case');
+    Route::post('/anjuran/{id}/submit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'submit'])->name('anjuran.submit');
+    Route::post('/anjuran/{id}/approve', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'approve'])->name('anjuran.approve');
+    Route::post('/anjuran/{id}/reject', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'reject'])->name('anjuran.reject');
+    Route::post('/anjuran/{id}/publish', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'publish'])->name('anjuran.publish');
+    Route::post('/anjuran/{id}/finalize-case', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'finalizeCase'])->name('anjuran.finalize-case');
 
     // Route khusus untuk pending approval anjuran 
     Route::get('/anjuran/pending-approval', [AnjuranController::class, 'pendingApproval'])->name('anjuran.pending-approval');
 
     // Route untuk show anjuran
-    Route::get('/anjuran/{anjuran}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
+    Route::get('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'show'])->name('anjuran.show');
 
     Route::get('/anjuran/{id}/edit', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'edit'])->name('anjuran.edit');
     Route::put('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'update'])->name('anjuran.update');
     Route::delete('/anjuran/{id}', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'destroy'])->name('anjuran.destroy');
     Route::get('/anjuran/{id}/pdf', [\App\Http\Controllers\Dokumen\AnjuranController::class, 'cetakPdf'])->name('anjuran.pdf');
 
-    // Risalah
+    // Risalah - menggunakan ID untuk konsistensi
     Route::delete('/risalah/{id}', [\App\Http\Controllers\Risalah\RisalahController::class, 'destroy'])->name('risalah.destroy');
 });
 
@@ -299,13 +299,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->prefix('risalah')->name('risalah.')->group(function () {
     Route::get('/create/{jadwal}/{jenis_risalah}', [RisalahController::class, 'create'])->name('create');
     Route::post('/store/{jadwal}/{jenis_risalah}', [RisalahController::class, 'store'])->name('store');
-    Route::get('/{risalah}', [RisalahController::class, 'show'])->name('show');
-    Route::get('/{risalah}/edit', [RisalahController::class, 'edit'])->name('edit');
-    Route::put('/{risalah}', [RisalahController::class, 'update'])->name('update');
-    Route::delete('/{risalah}', [RisalahController::class, 'destroy'])->name('destroy');
-    Route::get('/{risalah}/pdf', [RisalahController::class, 'exportPDF'])->name('pdf');
-    Route::get('/{risalah}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
-    Route::get('/{risalah}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
+    Route::get('/{id}', [RisalahController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [RisalahController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [RisalahController::class, 'update'])->name('update');
+    Route::delete('/{id}', [RisalahController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/pdf', [RisalahController::class, 'exportPDF'])->name('pdf');
+    Route::get('/{id}/pdf-preview', [RisalahController::class, 'previewPDF'])->name('pdf.preview');
+    Route::get('/{id}/pdf-download', [RisalahController::class, 'downloadPDF'])->name('pdf.download');
 });
 
 // Laporan Routes

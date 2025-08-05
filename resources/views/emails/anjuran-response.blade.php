@@ -212,12 +212,12 @@
 
                     <div class="detail-item">
                         <span class="detail-label">Pelapor:</span>
-                        <span class="detail-value">{{ $anjuran->dokumenHI->pengaduan->pelapor->nama }}</span>
+                        <span class="detail-value">{{ $pengaduan->pelapor->nama_pelapor }}</span>
                     </div>
 
                     <div class="detail-item">
                         <span class="detail-label">Terlapor:</span>
-                        <span class="detail-value">{{ $anjuran->dokumenHI->pengaduan->terlapor->nama }}</span>
+                        <span class="detail-value">{{ $pengaduan->terlapor->nama_terlapor }}</span>
                     </div>
 
                     <div class="detail-item">
