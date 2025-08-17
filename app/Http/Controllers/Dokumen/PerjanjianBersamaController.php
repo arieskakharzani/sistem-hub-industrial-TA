@@ -246,16 +246,15 @@ class PerjanjianBersamaController extends Controller
         $pengaduan = $perjanjian->dokumenHI->pengaduan;
         $anjuran = $perjanjian->dokumenHI->anjuran->first();
 
-        // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga perjanjian bersama
-        $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
+        // Hitung waktu penyelesaian dari tanggal mediator mengambil kasus hingga perjanjian bersama
         $waktuPenyelesaian = '-';
-        if ($jadwalMediasiPertama) {
+        if ($pengaduan->assigned_at) {
             $tanggalSelesai = $perjanjian->created_at ?? now();
             // Gunakan abs() untuk memastikan nilai positif dan bulatkan
-            $selisihHari = abs($jadwalMediasiPertama->tanggal->diffInDays($tanggalSelesai));
+            $selisihHari = abs($pengaduan->assigned_at->diffInDays($tanggalSelesai));
             $waktuPenyelesaian = round($selisihHari) . ' hari';
 
-            \Log::info('Waktu penyelesaian: ' . $jadwalMediasiPertama->tanggal->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
+            \Log::info('Waktu penyelesaian: ' . $pengaduan->assigned_at->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
         }
 
         // Generate laporan hasil mediasi - data dari PerjanjianBersama
@@ -285,8 +284,13 @@ class PerjanjianBersamaController extends Controller
             'pihak_pekerja' => $perjanjian->nama_pekerja,
             'pihak_pengusaha' => $perjanjian->nama_pengusaha,
             'perselisihan_phk' => 'ya',
+            'penyelesaian_bipartit' => 'ya', // karena sudah masuk ranah dinas
+            'penyelesaian_klarifikasi' => 'ya', // Ada risalah klarifikasi
             'penyelesaian_mediasi' => 'ya',
-            'penyelesaian_pb' => 'ya',
+            'penyelesaian_anjuran' => 'ya', // Ada anjuran yang diterbitkan
+            'penyelesaian_pb' => 'ya', // Ada perjanjian bersama
+            'penyelesaian_risalah' => 'ya', // Ada risalah penyelesaian
+            'tindak_lanjut_phi' => 'tidak', // Tidak karena diselesaikan dengan perjanjian bersama
             'keterangan' => 'Kasus diselesaikan dengan perjanjian bersama yang disetujui oleh para pihak',
         ]);
     }

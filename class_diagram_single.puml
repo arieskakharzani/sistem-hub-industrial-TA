@@ -1,0 +1,329 @@
+@startuml SIPPPHI_Complete_Class_Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+' === KONFIGURASI UKURAN MINIMAL ===
+skinparam dpi 150
+skinparam minClassWidth 60
+skinparam maxMessageSize 300
+skinparam wrapWidth 600
+skinparam pageMargin 200
+skinparam classFontSize 8
+skinparam classAttributeFontSize 6
+skinparam noteFontSize 6
+skinparam defaultFontSize 6
+
+' === LAYOUT KOMPAK ===
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam classPadding 5
+skinparam classMargin 3
+
+title SIPPPHI - Class Diagram (Minimal)
+
+' === CONTROLLERS ===
+package "Controllers" {
+    class PengaduanController <<Controller>> {
+        +index(), create(), store()
+        +show(), edit(), update()
+        +destroy(), assign()
+    }
+    
+    class JadwalController <<Controller>> {
+        +index(), create(), store()
+        +show(), edit(), update()
+        +destroy()
+    }
+    
+    class KonfirmasiController <<Controller>> {
+        +index(), show()
+        +konfirmasiKehadiran()
+        +kirimReminder()
+    }
+    
+    class AnjuranController <<Controller>> {
+        +create(), store(), show()
+        +edit(), update(), destroy()
+        +submitForApproval()
+        +approve(), reject(), publish()
+    }
+    
+    class AnjuranResponseController <<Controller>> {
+        +indexPelapor(), indexTerlapor()
+        +show(), recordResponse()
+        +downloadPDF()
+    }
+    
+    class PerjanjianBersamaController <<Controller>> {
+        +create(), store(), show()
+        +edit(), update(), destroy()
+        +downloadPDF()
+    }
+    
+    class RisalahController <<Controller>> {
+        +index(), create(), store()
+        +show(), edit(), update()
+        +destroy()
+    }
+    
+    class LaporanController <<Controller>> {
+        +index(), hasilMediasi()
+        +bukuRegister(), filterData()
+    }
+    
+    class BukuRegisterController <<Controller>> {
+        +index(), show(), filterData()
+    }
+    
+    class DokumenController <<Controller>> {
+        +index(), show(), create()
+        +store(), edit(), update()
+        +destroy()
+    }
+    
+    class AkunController <<Controller>> {
+        +index(), create(), store()
+        +show(), createAccount()
+        +toggleStatus()
+    }
+    
+    class DashboardController <<Controller>> {
+        +roleSelection(), setRole()
+        +pelapor(), terlapor()
+        +mediator(), kepalaDinas()
+    }
+    
+    class NotificationController <<Controller>> {
+        +index(), markAsRead()
+        +markAllAsRead()
+        +getUnreadCount()
+    }
+    
+    class RoleController <<Controller>> {
+        +index(), create(), store()
+        +show(), edit(), update()
+        +destroy()
+    }
+    
+    class ProfileController <<Controller>> {
+        +edit(), update()
+        +destroy(), updatePassword()
+    }
+    
+    class TerlaporController <<Controller>> {
+        +index(), show(), store()
+        +update(), destroy()
+    }
+}
+
+' === CORE MODELS ===
+package "Core Models" {
+    class User <<Model>> {
+        -user_id, email, password
+        -roles, active_role, is_active
+        +addRole(), removeRole()
+        +setActiveRole(), hasRole()
+        +getProfile(), getName()
+    }
+    
+    class Pengaduan <<Model>> {
+        -pengaduan_id, pelapor_id
+        -terlapor_id, mediator_id
+        -tanggal_laporan, perihal, status
+        -nomor_pengaduan
+        +hasActiveJadwal()
+        +isUnassigned()
+        +assignToMediator()
+    }
+    
+    class Jadwal <<Model>> {
+        -jadwal_id, pengaduan_id
+        -mediator_id, tanggal, waktu
+        -jenis_jadwal, status_jadwal
+        -konfirmasi_pelapor, konfirmasi_terlapor
+        +sudahDikonfirmasiSemua()
+        +isOverdue()
+    }
+}
+
+' === PROFILE MODELS ===
+package "Profile Models" {
+    class Pelapor <<Model>> {
+        -pelapor_id, user_id
+        -nama_pelapor, alamat
+        -perusahaan, no_hp
+        +getPengaduan()
+        +getActivePengaduan()
+    }
+    
+    class Terlapor <<Model>> {
+        -terlapor_id, user_id
+        -nama_terlapor, email_terlapor
+        -has_account, is_active
+        +activateAccount()
+        +deactivateAccount()
+    }
+    
+    class Mediator <<Model>> {
+        -mediator_id, user_id
+        -nama_mediator, nip
+        +getPengaduan()
+        +getJadwal()
+    }
+    
+    class KepalaDinas <<Model>> {
+        -kepala_dinas_id, user_id
+        -nama_kepala_dinas, nip
+        +approveAnjuran()
+        +rejectAnjuran()
+    }
+}
+
+' === DOCUMENT MODELS ===
+package "Document Models" {
+    class DokumenHubunganIndustrial <<Model>> {
+        -dokumen_hi_id, pengaduan_id
+        -jenis_dokumen, status
+        +getAnjuran()
+        +getPerjanjianBersama()
+        +getRisalah(), getLaporan()
+    }
+    
+    class Anjuran <<Model>> {
+        -anjuran_id, dokumen_hi_id
+        -nomor_anjuran, status_approval
+        -response_pelapor, response_terlapor
+        +isPendingApproval()
+        +isPublished()
+        +submitForApproval()
+    }
+    
+    class PerjanjianBersama <<Model>> {
+        -perjanjian_bersama_id
+        -dokumen_hi_id, nama_pengusaha
+        -nama_pekerja, isi_kesepakatan
+        -status
+        +isFinalized()
+        +generatePDF()
+    }
+    
+    class Risalah <<Model>> {
+        -risalah_id, jadwal_id
+        -dokumen_hi_id, jenis_risalah
+        -pokok_masalah
+        +isKlarifikasi()
+        +isMediasi()
+        +generatePDF()
+    }
+}
+
+' === DETAIL MODELS ===
+package "Detail Models" {
+    class DetailKlarifikasi <<Model>> {
+        -detail_klarifikasi_id
+        -risalah_id, arahan_mediator
+        -kesimpulan_klarifikasi
+        +getRisalah()
+    }
+    
+    class DetailMediasi <<Model>> {
+        -detail_mediasi_id
+        -risalah_id, ringkasan_pembahasan
+        -status_sidang, sidang_ke
+        +getRisalah()
+        +isCompleted()
+    }
+    
+    class DetailPenyelesaian <<Model>> {
+        -detail_penyelesaian_id
+        -risalah_id, hasil_kesepakatan
+        -tindak_lanjut, status_penyelesaian
+        +getRisalah()
+        +isResolved()
+    }
+}
+
+' === REPORT MODELS ===
+package "Report Models" {
+    class BukuRegisterPerselisihan <<Model>> {
+        -buku_register_id
+        -dokumen_hi_id, tanggal_pencatatan
+        -pihak_pekerja, pihak_pengusaha
+        -status_pencatatan
+        +getDokumenHI()
+        +isRecorded()
+    }
+    
+    class LaporanHasilMediasi <<Model>> {
+        -laporan_id, dokumen_hi_id
+        -nama_pekerja, nama_perusahaan
+        -waktu_penyelesaian_mediasi
+        -status_penyelesaian
+        +getDokumenHI()
+        +calculateWaktuPenyelesaian()
+    }
+}
+
+' === RELATIONSHIPS ===
+' Controller to Model Dependencies
+PengaduanController --> Pengaduan : manages
+JadwalController --> Jadwal : manages
+KonfirmasiController --> Jadwal : manages
+AnjuranController --> Anjuran : manages
+AnjuranResponseController --> Anjuran : manages
+PerjanjianBersamaController --> PerjanjianBersama : manages
+RisalahController --> Risalah : manages
+LaporanController --> BukuRegisterPerselisihan : manages
+LaporanController --> LaporanHasilMediasi : manages
+BukuRegisterController --> BukuRegisterPerselisihan : manages
+DokumenController --> DokumenHubunganIndustrial : manages
+AkunController --> Terlapor : manages
+DashboardController --> User : manages
+ProfileController --> User : manages
+RoleController --> User : manages
+TerlaporController --> Terlapor : manages
+
+' Core Model Relationships
+Pengaduan --> Jadwal : "1" *-- "many"
+Jadwal --> Risalah : "1" *-- "many"
+Pengaduan --> Pelapor : "many" --> "1"
+Pengaduan --> Terlapor : "many" --> "1"
+Pengaduan --> Mediator : "many" --> "1"
+Pengaduan --> DokumenHubunganIndustrial : "1" *-- "many"
+
+' Document Relationships
+DokumenHubunganIndustrial --> Anjuran : "1" *-- "many"
+DokumenHubunganIndustrial --> PerjanjianBersama : "1" *-- "many"
+DokumenHubunganIndustrial --> Risalah : "1" *-- "many"
+DokumenHubunganIndustrial --> BukuRegisterPerselisihan : "1" *-- "many"
+DokumenHubunganIndustrial --> LaporanHasilMediasi : "1" *-- "many"
+
+' Risalah Detail Relationships
+Risalah --> DetailKlarifikasi : "1" -- "1"
+Risalah --> DetailMediasi : "1" -- "1"
+Risalah --> DetailPenyelesaian : "1" -- "1"
+
+' Additional Relationships
+Terlapor --> Mediator : "many" --> "1"
+Anjuran --> DokumenHubunganIndustrial : "many" --> "1"
+PerjanjianBersama --> Anjuran : "1" -- "1"
+BukuRegisterPerselisihan --> DokumenHubunganIndustrial : "many" --> "1"
+LaporanHasilMediasi --> DokumenHubunganIndustrial : "many" --> "1"
+
+' User Profile Relationships
+User --> Pelapor : "1" -- "1"
+User --> Terlapor : "1" -- "1"
+User --> Mediator : "1" -- "1"
+User --> KepalaDinas : "1" -- "1"
+
+' Notes
+note top of PengaduanController : Titik masuk untuk\npengelolaan sengketa
+note top of DokumenHubunganIndustrial : Wadah dokumen pusat\nyang menghubungkan\nsemua dokumen kasus
+note top of Anjuran : Alur kerja persetujuan\ndengan pelacakan respon
+note top of Risalah : Berita acara rapat dengan\nrincian berdasarkan tipe
+
+@enduml 

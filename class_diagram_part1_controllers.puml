@@ -1,0 +1,166 @@
+@startuml SIPPPHI_Controllers
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+' === KONFIGURASI UKURAN CANVAS ===
+skinparam dpi 150
+skinparam minClassWidth 180
+skinparam maxMessageSize 80
+skinparam wrapWidth 200
+skinparam pageMargin 15
+skinparam classFontSize 8
+skinparam classAttributeFontSize 7
+
+' === LAYOUT ===
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 80
+
+title Controller Layer
+
+package "Main Controllers" {
+    class PengaduanController <<Controller>> {
+        - terlaporService: TerlaporService
+        --
+        + index(): View
+        + indexTerlapor(): View
+        + showTerlapor(pengaduan: Pengaduan): View
+        + create(): View
+        + store(request: Request): RedirectResponse
+        + show(pengaduan: Pengaduan): View
+        + edit(pengaduan: Pengaduan): View
+        + update(request: Request, pengaduan: Pengaduan): RedirectResponse
+        + destroy(pengaduan: Pengaduan): RedirectResponse
+        + assign(request: Request, pengaduan: Pengaduan): RedirectResponse
+        + indexKepalaDinas(): View
+        + showKepalaDinas(pengaduan: Pengaduan): View
+    }
+    
+    class JadwalController <<Controller>> {
+        + index(): View
+        + create(pengaduan: Pengaduan): View
+        + store(request: Request): RedirectResponse
+        + show(jadwal: Jadwal): View
+        + edit(jadwal: Jadwal): View
+        + update(request: Request, jadwal: Jadwal): RedirectResponse
+        + destroy(jadwal: Jadwal): RedirectResponse
+        + updateStatus(request: Request, jadwal: Jadwal): JsonResponse
+    }
+    
+    class KonfirmasiController <<Controller>> {
+        + index(): View
+        + show(jadwalId: String): View
+        + konfirmasi(request: Request, jadwalId: String): RedirectResponse
+        + cancel(jadwalId: String): RedirectResponse
+    }
+    
+    class AnjuranController <<Controller>> {
+        + create(dokumen_hi_id: String): View
+        + store(request: Request): RedirectResponse
+        + show(id: String): View
+        + edit(id: String): View
+        + update(request: Request, id: String): RedirectResponse
+        + destroy(anjuran: Anjuran): RedirectResponse
+        + cetakPdf(id: String): Response    
+        + pendingApproval(): View
+        + submit(anjuranId: String): RedirectResponse
+        + approve(anjuranId: String): RedirectResponse
+        + reject(anjuranId: String): RedirectResponse
+        + publish(anjuranId: String): RedirectResponse
+        + finalizeCase(id: String): RedirectResponse
+    }
+    
+    class AnjuranResponseController <<Controller>> {
+        + indexPelapor(): View
+        + indexTerlapor(): View
+        + show(id: String): View
+        + submitResponse(request: Request, id: String): RedirectResponse
+    }
+    
+    class PerjanjianBersamaController <<Controller>> {
+        + create(dokumen_hi_id: String): View
+        + store(request: Request): RedirectResponse
+        + show(id: String): View
+        + edit(id: String): View
+        + update(request: Request, id: String): RedirectResponse
+        + destroy(id: String): RedirectResponse
+        + cetakPdf(id: String): Response
+        + complete(id: String): RedirectResponse
+    }
+}
+
+package "Document & Report Controllers" {
+    class RisalahController <<Controller>> {
+        + create(jadwalId: String, jenis_risalah: String): View
+        + store(request: Request): RedirectResponse
+        + show(id: String): View
+        + edit(id: String): View
+        + update(request: Request, id: String): RedirectResponse
+        + destroy(id: String): RedirectResponse
+        + exportPDF(id: String): Response
+    }
+    
+    class LaporanController <<Controller>> {
+        + index(): View
+        + laporanHasilMediasi(): View
+        + showLaporanHasilMediasi(pengaduanId: String): View
+        + bukuRegisterPerselisihan(): View
+        + showBukuRegister(id: String): View
+        + cetakPdfLaporanHasilMediasi(laporanId: String): Response
+    }
+    
+    class BukuRegisterController <<Controller>> {
+        + create(): View
+        + store(request: Request): RedirectResponse
+    }
+    
+    class DokumenController <<Controller>> {
+        + dokumenIndex(request: Request): View
+    }
+}
+
+package "System Controllers" {
+    class RoleController <<Controller>> {
+        + selection(): View
+        + setRole(request: Request): RedirectResponse
+    }
+    
+    class AkunController <<Controller>> {
+        - terlaporService: TerlaporService
+        --
+        + index(): View
+        + create(pengaduan_id: String): View
+        + store(request: CreateTerlaporRequest): RedirectResponse
+        + show(id: String): View
+        + showPelapor(id: String): View
+        + deactivate(id: String): RedirectResponse
+        + activate(id: String): RedirectResponse
+        + deactivatePelapor(id: String): RedirectResponse
+        + activatePelapor(id: String): RedirectResponse
+        + getStats(): JsonResponse
+    }
+    
+    class DashboardController <<Controller>> {
+        + roleSelection(): View
+        + setRole(request: Request): RedirectResponse
+        + pelapor(): View
+        + terlapor(): View
+        + mediator(): View
+        + kepalaDinas(): View
+    }
+    
+    class NotificationController <<Controller>> {
+        + index(): View
+        + markAsRead(notification: DatabaseNotification): RedirectResponse
+        + markAllAsRead(): RedirectResponse
+        + getUnreadCount(): JsonResponse
+        + getRecent(): JsonResponse
+        + delete(notification: DatabaseNotification): RedirectResponse
+        + clearAll(): RedirectResponse
+    }
+}
+
+@enduml 

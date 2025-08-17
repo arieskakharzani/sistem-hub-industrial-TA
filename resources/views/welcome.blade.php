@@ -387,7 +387,7 @@
                                         </div>
                                         <div class="text-left">
                                             <p class="text-sm text-gray-500 font-medium">Email</p>
-                                            <p class="text-gray-800 font-semibold">disnakertrans.bungo@gmail.com</p>
+                                            <p class="text-gray-800 font-semibold">nakertrans@bungokab.go.id</p>
                                         </div>
                                     </div>
                                     <div
@@ -400,7 +400,7 @@
                                         </div>
                                         <div class="text-left">
                                             <p class="text-sm text-gray-500 font-medium">Telepon</p>
-                                            <p class="text-gray-800 font-semibold">(0747) 21234</p>
+                                            <p class="text-gray-800 font-semibold">(0747) 21013</p>
                                         </div>
                                     </div>
                                 </div>

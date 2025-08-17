@@ -197,10 +197,49 @@ class AnjuranResponseController extends Controller
      */
     private function notifyMediator($anjuran, $userRole, $response)
     {
-        $mediator = $anjuran->mediator();
+        try {
+            $mediator = $anjuran->mediator();
 
-        if ($mediator && $mediator->user) {
+            if (!$mediator) {
+                \Log::warning('Mediator not found for anjuran response notification', [
+                    'anjuran_id' => $anjuran->anjuran_id,
+                    'user_role' => $userRole,
+                    'response' => $response
+                ]);
+                return;
+            }
+
+            if (!$mediator->user) {
+                \Log::warning('Mediator user not found for anjuran response notification', [
+                    'anjuran_id' => $anjuran->anjuran_id,
+                    'mediator_id' => $mediator->mediator_id,
+                    'user_role' => $userRole,
+                    'response' => $response
+                ]);
+                return;
+            }
+
+            \Log::info('Sending anjuran response notification to mediator', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'mediator_email' => $mediator->user->email,
+                'user_role' => $userRole,
+                'response' => $response
+            ]);
+
             $mediator->user->notify(new AnjuranResponseNotification($anjuran, $userRole, $response));
+
+            \Log::info('Anjuran response notification sent successfully', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'mediator_email' => $mediator->user->email
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send anjuran response notification', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'user_role' => $userRole,
+                'response' => $response,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -209,10 +248,24 @@ class AnjuranResponseController extends Controller
      */
     private function notifyMediatorAboutRejection($anjuran, $userRole)
     {
-        $mediator = $anjuran->mediator();
+        try {
+            $mediator = $anjuran->mediator();
 
-        if ($mediator && $mediator->user) {
+            if (!$mediator || !$mediator->user) {
+                \Log::warning('Mediator not found for rejection notification', [
+                    'anjuran_id' => $anjuran->anjuran_id,
+                    'user_role' => $userRole
+                ]);
+                return;
+            }
+
             $mediator->user->notify(new AnjuranRejectedByPartiesNotification($anjuran, $userRole));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send rejection notification', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'user_role' => $userRole,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
@@ -221,11 +274,23 @@ class AnjuranResponseController extends Controller
      */
     private function notifyMediatorBothPartiesResponded($anjuran)
     {
-        $mediator = $anjuran->mediator();
+        try {
+            $mediator = $anjuran->mediator();
 
-        if ($mediator && $mediator->user) {
+            if (!$mediator || !$mediator->user) {
+                \Log::warning('Mediator not found for both parties response notification', [
+                    'anjuran_id' => $anjuran->anjuran_id
+                ]);
+                return;
+            }
+
             // Kirim notifikasi bahwa kedua pihak sudah memberikan respon
             $mediator->user->notify(new \App\Notifications\AnjuranResponseNotification($anjuran, 'both_parties', 'completed'));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send both parties response notification', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
@@ -234,11 +299,23 @@ class AnjuranResponseController extends Controller
      */
     private function notifyMediatorCanCreatePB($anjuran)
     {
-        $mediator = $anjuran->mediator();
+        try {
+            $mediator = $anjuran->mediator();
 
-        if ($mediator && $mediator->user) {
+            if (!$mediator || !$mediator->user) {
+                \Log::warning('Mediator not found for create PB notification', [
+                    'anjuran_id' => $anjuran->anjuran_id
+                ]);
+                return;
+            }
+
             // Kirim notifikasi bahwa mediator dapat membuat perjanjian bersama
             $mediator->user->notify(new \App\Notifications\AnjuranResponseNotification($anjuran, 'mediator', 'can_create_pb'));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send create PB notification', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
@@ -247,11 +324,23 @@ class AnjuranResponseController extends Controller
      */
     private function notifyMediatorToFinalizeCase($anjuran)
     {
-        $mediator = $anjuran->mediator();
+        try {
+            $mediator = $anjuran->mediator();
 
-        if ($mediator && $mediator->user) {
+            if (!$mediator || !$mediator->user) {
+                \Log::warning('Mediator not found for finalize case notification', [
+                    'anjuran_id' => $anjuran->anjuran_id
+                ]);
+                return;
+            }
+
             // Kirim notifikasi bahwa mediator dapat finalisasi kasus
             $mediator->user->notify(new \App\Notifications\AnjuranResponseNotification($anjuran, 'mediator', 'can_finalize_case'));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send finalize case notification', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

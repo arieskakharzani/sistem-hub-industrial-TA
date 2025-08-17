@@ -77,12 +77,11 @@ class LaporanService
         // Ambil data dari perjanjian bersama jika ada
         $perjanjianBersama = $dokumenHI->perjanjianBersama()->first();
 
-        // Hitung waktu penyelesaian dari jadwal mediasi pertama
-        $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
+        // Hitung waktu penyelesaian dari tanggal mediator mengambil kasus
         $waktuPenyelesaian = '-';
-        if ($jadwalMediasiPertama) {
+        if ($pengaduan->assigned_at) {
             $tanggalSelesai = $pengaduan->updated_at ?? now();
-            $selisihHari = abs($jadwalMediasiPertama->tanggal->diffInDays($tanggalSelesai));
+            $selisihHari = abs($pengaduan->assigned_at->diffInDays($tanggalSelesai));
             $waktuPenyelesaian = round($selisihHari) . ' hari';
         }
 

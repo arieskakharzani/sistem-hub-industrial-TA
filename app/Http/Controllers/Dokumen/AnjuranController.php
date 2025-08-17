@@ -397,7 +397,13 @@ class AnjuranController extends Controller
             $pengaduan = $anjuran->dokumenHI->pengaduan;
             $pengaduan->update(['status' => 'selesai']);
 
-            // Generate laporan hasil mediasi and buku register perselisihan FIRST
+            // Determine completion type based on response
+            $completionType = $anjuran->isBothPartiesAgree() ? 'anjuran_diterima' : 'anjuran_ditolak';
+
+            // Create buku register otomatis with proper completion type
+            $this->createBukuRegisterOtomatis($pengaduan, $completionType);
+
+            // Generate laporan hasil mediasi
             $this->generateFinalReports($anjuran);
 
             // Check if both parties agree (success case)
@@ -406,7 +412,8 @@ class AnjuranController extends Controller
                 'overall_response_status' => $anjuran->overall_response_status,
                 'is_both_parties_agree' => $anjuran->isBothPartiesAgree(),
                 'response_pelapor' => $anjuran->response_pelapor,
-                'response_terlapor' => $anjuran->response_terlapor
+                'response_terlapor' => $anjuran->response_terlapor,
+                'completion_type' => $completionType
             ]);
 
             if ($anjuran->isBothPartiesAgree()) {
@@ -555,26 +562,15 @@ class AnjuranController extends Controller
             return;
         }
 
-        // Cek apakah sudah ada buku register perselisihan untuk dokumen HI ini
-        $existingBukuRegister = \App\Models\BukuRegisterPerselisihan::where('dokumen_hi_id', $anjuran->dokumen_hi_id)->first();
-        if ($existingBukuRegister) {
-            \Log::info('Buku register perselisihan sudah ada, skipping creation', [
-                'existing_buku_register_id' => $existingBukuRegister->buku_register_perselisihan_id,
-                'anjuran_id' => $anjuran->anjuran_id
-            ]);
-            return;
-        }
-
-        // Hitung waktu penyelesaian dari jadwal mediasi pertama hingga anjuran
-        $jadwalMediasiPertama = $pengaduan->jadwal()->where('jenis_jadwal', 'mediasi')->orderBy('tanggal')->first();
+        // Hitung waktu penyelesaian dari tanggal mediator mengambil kasus hingga anjuran
         $waktuPenyelesaian = '-';
-        if ($jadwalMediasiPertama) {
+        if ($pengaduan->assigned_at) {
             $tanggalSelesai = $anjuran->created_at ?? now();
             // Gunakan abs() untuk memastikan nilai positif dan bulatkan
-            $selisihHari = abs($jadwalMediasiPertama->tanggal->diffInDays($tanggalSelesai));
+            $selisihHari = abs($pengaduan->assigned_at->diffInDays($tanggalSelesai));
             $waktuPenyelesaian = round($selisihHari) . ' hari';
 
-            \Log::info('Waktu penyelesaian: ' . $jadwalMediasiPertama->tanggal->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
+            \Log::info('Waktu penyelesaian: ' . $pengaduan->assigned_at->format('Y-m-d') . ' hingga ' . $tanggalSelesai->format('Y-m-d') . ' = ' . round($selisihHari) . ' hari');
         }
 
         // Ambil data dari risalah untuk laporan hasil mediasi
@@ -609,30 +605,111 @@ class AnjuranController extends Controller
             'pendapat_pekerja' => $pendapatPekerja,
             'pendapat_pengusaha' => $pendapatPengusaha
         ]);
+    }
 
-        // Generate buku register perselisihan
-        $bukuRegister = \App\Models\BukuRegisterPerselisihan::create([
-            'buku_register_perselisihan_id' => (string) Str::uuid(),
-            'dokumen_hi_id' => $anjuran->dokumen_hi_id,
-            'tanggal_pencatatan' => $pengaduan->tanggal_laporan,
-            'pihak_mencatat' => $anjuran->dokumenHI->pengaduan->mediator->nama_mediator,
-            'pihak_pekerja' => $anjuran->nama_pekerja,
-            'pihak_pengusaha' => $anjuran->perusahaan_pengusaha,
-            'perselisihan_phk' => 'ya',
-            'penyelesaian_bipartit' => 'ya', // karena sudah masuk ranah dinas
-            'penyelesaian_klarifikasi' => 'ya', // Ada risalah klarifikasi
-            'penyelesaian_mediasi' => 'ya',
-            'penyelesaian_anjuran' => 'ya',
-            'penyelesaian_risalah' => 'ya', // Ada risalah penyelesaian
-            'tindak_lanjut_phi' => 'ya',
-            'keterangan' => 'Kasus diselesaikan dengan anjuran yang ditolak oleh para pihak',
-        ]);
+    /**
+     * Buat buku register otomatis ketika kasus selesai
+     * Method ini akan menganalisis jenis penyelesaian dan mengisi buku register sesuai dengan completionType
+     */
+    private function createBukuRegisterOtomatis($pengaduan, string $completionType)
+    {
+        try {
+            // Cek apakah sudah ada buku register untuk pengaduan ini
+            $existingBukuRegister = \App\Models\BukuRegisterPerselisihan::whereHas('dokumenHI', function ($query) use ($pengaduan) {
+                $query->where('pengaduan_id', $pengaduan->pengaduan_id);
+            })->exists();
 
-        \Log::info('Buku register perselisihan created', [
-            'buku_register_id' => $bukuRegister->buku_register_perselisihan_id,
-            'dokumen_hi_id' => $bukuRegister->dokumen_hi_id,
-            'anjuran_id' => $anjuran->anjuran_id
-        ]);
+            if ($existingBukuRegister) {
+                \Log::info('Buku register sudah ada untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+                return;
+            }
+
+            $dokumenHI = $pengaduan->dokumenHI;
+            if (!$dokumenHI) {
+                \Log::error('Dokumen HI tidak ditemukan untuk pengaduan: ' . $pengaduan->nomor_pengaduan);
+                return;
+            }
+
+            // Data dasar buku register
+            $bukuRegisterData = [
+                'dokumen_hi_id' => $dokumenHI->dokumen_hi_id,
+                'tanggal_pencatatan' => $pengaduan->tanggal_laporan->format('Y-m-d'), // Ambil dari tanggal laporan pengaduan
+                'pihak_mencatat' => $pengaduan->mediator->nama_mediator ?? 'Mediator',
+                'keterangan' => 'Dibuat otomatis saat kasus selesai',
+            ];
+
+            // Ambil data pekerja dan pengusaha dari risalah terkait
+            $risalah = $dokumenHI->risalah()->latest()->first();
+            if ($risalah) {
+                $bukuRegisterData['pihak_pekerja'] = $risalah->nama_pekerja ?? $pengaduan->pelapor->nama_pelapor ?? 'Pekerja';
+                $bukuRegisterData['pihak_pengusaha'] = $risalah->nama_perusahaan ?? $pengaduan->terlapor->nama_terlapor ?? 'Pengusaha';
+            } else {
+                // Fallback jika tidak ada risalah
+                $bukuRegisterData['pihak_pekerja'] = $pengaduan->pelapor->nama_pelapor ?? 'Pekerja';
+                $bukuRegisterData['pihak_pengusaha'] = $pengaduan->terlapor->nama_terlapor ?? 'Pengusaha';
+            }
+
+            // Analisis jenis perselisihan berdasarkan perihal pengaduan
+            $perihal = strtolower($pengaduan->perihal);
+            $bukuRegisterData['perselisihan_hak'] = str_contains($perihal, 'hak') ? 'ya' : 'tidak';
+            $bukuRegisterData['perselisihan_kepentingan'] = str_contains($perihal, 'kepentingan') ? 'ya' : 'tidak';
+            $bukuRegisterData['perselisihan_phk'] = str_contains($perihal, 'phk') ? 'ya' : 'tidak';
+            $bukuRegisterData['perselisihan_sp_sb'] = str_contains($perihal, 'serikat') ? 'ya' : 'tidak';
+
+            // Analisis proses penyelesaian berdasarkan completionType
+            switch ($completionType) {
+                case 'klarifikasi_bipartit':
+                    // Kasus selesai melalui klarifikasi dengan kesimpulan bipartit_lagi
+                    $bukuRegisterData['penyelesaian_bipartit'] = 'ya'; // Selalu ya karena sudah masuk dinas
+                    $bukuRegisterData['penyelesaian_klarifikasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_mediasi'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_anjuran'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_pb'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_risalah'] = 'tidak';
+                    $bukuRegisterData['tindak_lanjut_phi'] = 'tidak';
+                    break;
+
+                case 'mediasi_berhasil':
+                    // Kasus selesai melalui mediasi berhasil dengan perjanjian bersama
+                    $bukuRegisterData['penyelesaian_bipartit'] = 'ya';
+                    $bukuRegisterData['penyelesaian_klarifikasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_mediasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_anjuran'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_pb'] = 'ya';
+                    $bukuRegisterData['penyelesaian_risalah'] = 'ya';
+                    $bukuRegisterData['tindak_lanjut_phi'] = 'tidak';
+                    break;
+
+                case 'anjuran_ditolak':
+                    // Kasus selesai karena anjuran ditolak (kedua pihak tidak setuju atau mixed response)
+                    $bukuRegisterData['penyelesaian_bipartit'] = 'ya';
+                    $bukuRegisterData['penyelesaian_klarifikasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_mediasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_anjuran'] = 'ya';
+                    $bukuRegisterData['penyelesaian_pb'] = 'tidak';
+                    $bukuRegisterData['penyelesaian_risalah'] = 'ya';
+                    $bukuRegisterData['tindak_lanjut_phi'] = 'ya'; // Ya karena anjuran ditolak
+                    break;
+
+                case 'anjuran_diterima':
+                    // Kasus selesai karena anjuran diterima dan dibuat perjanjian bersama
+                    $bukuRegisterData['penyelesaian_bipartit'] = 'ya';
+                    $bukuRegisterData['penyelesaian_klarifikasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_mediasi'] = 'ya';
+                    $bukuRegisterData['penyelesaian_anjuran'] = 'ya';
+                    $bukuRegisterData['penyelesaian_pb'] = 'ya';
+                    $bukuRegisterData['penyelesaian_risalah'] = 'ya';
+                    $bukuRegisterData['tindak_lanjut_phi'] = 'tidak';
+                    break;
+            }
+
+            // Buat buku register
+            \App\Models\BukuRegisterPerselisihan::create($bukuRegisterData);
+
+            \Log::info('Buku register berhasil dibuat otomatis untuk pengaduan: ' . $pengaduan->nomor_pengaduan . ' dengan completionType: ' . $completionType);
+        } catch (\Exception $e) {
+            \Log::error('Error creating buku register otomatis: ' . $e->getMessage());
+        }
     }
 
     /**

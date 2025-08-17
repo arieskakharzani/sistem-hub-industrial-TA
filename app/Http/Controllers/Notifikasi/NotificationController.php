@@ -24,7 +24,8 @@ class NotificationController extends Controller
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
                         ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
                         ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
-                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranResponseNotification');
                 } elseif ($userRole === 'pelapor') {
                     // Pelapor hanya bisa lihat notifikasi jadwal yang ditujukan ke pelapor
                     $query->where('type', 'App\\Notifications\\JadwalNotification')
@@ -48,7 +49,8 @@ class NotificationController extends Controller
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
                         ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
                         ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
-                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranResponseNotification');
                 } elseif ($userRole === 'pelapor') {
                     $query->where('type', 'App\\Notifications\\JadwalNotification')
                         ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');
@@ -115,7 +117,8 @@ class NotificationController extends Controller
                         ->orWhere('type', 'App\\Notifications\\KonfirmasiKehadiranNotification')
                         ->orWhere('type', 'App\\Notifications\\RescheduleRequiredNotification')
                         ->orWhere('type', 'App\\Notifications\\AnjuranApprovedNotification')
-                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification');
+                        ->orWhere('type', 'App\\Notifications\\AnjuranRejectedNotification')
+                        ->orWhere('type', 'App\\Notifications\\AnjuranResponseNotification');
                 } elseif ($userRole === 'pelapor') {
                     $query->where('type', 'App\\Notifications\\JadwalNotification')
                         ->orWhere('type', 'App\\Notifications\\AnjuranPublishedNotification');

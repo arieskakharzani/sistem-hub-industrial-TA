@@ -1,0 +1,154 @@
+@startuml SIPPPHI_Relationships
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+' === KONFIGURASI UKURAN CANVAS ===
+skinparam dpi 150
+skinparam minClassWidth 150
+skinparam maxMessageSize 60
+skinparam wrapWidth 180
+skinparam pageMargin 15
+skinparam classFontSize 8
+skinparam classAttributeFontSize 7
+
+' === LAYOUT ===
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 60
+
+title Class Diagram
+
+package "Main Controllers" {
+    class PengaduanController <<Controller>>
+    class JadwalController <<Controller>>
+    class KonfirmasiController <<Controller>>
+    class AnjuranController <<Controller>>
+    class AnjuranResponseController <<Controller>>
+    class PerjanjianBersamaController <<Controller>>
+}
+
+package "Document & Report Controllers" {
+    class RisalahController <<Controller>>
+    class LaporanController <<Controller>>
+    class BukuRegisterController <<Controller>>
+    class DokumenController <<Controller>>
+}
+
+package "System Controllers" {
+    class RoleController <<Controller>>
+    class AkunController <<Controller>>
+    class DashboardController <<Controller>>
+    class NotificationController <<Controller>>
+}
+
+package "Services" {
+    class TerlaporService <<Service>>
+    class LaporanService <<Service>>
+    class JadwalNotificationService <<Service>>
+}
+
+package "Core Models" {
+    class User <<Model>>
+    class Pengaduan <<Model>>
+    class Jadwal <<Model>>
+}
+
+package "Profile Models" {
+    class Pelapor <<Model>>
+    class Terlapor <<Model>>
+    class Mediator <<Model>>
+    class KepalaDinas <<Model>>
+}
+
+package "Document Models" {
+    class Anjuran <<Model>>
+    class PerjanjianBersama <<Model>>
+    class Risalah <<Model>>
+    class DokumenHubunganIndustrial <<Model>>
+}
+
+package "Detail Models" {
+    class DetailKlarifikasi <<Model>>
+    class DetailMediasi <<Model>>
+    class DetailPenyelesaian <<Model>>
+}
+
+package "Report Models" {
+    class BukuRegisterPerselisihan <<Model>>
+    class LaporanHasilMediasi <<Model>>
+}
+
+' Controller to Service Dependencies
+PengaduanController --> TerlaporService : uses
+AkunController --> TerlaporService : uses
+JadwalController --> JadwalNotificationService : uses
+LaporanController --> LaporanService : uses
+
+' Controller to Model Dependencies
+PengaduanController --> Pengaduan : manages
+JadwalController --> Jadwal : manages
+KonfirmasiController --> Jadwal : confirms
+AnjuranController --> Anjuran : manages
+AnjuranResponseController --> Anjuran : responds_to
+PerjanjianBersamaController --> PerjanjianBersama : manages
+RisalahController --> Risalah : manages
+LaporanController --> BukuRegisterPerselisihan : manages
+LaporanController --> LaporanHasilMediasi : manages
+BukuRegisterController --> BukuRegisterPerselisihan : manages
+DokumenController --> DokumenHubunganIndustrial : manages
+
+' Service to Model Dependencies
+TerlaporService --> User : creates
+TerlaporService --> Terlapor : manages
+TerlaporService --> Pengaduan : handles
+JadwalNotificationService --> Jadwal : notifies
+LaporanService --> Pengaduan : processes
+LaporanService --> BukuRegisterPerselisihan : generates
+LaporanService --> LaporanHasilMediasi : generates
+
+' User Profile Relationships
+User --> Pelapor : "1" -- "1"
+User --> Terlapor : "1" -- "1"
+User --> Mediator : "1" -- "1"
+User --> KepalaDinas : "1" -- "1"
+
+' Core Model Relationships
+Pengaduan --> Jadwal : "1" *-- "many"
+Jadwal --> Risalah : "1" *-- "many"
+Pengaduan --> Pelapor : "many" --> "1"
+Pengaduan --> Terlapor : "many" --> "1"
+Pengaduan --> Mediator : "many" --> "1"
+Pengaduan --> DokumenHubunganIndustrial : "1" *-- "many"
+
+' Document Relationships
+DokumenHubunganIndustrial --> Anjuran : "1" *-- "many"
+DokumenHubunganIndustrial --> PerjanjianBersama : "1" *-- "many"
+DokumenHubunganIndustrial --> Risalah : "1" *-- "many"
+DokumenHubunganIndustrial --> BukuRegisterPerselisihan : "1" *-- "many"
+DokumenHubunganIndustrial --> LaporanHasilMediasi : "1" *-- "many"
+
+' Risalah Detail Relationships
+Risalah --> DetailKlarifikasi : "1" -- "1"
+Risalah --> DetailMediasi : "1" -- "1"
+Risalah --> DetailPenyelesaian : "1" -- "1"
+
+' Profile Relationships
+Terlapor --> Mediator : "many" --> "1"
+
+' Additional Model Relationships
+Anjuran --> DokumenHubunganIndustrial : "many" --> "1"
+PerjanjianBersama --> Anjuran : "1" -- "1"
+BukuRegisterPerselisihan --> DokumenHubunganIndustrial : "many" --> "1"
+LaporanHasilMediasi --> DokumenHubunganIndustrial : "many" --> "1"
+
+note top of PengaduanController : Entry point untuk\npengelolaan perselisihan\ndengan scope yang diperluas
+note top of TerlaporService : Logika bisnis untuk\npengelolaan terlapor\ndan pembuatan akun
+note top of JadwalNotificationService : Layanan notifikasi\nyang diperluas dengan\nberbagai saluran dan format
+note top of DokumenHubunganIndustrial : Wadah dokumen pusat\nyang menghubungkan\nsemua dokumen perselisihan
+note top of Anjuran : Alur kerja persetujuan\ndengan pelacakan respon\ndan manajemen tenggat
+note top of Risalah : Catatan atau rangkuman rapat dengan\nrincian berdasarkan\ntipe (klarifikasi/mediasi/penyelesaian)
+
+@enduml 

@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-// Routes Pengaduan - MENGGUNAKAN CONTROLLER
+// Routes Pengaduan 
 Route::middleware(['auth', 'verified'])->prefix('pengaduan')->name('pengaduan.')->group(function () {
 
     // Index - untuk pelapor lihat pengaduan sendiri, untuk mediator lihat semua

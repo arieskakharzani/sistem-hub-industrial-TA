@@ -74,10 +74,8 @@
         <div class="content">
             <h2>Yth. {{ $nama_terlapor }},</h2>
 
-            @if ($pengaduan_id)
-                <p>Kami informasikan bahwa telah ada <strong>pengaduan hubungan industrial</strong>
-                    yang melibatkan perusahaan/organisasi Anda sebagai pihak yang dilaporkan.</p>
-            @endif
+            <p>Kami informasikan bahwa telah ada <strong>pengaduan perselisihan hubungan industrial</strong>
+                yang melibatkan perusahaan/organisasi Anda sebagai pihak yang dilaporkan.</p>
 
             <p>Akun Anda telah dibuat dalam sistem kami untuk mengakses informasi pengaduan dan berpartisipasi dalam
                 proses penyelesaian melalui mediasi.</p>

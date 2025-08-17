@@ -53,8 +53,9 @@ class KonfirmasiKehadiranNotification extends Notification implements ShouldQueu
         $pengaduan = $this->jadwal->pengaduan;
         $roleText = $this->userRole === 'pelapor' ? 'Pelapor' : 'Terlapor';
         $konfirmasiText = $this->konfirmasi === 'hadir' ? 'AKAN HADIR' : 'TIDAK DAPAT HADIR';
+        $jenisJadwal = $this->jadwal->getJenisJadwalLabel();
 
-        $subject = "Konfirmasi Kehadiran Mediasi - {$roleText} {$konfirmasiText}";
+        $subject = "Konfirmasi Kehadiran {$jenisJadwal} - {$roleText} {$konfirmasiText}";
 
         return (new MailMessage)
             ->subject($subject)

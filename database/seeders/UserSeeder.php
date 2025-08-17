@@ -127,7 +127,7 @@ class UserSeeder extends Seeder
 
         // Terlapor
         $userTerlapor = User::create([
-            'email' => 'arieskaeca@gmail.com',
+            'email' => 'syadzaintan03@gmail.com',
             'password' => Hash::make('password'),
             'roles' => ['terlapor'],
             'active_role' => 'terlapor',
@@ -136,9 +136,9 @@ class UserSeeder extends Seeder
 
         Terlapor::create([
             'user_id' => $userTerlapor->user_id,
-            'nama_terlapor' => 'PT ABC Technology',
+            'nama_terlapor' => 'PT Syadza Tech',
             'alamat_kantor_cabang' => 'Jl. Teknologi No. 123, Jakarta',
-            'email_terlapor' => 'arieskaeca@gmail.com',
+            'email_terlapor' => 'syadzaintan03@gmail.com',
             'no_hp_terlapor' => '081234567890',
             'has_account' => true,
             'is_active' => true

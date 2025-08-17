@@ -50,7 +50,7 @@
                                 @elseif($user->active_role === 'terlapor')
                                     Laporan hasil mediasi untuk kasus yang melibatkan Anda
                                 @elseif($user->active_role === 'mediator')
-                                    Laporan hasil mediasi untuk kasus yang Anda tangani
+                                    Laporan hasil mediasi untuk kasus yang telah diselesaikan
                                 @else
                                     Laporan hasil mediasi untuk semua kasus
                                 @endif

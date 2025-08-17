@@ -207,17 +207,19 @@
 
                     <div class="detail-item">
                         <span class="detail-label">Nomor Pengaduan:</span>
-                        <span class="detail-value">{{ $anjuran->dokumenHI->pengaduan->nomor_pengaduan }}</span>
+                        <span class="detail-value">{{ $anjuran->dokumenHI->pengaduan->nomor_pengaduan ?? 'N/A' }}</span>
                     </div>
 
                     <div class="detail-item">
                         <span class="detail-label">Pelapor:</span>
-                        <span class="detail-value">{{ $pengaduan->pelapor->nama_pelapor }}</span>
+                        <span
+                            class="detail-value">{{ $anjuran->dokumenHI->pengaduan->pelapor->nama_pelapor ?? 'N/A' }}</span>
                     </div>
 
                     <div class="detail-item">
                         <span class="detail-label">Terlapor:</span>
-                        <span class="detail-value">{{ $pengaduan->terlapor->nama_terlapor }}</span>
+                        <span
+                            class="detail-value">{{ $anjuran->dokumenHI->pengaduan->terlapor->nama_terlapor ?? 'N/A' }}</span>
                     </div>
 
                     <div class="detail-item">
@@ -228,10 +230,10 @@
                     <div class="detail-item">
                         <span class="detail-label">Status Respon:</span>
                         <span class="detail-value">
-                            @if ($anjuran->pelapor_response && $anjuran->terlapor_response)
-                                @if ($anjuran->pelapor_response === 'setuju' && $anjuran->terlapor_response === 'setuju')
+                            @if ($anjuran->response_pelapor && $anjuran->response_terlapor)
+                                @if ($anjuran->response_pelapor === 'setuju' && $anjuran->response_terlapor === 'setuju')
                                     <span style="color: #10b981; font-weight: 600;">Kedua Pihak Setuju</span>
-                                @elseif($anjuran->pelapor_response === 'tidak_setuju' && $anjuran->terlapor_response === 'tidak_setuju')
+                                @elseif($anjuran->response_pelapor === 'tidak_setuju' && $anjuran->response_terlapor === 'tidak_setuju')
                                     <span style="color: #ef4444; font-weight: 600;">Kedua Pihak Tidak Setuju</span>
                                 @else
                                     <span style="color: #f59e0b; font-weight: 600;">Respon Berbeda</span>
@@ -254,11 +256,11 @@
                 style="margin-top: 30px; padding: 20px; background-color: #f0f9ff; border-radius: 6px; border-left: 4px solid #0ea5e9;">
                 <h4 style="margin: 0 0 10px 0; color: #0c4a6e; font-size: 16px;">📋 Langkah Selanjutnya</h4>
                 <p style="margin: 0; color: #0c4a6e; font-size: 14px;">
-                    @if ($anjuran->pelapor_response && $anjuran->terlapor_response)
-                        @if ($anjuran->pelapor_response === 'setuju' && $anjuran->terlapor_response === 'setuju')
+                    @if ($anjuran->response_pelapor && $anjuran->response_terlapor)
+                        @if ($anjuran->response_pelapor === 'setuju' && $anjuran->response_terlapor === 'setuju')
                             Kedua pihak telah menyetujui anjuran. Anda dapat membuat jadwal pertemuan untuk
                             penandatanganan perjanjian bersama.
-                        @elseif($anjuran->pelapor_response === 'tidak_setuju' && $anjuran->terlapor_response === 'tidak_setuju')
+                        @elseif($anjuran->response_pelapor === 'tidak_setuju' && $anjuran->response_terlapor === 'tidak_setuju')
                             Kedua pihak telah menolak anjuran. Anda dapat menyelesaikan kasus dan mengirimkan dokumen
                             final kepada para pihak.
                         @else

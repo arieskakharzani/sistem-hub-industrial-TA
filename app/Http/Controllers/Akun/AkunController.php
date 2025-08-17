@@ -41,7 +41,7 @@ class AkunController extends Controller
     {
 
         try {
-            // Defensive programming - pastikan user ada
+            // Pastikan user ada
             $user = Auth::user();
             if (!$user) {
                 return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
@@ -283,7 +283,6 @@ class AkunController extends Controller
             // Jika tidak ada pengaduan_id, redirect ke halaman detail terlapor
             return redirect()->route('mediator.akun.show', $result['terlapor']->terlapor_id)
                 ->with('success', $message);
-
         } catch (\Exception $e) {
             Log::error('Error in AkunController@store: ' . $e->getMessage());
             return redirect()->back()->withInput()
@@ -361,7 +360,7 @@ class AkunController extends Controller
             DB::beginTransaction();
 
             $terlapor = Terlapor::with('user')->findOrFail($id);
-            
+
             // Update user status
             if ($terlapor->user) {
                 // Jika user memiliki role terlapor saja, nonaktifkan user
@@ -389,7 +388,6 @@ class AkunController extends Controller
                 'message' => 'Akun terlapor berhasil dinonaktifkan',
                 'terlapor' => $terlapor
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in AkunController@deactivate: ' . $e->getMessage());
@@ -411,12 +409,12 @@ class AkunController extends Controller
             DB::beginTransaction();
 
             $terlapor = Terlapor::with('user')->findOrFail($id);
-            
+
             // Update user status
             if ($terlapor->user) {
                 // Aktifkan user
                 $terlapor->user->update(['is_active' => true]);
-                
+
                 // Tambahkan role terlapor jika belum ada
                 if (!in_array('terlapor', $terlapor->user->roles)) {
                     $roles = $terlapor->user->roles;
@@ -437,7 +435,6 @@ class AkunController extends Controller
                 'message' => 'Akun terlapor berhasil diaktifkan',
                 'terlapor' => $terlapor
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in AkunController@activate: ' . $e->getMessage());
@@ -459,7 +456,7 @@ class AkunController extends Controller
             DB::beginTransaction();
 
             $pelapor = Pelapor::with('user')->findOrFail($id);
-            
+
             // Update user status
             if ($pelapor->user) {
                 // Jika user memiliki role pelapor saja, nonaktifkan user
@@ -484,7 +481,6 @@ class AkunController extends Controller
                 'message' => 'Akun pelapor berhasil dinonaktifkan',
                 'pelapor' => $pelapor
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in AkunController@deactivatePelapor: ' . $e->getMessage());
@@ -506,12 +502,12 @@ class AkunController extends Controller
             DB::beginTransaction();
 
             $pelapor = Pelapor::with('user')->findOrFail($id);
-            
+
             // Update user status
             if ($pelapor->user) {
                 // Aktifkan user
                 $pelapor->user->update(['is_active' => true]);
-                
+
                 // Tambahkan role pelapor jika belum ada
                 if (!in_array('pelapor', $pelapor->user->roles)) {
                     $roles = $pelapor->user->roles;
@@ -529,7 +525,6 @@ class AkunController extends Controller
                 'message' => 'Akun pelapor berhasil diaktifkan',
                 'pelapor' => $pelapor
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error in AkunController@activatePelapor: ' . $e->getMessage());

@@ -80,8 +80,8 @@
                                         value="{{ old('jenis_usaha', $defaultData['jenis_usaha'] ?? '') }}"
                                         placeholder="Contoh: Perdagangan, Manufaktur, Jasa, dll." required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
-                                    <p class="text-xs text-gray-500 italic mt-1">⚠️ Pastikan untuk mengisi jenis usaha
-                                        yang sesuai dengan perusahaan</p>
+                                    {{-- <p class="text-xs text-gray-500 italic mt-1">⚠️ Pastikan untuk mengisi jenis usaha
+                                        yang sesuai dengan perusahaan</p> --}}
                                 </div>
 
                                 <div class="space-y-2 md:col-span-2">

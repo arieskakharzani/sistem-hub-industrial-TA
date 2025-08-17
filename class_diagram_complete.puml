@@ -1,0 +1,383 @@
+@startuml SIPPPHI_Complete_Class_Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+' === KONFIGURASI UKURAN ===
+skinparam dpi 120
+skinparam minClassWidth 120
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam pageMargin 20
+skinparam classFontSize 7
+skinparam classAttributeFontSize 6
+
+' === LAYOUT ===
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+title SIPPPHI - Class Diagram Lengkap
+
+' === CONTROLLERS ===
+package "Controllers" {
+    class PengaduanController {
+        +index(): View
+        +create(): View
+        +store(request: Request): RedirectResponse
+        +show(pengaduan: Pengaduan): View
+        +edit(pengaduan: Pengaduan): View
+        +update(request: Request, pengaduan: Pengaduan): RedirectResponse
+        +destroy(pengaduan: Pengaduan): RedirectResponse
+        +assign(request: Request, pengaduan: Pengaduan): RedirectResponse
+    }
+    
+    class JadwalController {
+        +index(): View
+        +create(pengaduan: Pengaduan): View
+        +store(request: Request): RedirectResponse
+        +show(jadwal: Jadwal): View
+        +edit(jadwal: Jadwal): View
+        +update(request: Request, jadwal: Jadwal): RedirectResponse
+        +destroy(jadwal: Jadwal): RedirectResponse
+        +updateStatus(request: Request, jadwal: Jadwal): JsonResponse
+    }
+    
+    class AnjuranController {
+        +create(dokumen_hi_id: String): View
+        +store(request: Request): RedirectResponse
+        +show(id: String): View
+        +edit(id: String): View
+        +update(request: Request, id: String): RedirectResponse
+        +submitForApproval(anjuran: Anjuran): RedirectResponse
+        +approve(request: Request, anjuran: Anjuran): RedirectResponse
+        +reject(request: Request, anjuran: Anjuran): RedirectResponse
+        +publish(anjuran: Anjuran): RedirectResponse
+    }
+    
+    class RisalahController {
+        +index(): View
+        +create(jadwal: Jadwal): View
+        +store(request: Request): RedirectResponse
+        +show(risalah: Risalah): View
+        +edit(risalah: Risalah): View
+        +update(request: Request, risalah: Risalah): RedirectResponse
+        +destroy(risalah: Risalah): RedirectResponse
+    }
+    
+    class AkunController {
+        +index(): View
+        +create(): View
+        +store(request: CreateTerlaporRequest): RedirectResponse
+        +show(id: String): View
+        +createAccount(terlapor: Terlapor): RedirectResponse
+        +toggleStatus(terlapor: Terlapor): RedirectResponse
+    }
+    
+    class DashboardController {
+        +roleSelection(): View
+        +setRole(request: Request): RedirectResponse
+        +pelapor(): View
+        +terlapor(): View
+        +mediator(): View
+        +kepalaDinas(): View
+    }
+}
+
+' === SERVICES ===
+package "Services" {
+    class TerlaporService {
+        +handlePengaduan(pengaduan: Pengaduan): Terlapor
+        +createAccount(terlapor: Terlapor, mediatorId: String): User
+        +toggleAccountStatus(terlapor: Terlapor, activate: Boolean): Boolean
+        +getTerlaporByMediator(mediatorId: String): Collection
+        +getActiveTerlapor(): Collection
+    }
+    
+    class LaporanService {
+        +generateLaporanOtomatis(pengaduan: Pengaduan): Boolean
+        +getLaporanHasilMediasi(filters: Array): Collection
+        +getBukuRegisterData(filters: Array): Collection
+        +exportLaporanToExcel(type: String, filters: Array): Response
+    }
+    
+    class JadwalNotificationService {
+        +getRecipients(jadwal: Jadwal): Array
+        +sendJadwalNotification(jadwal: Jadwal): Boolean
+        +sendReminderNotification(jadwal: Jadwal): Boolean
+        +sendConfirmationReminder(jadwal: Jadwal): Boolean
+    }
+}
+
+' === CORE MODELS ===
+package "Core Models" {
+    class User {
+        -user_id: String
+        -email: String
+        -password: String
+        -roles: Array
+        -active_role: String
+        -is_active: Boolean
+        +addRole(role: String): void
+        +removeRole(role: String): void
+        +setActiveRole(role: String): Boolean
+        +hasRole(role: String): Boolean
+        +getProfile(): Object
+        +getName(): String
+    }
+    
+    class Pengaduan {
+        -pengaduan_id: String
+        -pelapor_id: String
+        -terlapor_id: String
+        -mediator_id: String
+        -tanggal_laporan: Date
+        -perihal: String
+        -status: String
+        -nomor_pengaduan: String
+        +hasActiveJadwal(): Boolean
+        +isUnassigned(): Boolean
+        +assignToMediator(mediatorId: String): void
+        +updateStatus(status: String): void
+    }
+    
+    class Jadwal {
+        -jadwal_id: String
+        -pengaduan_id: String
+        -mediator_id: String
+        -tanggal: Date
+        -waktu: Time
+        -jenis_jadwal: String
+        -status_jadwal: String
+        -konfirmasi_pelapor: String
+        -konfirmasi_terlapor: String
+        +sudahDikonfirmasiSemua(): Boolean
+        +isOverdue(): Boolean
+        +confirmKehadiran(pihak: String, status: String): void
+    }
+}
+
+' === PROFILE MODELS ===
+package "Profile Models" {
+    class Pelapor {
+        -pelapor_id: String
+        -user_id: String
+        -nama_pelapor: String
+        -alamat: String
+        -perusahaan: String
+        -no_hp: String
+        +getPengaduan(): Collection
+        +getActivePengaduan(): Collection
+    }
+    
+    class Terlapor {
+        -terlapor_id: String
+        -user_id: String
+        -nama_terlapor: String
+        -email_terlapor: String
+        -has_account: Boolean
+        -is_active: Boolean
+        +activateAccount(): void
+        +deactivateAccount(): void
+        +getPengaduan(): Collection
+    }
+    
+    class Mediator {
+        -mediator_id: String
+        -user_id: String
+        -nama_mediator: String
+        -nip: String
+        +getPengaduan(): Collection
+        +getJadwal(): Collection
+        +getActiveCases(): Collection
+    }
+    
+    class KepalaDinas {
+        -kepala_dinas_id: String
+        -user_id: String
+        -nama_kepala_dinas: String
+        -nip: String
+        +approveAnjuran(anjuran: Anjuran): void
+        +rejectAnjuran(anjuran: Anjuran, notes: String): void
+    }
+}
+
+' === DOCUMENT MODELS ===
+package "Document Models" {
+    class DokumenHubunganIndustrial {
+        -dokumen_hi_id: String
+        -pengaduan_id: String
+        -jenis_dokumen: String
+        -status: String
+        +getAnjuran(): Anjuran
+        +getPerjanjianBersama(): PerjanjianBersama
+        +getRisalah(): Collection
+        +getLaporan(): Collection
+    }
+    
+    class Anjuran {
+        -anjuran_id: String
+        -dokumen_hi_id: String
+        -nomor_anjuran: String
+        -status_approval: String
+        -response_pelapor: String
+        -response_terlapor: String
+        +isPendingApproval(): Boolean
+        +isPublished(): Boolean
+        +bothPartiesResponded(): Boolean
+        +submitForApproval(): void
+        +approve(kepalaDinasId: String): void
+        +reject(kepalaDinasId: String, notes: String): void
+    }
+    
+    class PerjanjianBersama {
+        -perjanjian_bersama_id: String
+        -dokumen_hi_id: String
+        -nama_pengusaha: String
+        -jabatan_pengusaha: String
+        -nama_pekerja: String
+        -jabatan_pekerja: String
+        -isi_kesepakatan: Text
+        -status: String
+        +isFinalized(): Boolean
+        +generatePDF(): String
+    }
+    
+    class Risalah {
+        -risalah_id: String
+        -jadwal_id: String
+        -dokumen_hi_id: String
+        -jenis_risalah: String
+        -pokok_masalah: Text
+        -pendapat_pekerja: Text
+        -pendapat_pengusaha: Text
+        +isKlarifikasi(): Boolean
+        +isMediasi(): Boolean
+        +isPenyelesaian(): Boolean
+        +generatePDF(): String
+    }
+}
+
+' === DETAIL MODELS ===
+package "Detail Models" {
+    class DetailKlarifikasi {
+        -detail_klarifikasi_id: String
+        -risalah_id: String
+        -arahan_mediator: Text
+        -kesimpulan_klarifikasi: Text
+        +getRisalah(): Risalah
+    }
+    
+    class DetailMediasi {
+        -detail_mediasi_id: String
+        -risalah_id: String
+        -ringkasan_pembahasan: Text
+        -status_sidang: String
+        -sidang_ke: Integer
+        +getRisalah(): Risalah
+        +isCompleted(): Boolean
+    }
+    
+    class DetailPenyelesaian {
+        -detail_penyelesaian_id: String
+        -risalah_id: String
+        -hasil_kesepakatan: Text
+        -tindak_lanjut: Text
+        -status_penyelesaian: String
+        +getRisalah(): Risalah
+        +isResolved(): Boolean
+    }
+}
+
+' === REPORT MODELS ===
+package "Report Models" {
+    class BukuRegisterPerselisihan {
+        -buku_register_id: String
+        -dokumen_hi_id: String
+        -tanggal_pencatatan: DateTime
+        -pihak_pekerja: String
+        -pihak_pengusaha: String
+        -status_pencatatan: String
+        +getDokumenHI(): DokumenHubunganIndustrial
+        +isRecorded(): Boolean
+    }
+    
+    class LaporanHasilMediasi {
+        -laporan_id: String
+        -dokumen_hi_id: String
+        -nama_pekerja: String
+        -nama_perusahaan: String
+        -waktu_penyelesaian_mediasi: Integer
+        -status_penyelesaian: String
+        +getDokumenHI(): DokumenHubunganIndustrial
+        +calculateWaktuPenyelesaian(): Integer
+    }
+}
+
+' === RELATIONSHIPS ===
+' Controller Dependencies
+PengaduanController --> TerlaporService : uses
+AkunController --> TerlaporService : uses
+JadwalController --> JadwalNotificationService : uses
+LaporanController --> LaporanService : uses
+
+' Controller to Model Dependencies
+PengaduanController --> Pengaduan : manages
+JadwalController --> Jadwal : manages
+AnjuranController --> Anjuran : manages
+RisalahController --> Risalah : manages
+AkunController --> Terlapor : manages
+DashboardController --> User : manages
+
+' Service Dependencies
+TerlaporService --> User : creates
+TerlaporService --> Terlapor : manages
+TerlaporService --> Pengaduan : handles
+JadwalNotificationService --> Jadwal : notifies
+LaporanService --> Pengaduan : processes
+LaporanService --> BukuRegisterPerselisihan : generates
+LaporanService --> LaporanHasilMediasi : generates
+
+' User Profile Relationships
+User --> Pelapor : "1" -- "1"
+User --> Terlapor : "1" -- "1"
+User --> Mediator : "1" -- "1"
+User --> KepalaDinas : "1" -- "1"
+
+' Core Model Relationships
+Pengaduan --> Jadwal : "1" *-- "many"
+Jadwal --> Risalah : "1" *-- "many"
+Pengaduan --> Pelapor : "many" --> "1"
+Pengaduan --> Terlapor : "many" --> "1"
+Pengaduan --> Mediator : "many" --> "1"
+Pengaduan --> DokumenHubunganIndustrial : "1" *-- "many"
+
+' Document Relationships
+DokumenHubunganIndustrial --> Anjuran : "1" *-- "many"
+DokumenHubunganIndustrial --> PerjanjianBersama : "1" *-- "many"
+DokumenHubunganIndustrial --> Risalah : "1" *-- "many"
+DokumenHubunganIndustrial --> BukuRegisterPerselisihan : "1" *-- "many"
+DokumenHubunganIndustrial --> LaporanHasilMediasi : "1" *-- "many"
+
+' Risalah Detail Relationships
+Risalah --> DetailKlarifikasi : "1" -- "1"
+Risalah --> DetailMediasi : "1" -- "1"
+Risalah --> DetailPenyelesaian : "1" -- "1"
+
+' Additional Relationships
+Terlapor --> Mediator : "many" --> "1"
+Anjuran --> DokumenHubunganIndustrial : "many" --> "1"
+PerjanjianBersama --> Anjuran : "1" -- "1"
+BukuRegisterPerselisihan --> DokumenHubunganIndustrial : "many" --> "1"
+LaporanHasilMediasi --> DokumenHubunganIndustrial : "many" --> "1"
+
+' Notes
+note top of PengaduanController : Titik masuk untuk\npengelolaan sengketa
+note top of TerlaporService : Logika bisnis untuk\npengelolaan terlapor
+note top of DokumenHubunganIndustrial : Wadah dokumen pusat\nyang menghubungkan\nsemua dokumen kasus
+note top of Anjuran : Alur kerja persetujuan\ndengan pelacakan respon
+note top of Risalah : Berita acara rapat dengan\nrincian berdasarkan tipe
+
+@enduml 

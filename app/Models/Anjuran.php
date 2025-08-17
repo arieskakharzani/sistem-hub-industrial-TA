@@ -113,7 +113,23 @@ class Anjuran extends Model
     // Relasi ke mediator melalui dokumenHI dan pengaduan
     public function mediator()
     {
-        return $this->dokumenHI->pengaduan->mediator;
+        try {
+            if (!$this->dokumenHI) {
+                return null;
+            }
+
+            if (!$this->dokumenHI->pengaduan) {
+                return null;
+            }
+
+            return $this->dokumenHI->pengaduan->mediator;
+        } catch (\Exception $e) {
+            \Log::error('Error getting mediator for anjuran', [
+                'anjuran_id' => $this->anjuran_id,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
     }
 
     // Scopes

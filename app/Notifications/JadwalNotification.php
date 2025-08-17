@@ -58,8 +58,8 @@ class JadwalNotification extends Notification implements ShouldQueue
     private function getDefaultTitle(): string
     {
         return match ($this->type) {
-            'jadwal_created' => 'Jadwal ' . $this->jadwal->jenis_jadwal . ' Baru',
-            'jadwal_updated' => 'Jadwal ' . $this->jadwal->jenis_jadwal . ' Diperbarui',
+            'jadwal_created' => 'Jadwal ' . $this->jadwal->getJenisJadwalLabel() . ' Baru',
+            'jadwal_updated' => 'Jadwal ' . $this->jadwal->getJenisJadwalLabel() . ' Diperbarui',
             default => 'Notifikasi Jadwal'
         };
     }
@@ -70,11 +70,11 @@ class JadwalNotification extends Notification implements ShouldQueue
     private function getDefaultMessage(): string
     {
         return match ($this->type) {
-            'jadwal_created' => 'Jadwal ' . $this->jadwal->jenis_jadwal . ' baru telah dibuat untuk pengaduan #' . $this->jadwal->pengaduan->nomor_pengaduan,
+            'jadwal_created' => 'Jadwal ' . $this->jadwal->getJenisJadwalLabel() . ' baru telah dibuat untuk pengaduan #' . $this->jadwal->pengaduan->nomor_pengaduan,
             'jadwal_updated' => $this->oldStatus
                 ? 'Status jadwal telah diubah dari ' . $this->oldStatus . ' menjadi ' . $this->jadwal->status_jadwal
                 : 'Jadwal telah diperbarui',
-            default => 'Ada pembaruan pada jadwal ' . $this->jadwal->jenis_jadwal
+            default => 'Ada pembaruan pada jadwal ' . $this->jadwal->getJenisJadwalLabel()
         };
     }
 

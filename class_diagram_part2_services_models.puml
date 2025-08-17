@@ -1,0 +1,429 @@
+@startuml SIPPPHI_Services_Models
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+' === KONFIGURASI UKURAN CANVAS ===
+skinparam dpi 150
+skinparam minClassWidth 180
+skinparam maxMessageSize 80
+skinparam wrapWidth 200
+skinparam pageMargin 15
+skinparam classFontSize 8
+skinparam classAttributeFontSize 7
+
+' === LAYOUT ===
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 80
+
+title Services & Models Layer
+
+package "Service Layer" {
+    class TerlaporService <<Service>> {
+        + handlePengaduan(pengaduan: Pengaduan): Terlapor
+        + createAccount(terlapor: Terlapor, mediatorId: String): User
+        + toggleAccountStatus(terlapor: Terlapor, activate: Boolean): Boolean
+        + getTerlaporByMediator(mediatorId: String): Collection
+        + getActiveTerlapor(): Collection
+        + getTerlaporStats(): Array
+        + createTerlaporAccount(data: Array, mediatorId: String): User
+    }
+    
+    class LaporanService <<Service>> {
+        + generateLaporanOtomatis(pengaduan: Pengaduan): Boolean
+        - generateLaporanHasilMediasi(pengaduan: Pengaduan): void
+        - updateBukuRegister(pengaduan: Pengaduan): void
+        + getLaporanHasilMediasi(filters: Array): Collection
+    }
+    
+    class JadwalNotificationService <<Service>> {
+        + getRecipients(jadwal: Jadwal): Array
+        + getMediator(jadwal: Jadwal): Array
+        + shouldSendInAppNotification(userRole: String): Boolean
+        + getNotificationChannels(userRole: String): Array
+        + formatNotificationData(jadwal: Jadwal, eventType: String, additionalData: Array): Array
+        + getStatusLabel(status: String): String
+        + getEventLabel(eventType: String): String
+        + getChanges(jadwal: Jadwal, oldData: Array): Array
+    }
+}
+
+package "Core Models" {
+    class User <<Model>> {
+        - user_id: String
+        - email: String
+        - password: String
+        - roles: Array
+        - active_role: String
+        - is_active: Boolean
+        --
+        + addRole(role: String): void
+        + removeRole(role: String): void
+        + setActiveRole(role: String): Boolean
+        + hasRole(role: String): Boolean
+        + hasAnyRole(roles: Array): Boolean
+        + hasAllRoles(roles: Array): Boolean
+        + getRole(): String
+        + getProfile(): Object
+        + getName(): String
+        + loadProfile(): User
+        + isPelapor(): Boolean
+        + isTerlapor(): Boolean
+        + isMediator(): Boolean
+        + isKepalaDinas(): Boolean
+        + scopeActive(query: Builder): Builder
+        + scopeByRole(query: Builder, role: String): Builder
+        + scopeByActiveRole(query: Builder, role: String): Builder
+        + pelapor(): HasOne
+        + terlapor(): HasOne
+        + mediator(): HasOne
+        + kepalaDinas(): HasOne
+    }
+    
+    class Pengaduan <<Model>> {
+        - pengaduan_id: String
+        - pelapor_id: String
+        - terlapor_id: String
+        - mediator_id: String
+        - tanggal_laporan: Date
+        - perihal: String
+        - status: String
+        - nomor_pengaduan: String
+        --
+        + hasActiveJadwal(): Boolean
+        + scopeByStatus(query: Builder, status: String): Builder
+        + scopeToday(query: Builder): Builder
+        + scopeByPerihal(query: Builder, perihal: String): Builder
+        + scopeUnassigned(query: Builder): Builder
+        + scopeAssignedTo(query: Builder, mediatorId: String): Builder
+        + isAssignedTo(mediatorId: String): Boolean
+        + isUnassigned(): Boolean
+        + getStatusBadgeClassAttribute(): String
+        + getStatusTextAttribute(): String
+        + getPerihalTextAttribute(): String
+        + getRisalahBipartitUrlAttribute(): String
+        + hasRisalahBipartit(): Boolean
+        + getLampiranFilesAttribute(): Array
+        + getPerihalOptions(): Array
+        + hasActiveMediasiSchedule(): Boolean
+        + getLatestMediasiSchedule(): Jadwal
+        + getCompletedMediasiSessionsCount(): Integer
+        + hasReachedMaxMediasiSessions(): Boolean
+        + getStatusOptions(): Array
+        + pelapor(): BelongsTo
+        + terlapor(): BelongsTo
+        + mediator(): BelongsTo
+        + jadwal(): HasMany
+        + dokumenHI(): HasMany
+    }
+    
+    class Jadwal <<Model>> {
+        - jadwal_id: String
+        - pengaduan_id: String
+        - mediator_id: String
+        - tanggal: Date
+        - waktu: Time
+        - jenis_jadwal: String
+        - status_jadwal: String
+        - konfirmasi_pelapor: String
+        - konfirmasi_terlapor: String
+        --
+        + sudahDikonfirmasiSemua(): Boolean
+        + isOverdue(): Boolean
+        + confirmKehadiran(pihak: String, status: String): void
+        + reschedule(tanggal: Date, waktu: Time): void
+        + sendReminderNotification(): void
+        + pengaduan(): BelongsTo
+        + mediator(): BelongsTo
+        + risalah(): HasMany
+        + risalahKlarifikasi(): HasOne
+        + risalahPenyelesaian(): HasOne
+        + detailMediasi(): HasMany
+        + detailMediasiTerakhir(): HasOne
+        + scopeByMediator(query: Builder, mediatorId: String): Builder
+        + scopeByStatus(query: Builder, status: String): Builder
+        + scopeHariIni(query: Builder): Builder
+        + scopeMenungguKonfirmasi(query: Builder): Builder
+        + adaYangTidakHadir(): Boolean
+        + isConfirmationDeadlinePassed(): Boolean
+        + isConfirmationDeadlineApproaching(): Boolean
+        + handleOverdueJadwal(): void
+        + getConfirmationDeadline(): Carbon
+        + getStatusBadgeClass(): String
+        + getKonfirmasiBadgeClass(jenis: String): String
+        + getStatusIcon(): String
+        + getStatusOptions(): Array
+        + getJenisJadwalOptions(): Array
+        + getJenisJadwalLabel(): String
+        + getKonfirmasiOptions(): Array
+
+    }
+}
+
+package "Profile Models" {
+    class Pelapor <<Model>> {
+        - pelapor_id: String
+        - user_id: String
+        - nama_pelapor: String
+        - alamat_pelapor: String
+        - no_hp_pelapor: String
+        - email_pelapor: String
+        --
+        + user(): BelongsTo
+        + pengaduan(): HasMany
+    }
+    
+    class Terlapor <<Model>> {
+        - terlapor_id: String
+        - user_id: String
+        - nama_terlapor: String
+        - alamat_kantor_cabang: String
+        - no_hp_terlapor: String
+        - email_terlapor: String
+        - mediator_id: String
+        - is_account_active: Boolean
+        - last_login_at: DateTime
+        - deleted_at: DateTime
+        --
+        + createAccount(): User
+        + deactivateAccount(): Boolean
+        + activateAccount(): Boolean
+        + recordLogin(): void
+        + recordPengaduan(pengaduan: Pengaduan): void
+        + user(): BelongsTo
+        + mediator(): BelongsTo
+        + pengaduan(): HasMany
+        + scopeActive(query: Builder): Builder
+        + scopeInactive(query: Builder): Builder
+        + scopeHasAccount(query: Builder): Builder
+        + scopeNoAccount(query: Builder): Builder
+        + scopeByMediator(query: Builder, mediatorId: String): Builder
+        + isAccountActive(): Boolean
+        + canCreateAccount(): Boolean
+    }
+    
+    class Mediator <<Model>> {
+        - mediator_id: String
+        - user_id: String
+        - nama_mediator: String
+        - nip_mediator: String
+        - jabatan_mediator: String
+        --
+        + user(): BelongsTo
+        + pengaduan(): HasMany
+        + jadwal(): HasMany
+    }
+    
+    class KepalaDinas <<Model>> {
+        - kepala_dinas_id: String
+        - user_id: String
+        - nama_kepala_dinas: String
+        - nip_kepala_dinas: String
+        - periode_jabatan: String
+        --
+        + user(): BelongsTo
+    }
+}
+
+package "Document Models" {
+    class Anjuran <<Model>> {
+        - anjuran_id: String
+        - dokumen_hi_id: String
+        - nomor_anjuran: String
+        - status_approval: String
+        - response_pelapor: String
+        - response_terlapor: String
+        - overall_response_status: String
+        --
+        + dokumenHI(): BelongsTo
+        + pengaduan(): HasOneThrough
+        + risalah(): HasManyThrough
+        + mediator(): HasOneThrough
+        + scopePendingApproval(query: Builder): Builder
+        + scopeApproved(query: Builder): Builder
+        + scopePublished(query: Builder): Builder
+        + isPendingApproval(): Boolean
+        + isApproved(): Boolean
+        + isPublished(): Boolean
+        + canBeApprovedByKepalaDinas(): Boolean
+        + canBePublishedByMediator(): Boolean
+        + getDaysUntilDeadline(): Integer
+        + getMediatorAttribute(): Mediator
+        + hasPelaporResponded(): Boolean
+        + hasTerlaporResponded(): Boolean
+        + bothPartiesResponded(): Boolean
+        + isResponseDeadlinePassed(): Boolean
+        + canStillRespond(): Boolean
+        + updateOverallResponseStatus(): void
+        + isBothPartiesAgree(): Boolean
+        + isBothPartiesDisagree(): Boolean
+        + isMixedResponse(): Boolean
+        + isResponseComplete(): Boolean
+        + canCreatePerjanjianBersama(): Boolean
+        + canFinalizeCase(): Boolean
+        + hasTtdPerjanjianBersamaSchedule(): Boolean
+        + getTtdPerjanjianBersamaSchedule(): Jadwal  
+    }
+    
+    class PerjanjianBersama <<Model>> {
+        - perjanjian_bersama_id: String
+        - dokumen_hi_id: String
+        - nama_pengusaha: String
+        - jabatan_pengusaha: String
+        - nama_pekerja: String
+        - jabatan_pekerja: String
+        - isi_kesepakatan: Text
+        - status: String
+        --
+        + dokumenHI(): BelongsTo
+        + anjuran(): HasOne
+    }
+    
+    class Risalah <<Model>> {
+        - risalah_id: String
+        - jadwal_id: String
+        - dokumen_hi_id: String
+        - jenis_risalah: String
+        - pokok_masalah: Text
+        - pendapat_pekerja: Text
+        - pendapat_pengusaha: Text
+        --
+        + jadwal(): BelongsTo
+        + dokumenHI(): BelongsTo
+        + detailKlarifikasi(): HasOne
+        + detailMediasi(): HasOne
+        + detailPenyelesaian(): HasOne
+        + scopeKlarifikasi(query: Builder): Builder
+        + scopeMediasi(query: Builder): Builder
+        + scopePenyelesaian(query: Builder): Builder
+        + isKlarifikasi(): Boolean
+        + isMediasi(): Boolean
+        + isPenyelesaian(): Boolean
+    }
+    
+    class DokumenHubunganIndustrial <<Model>> {
+        - dokumen_hi_id: String
+        - pengaduan_id: String
+        - jenis_dokumen: String
+        - status: String
+        --
+        + pengaduan(): BelongsTo
+        + risalah(): HasMany
+        + anjuran(): HasMany
+        + perjanjianBersama(): HasMany
+        + bukuRegister(): HasMany
+        + laporanHasilMediasi(): HasMany
+    }
+}
+
+package "Detail Models" {
+    class DetailKlarifikasi <<Model>> {
+        - detail_klarifikasi_id: String
+        - risalah_id: String
+        - arahan_mediator: Text
+        - kesimpulan_klarifikasi: String
+        --
+        + risalah(): BelongsTo
+    }
+    
+    class DetailMediasi <<Model>> {
+        - detail_mediasi_id: String
+        - risalah_id: String
+        - ringkasan_pembahasan: Text
+        - kesepakatan_sementara: Text
+        - ketidaksepakatan_sementara: Text
+        - catatan_khusus: Text
+        - rekomendasi_mediator: Text
+        - status_sidang: String
+        - sidang_ke: Integer
+        --
+        + risalah(): BelongsTo
+    }
+    
+    class DetailPenyelesaian <<Model>> {
+        - detail_penyelesaian_id: String
+        - risalah_id: String
+        - kesimpulan_penyelesaian: Text
+        - hasil_akhir: String
+        --
+        + risalah(): BelongsTo
+    }
+}
+
+package "Report Models" {
+    class BukuRegisterPerselisihan <<Model>> {
+        - buku_register_id: String
+        - dokumen_hi_id: String
+        - tanggal_pencatatan: Date
+        - pihak_mencatat: String
+        - pihak_pekerja: String
+        - pihak_pengusaha: String
+        - jenis_perselisihan: String
+        - status_penyelesaian: String
+        - keterangan: Text
+        --
+        + dokumenHI(): BelongsTo
+        + pengaduan(): HasOneThrough
+    }
+    
+    class LaporanHasilMediasi <<Model>> {
+        - laporan_hasil_mediasi_id: String
+        - dokumen_hi_id: String
+        - nama_pekerja: String
+        - alamat_pekerja: String
+        - nama_perusahaan: String
+        - alamat_perusahaan: String
+        - jenis_usaha: String
+        - pokok_perselisihan: Text
+        - pendapat_pekerja: Text
+        - pendapat_pengusaha: Text
+        - hasil_mediasi: String
+        - waktu_penyelesaian_mediasi: Integer
+        --
+        + dokumenHI(): BelongsTo
+        + pengaduan(): HasOneThrough
+    }
+}
+
+' Service to Model Relationships
+TerlaporService --> User : creates
+TerlaporService --> Terlapor : manages
+TerlaporService --> Pengaduan : handles
+JadwalNotificationService --> Jadwal : notifies
+LaporanService --> Pengaduan : processes
+LaporanService --> BukuRegisterPerselisihan : generates
+LaporanService --> LaporanHasilMediasi : generates
+
+' User Profile Relationships
+User --> Pelapor : "1" -- "1"
+User --> Terlapor : "1" -- "1"
+User --> Mediator : "1" -- "1"
+User --> KepalaDinas : "1" -- "1"
+
+' Core Model Relationships
+Pengaduan --> Jadwal : "1" *-- "many"
+Jadwal --> Risalah : "1" *-- "many"
+Pengaduan --> Pelapor : "many" --> "1"
+Pengaduan --> Terlapor : "many" --> "1"
+Pengaduan --> Mediator : "many" --> "1"
+Pengaduan --> DokumenHubunganIndustrial : "1" *-- "many"
+
+' Document Relationships
+DokumenHubunganIndustrial --> Anjuran : "1" *-- "many"
+DokumenHubunganIndustrial --> PerjanjianBersama : "1" *-- "many"
+DokumenHubunganIndustrial --> Risalah : "1" *-- "many"
+DokumenHubunganIndustrial --> BukuRegisterPerselisihan : "1" *-- "many"
+DokumenHubunganIndustrial --> LaporanHasilMediasi : "1" *-- "many"
+
+' Risalah Detail Relationships
+Risalah --> DetailKlarifikasi : "1" -- "1"
+Risalah --> DetailMediasi : "1" -- "1"
+Risalah --> DetailPenyelesaian : "1" -- "1"
+
+' Profile Relationships
+Terlapor --> Mediator : "many" --> "1"
+
+@enduml 

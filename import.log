@@ -1,0 +1,19 @@
+
+Importing Model from XMI
+Root Package: SIPPPHI_Fill_Pengaduan_Form_Sequence
+Add Classifier: Fill_Pengaduan_Form_Sequence
+Add Classifier: Pelapor
+Add Classifier: Create_Pengaduan_Form
+Add Classifier: PengaduanController
+Add Classifier: Pelapor_Entity
+Add Classifier: Pengaduan_Entity
+Add Classifier: alt_pelapor_found
+Resolving Classifiers
+Resolving Owners
+Resolving Attribute Types
+Resolving Parameter Types
+Resolving Association-Classes
+Resolving Properties for Association Ends
+Resolving InteractionOccurences
+Fixup external references
+Import Complete!

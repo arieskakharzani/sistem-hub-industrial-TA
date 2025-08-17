@@ -664,7 +664,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $terlapor->email_terlapor ?? 'N/A' }}</td>
+                                                    {{ $terlapor->user->email ?? 'N/A' }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     {{ $terlapor->no_hp_terlapor ?: '-' }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap">

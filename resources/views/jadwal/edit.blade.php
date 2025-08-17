@@ -132,7 +132,7 @@
                             <label for="sidang_ke" class="block text-sm font-medium text-gray-700 mb-2">
                                 Sidang Ke- <span class="text-red-500">*</span>
                             </label>
-                            <select name="sidang_ke" id="sidang_ke" class="w-full rounded-md border-gray-300" required>
+                            <select name="sidang_ke" id="sidang_ke" class="w-full rounded-md border-gray-300">
                                 <option value="">-- Pilih Sidang --</option>
                                 <option value="1"
                                     {{ old('sidang_ke', $jadwal->sidang_ke) == '1' ? 'selected' : '' }}>Sidang ke-1
@@ -148,15 +148,23 @@
                         <script>
                             const jenisJadwal = document.getElementById('jenis_jadwal');
                             const sidangKeField = document.getElementById('sidang_ke_field');
-                            jenisJadwal.addEventListener('change', function() {
-                                if (this.value === 'mediasi') {
+                            const sidangKeSelect = document.getElementById('sidang_ke');
+
+                            function toggleSidangKeField() {
+                                if (jenisJadwal.value === 'mediasi') {
                                     sidangKeField.style.display = '';
+                                    sidangKeSelect.setAttribute('required', 'required');
                                 } else {
                                     sidangKeField.style.display = 'none';
+                                    sidangKeSelect.removeAttribute('required');
+                                    sidangKeSelect.value = '';
                                 }
-                            });
+                            }
+
+                            jenisJadwal.addEventListener('change', toggleSidangKeField);
+
                             // Trigger on page load
-                            if (jenisJadwal.value === 'mediasi') sidangKeField.style.display = '';
+                            toggleSidangKeField();
                         </script>
 
                         {{-- Catatan Jadwal --}}
@@ -310,13 +318,30 @@
 
             // Validasi form sebelum submit
             form.addEventListener('submit', function(e) {
+                console.log('Form submit triggered');
+
                 const selectedDate = tanggalInput.value;
                 const selectedTime = waktuInput.value;
                 const today = getTodayDate();
+                const jenisJadwalValue = document.getElementById('jenis_jadwal').value;
+                const sidangKeValue = document.getElementById('sidang_ke').value;
+                const tempatValue = document.getElementById('tempat').value.trim();
+                const statusValue = statusSelect.value;
+
+                console.log('Form values:', {
+                    selectedDate,
+                    selectedTime,
+                    today,
+                    jenisJadwalValue,
+                    sidangKeValue,
+                    tempatValue,
+                    statusValue
+                });
 
                 // Validasi tanggal tidak boleh kemarin
                 if (selectedDate < today) {
                     e.preventDefault();
+                    console.log('Tanggal validation failed');
                     alert('Tanggal tidak boleh di masa lalu.');
                     return false;
                 }
@@ -324,6 +349,7 @@
                 // Validasi waktu untuk hari ini
                 if (selectedDate === today && !validateTime()) {
                     e.preventDefault();
+                    console.log('Time validation failed');
                     alert(
                         'Mohon pilih waktu yang valid. Waktu harus setelah waktu saat ini jika memilih hari ini.'
                     );
@@ -333,20 +359,63 @@
                 // Validasi jam kerja
                 if (selectedTime < '08:00' || selectedTime > '16:00') {
                     e.preventDefault();
+                    console.log('Working hours validation failed');
                     alert('Waktu harus dalam jam kerja (08:00 - 16:00).');
                     return false;
                 }
 
+                // Validasi tempat tidak boleh kosong
+                if (!tempatValue) {
+                    e.preventDefault();
+                    console.log('Tempat validation failed');
+                    alert('Tempat harus diisi.');
+                    return false;
+                }
+
+                // Validasi sidang_ke jika jenis jadwal adalah mediasi
+                if (jenisJadwalValue === 'mediasi' && !sidangKeValue) {
+                    e.preventDefault();
+                    console.log('Sidang ke validation failed');
+                    alert('Sidang ke- harus dipilih jika jenis jadwal adalah Mediasi.');
+                    return false;
+                }
+
                 // Validasi hasil mediasi jika status selesai
-                if (statusSelect.value === 'selesai') {
+                if (statusValue === 'selesai') {
                     const hasilMediasi = document.getElementById('hasil').value.trim();
                     if (!hasilMediasi) {
                         e.preventDefault();
+                        console.log('Hasil mediasi validation failed');
                         alert('Hasil mediasi harus diisi jika status jadwal adalah "Selesai".');
                         return false;
                     }
                 }
+
+                console.log('All validations passed, form will submit');
             });
+
+            // Fungsi test untuk debugging
+            window.testForm = function() {
+                console.log('=== FORM TEST START ===');
+
+                const form = document.getElementById('editJadwalForm');
+                const formData = new FormData(form);
+
+                console.log('Form element:', form);
+                console.log('Form action:', form.action);
+                console.log('Form method:', form.method);
+
+                // Log semua form data
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+
+                // Test submit tanpa validasi
+                console.log('Attempting form submit...');
+                form.submit();
+
+                console.log('=== FORM TEST END ===');
+            };
 
             // Inisialisasi saat halaman dimuat
             updateTimeConstraints();
