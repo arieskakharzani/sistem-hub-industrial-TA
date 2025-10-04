@@ -67,7 +67,78 @@
 
                 {{-- Alert Status Konfirmasi Kehadiran --}}
                 @if ($jadwal->status_jadwal === 'dijadwalkan')
-                    @if ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir())
+                    @if ($jadwal->jenis_jadwal === 'klarifikasi')
+                        {{-- Khusus untuk klarifikasi: tampilkan tombol risalah meski ada yang tidak hadir --}}
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-lg font-medium text-blue-800">📋 Klarifikasi Siap Dilaksanakan</h3>
+                                    <p class="text-blue-700 mt-1">
+                                        @if ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir())
+                                            Kedua belah pihak telah mengkonfirmasi kehadiran. Klarifikasi dapat
+                                            dilaksanakan sesuai jadwal.
+                                        @elseif ($jadwal->adaYangTidakHadir())
+                                            Ada pihak yang tidak dapat hadir, namun proses klarifikasi tetap dapat
+                                            dilanjutkan.
+                                        @else
+                                            Menunggu konfirmasi kehadiran dari pihak-pihak terkait. Proses klarifikasi
+                                            dapat dilanjutkan setelah mediator mengubah status menjadi selesai.
+                                        @endif
+                                        <br><br>
+                                        <strong>Jadwal:</strong> {{ $jadwal->tanggal->format('d F Y') }} pukul
+                                        {{ $jadwal->waktu->format('H:i') }} WIB
+                                    </p>
+                                    <div class="mt-3">
+                                        @if ($jadwal->risalahKlarifikasi && $jadwal->risalahKlarifikasi->risalah_id)
+                                            @php
+                                                try {
+                                                    $risalahUrl = route(
+                                                        'risalah.show',
+                                                        $jadwal->risalahKlarifikasi->risalah_id,
+                                                    );
+                                                } catch (\Exception $e) {
+                                                    $risalahUrl = '#';
+                                                }
+                                            @endphp
+                                            <a href="{{ $risalahUrl }}"
+                                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                                Lihat Risalah Klarifikasi
+                                            </a>
+                                        @else
+                                            <a href="{{ route('risalah.create', [$jadwal->jadwal_id, 'klarifikasi']) }}"
+                                                class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                                Buat Risalah Klarifikasi
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif ($jadwal->sudahDikonfirmasiSemua() && !$jadwal->adaYangTidakHadir())
+                        {{-- Untuk mediasi & TTD: tetap kondisi lama --}}
                         <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6 rounded-r-lg">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -89,49 +160,7 @@
                                         pukul <strong>{{ $jadwal->waktu->format('H:i') }} WIB</strong>.
                                     </p>
                                     <div class="mt-3">
-                                        @if ($jadwal->jenis_jadwal === 'klarifikasi')
-                                            @if (
-                                                $jadwal->risalahKlarifikasi &&
-                                                    $jadwal->risalahKlarifikasi->risalah_id &&
-                                                    $jadwal->risalahKlarifikasi->risalah_id !== null)
-                                                @php
-                                                    try {
-                                                        $risalahUrl = route(
-                                                            'risalah.show',
-                                                            $jadwal->risalahKlarifikasi->risalah_id,
-                                                        );
-                                                    } catch (\Exception $e) {
-                                                        $risalahUrl = '#';
-                                                    }
-                                                @endphp
-                                                <a href="{{ $risalahUrl }}"
-                                                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-                                                        </path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                        </path>
-                                                    </svg>
-                                                    Lihat Risalah Klarifikasi
-                                                </a>
-                                            @else
-                                                <a href="{{ route('risalah.create', [$jadwal->jadwal_id, 'klarifikasi']) }}"
-                                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                                        </path>
-                                                    </svg>
-                                                    Buat Risalah Klarifikasi
-                                                </a>
-                                            @endif
-                                        @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
+                                        @if ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
                                             @php
                                                 $dokumenHI = $jadwal->pengaduan->dokumenHI->first();
                                                 $perjanjianBersama = $dokumenHI
@@ -211,8 +240,8 @@
                                                     @endphp
                                                     <a href="{{ $risalahMediasiUrl }}"
                                                         class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
+                                                        <svg class="w-4 h-4 mr-2" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
                                                             </path>
@@ -226,8 +255,8 @@
                                                 @else
                                                     <a href="{{ route('risalah.create', [$jadwal->jadwal_id, 'mediasi']) }}"
                                                         class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
+                                                        <svg class="w-4 h-4 mr-2" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M12 4v16m8-8H4" />
                                                         </svg>

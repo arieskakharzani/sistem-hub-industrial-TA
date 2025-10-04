@@ -319,6 +319,27 @@
                                 <form action="{{ route('konfirmasi.konfirmasi', $jadwal->jadwal_id) }}"
                                     method="POST" class="p-6">
                                     @csrf
+
+                                    {{-- Informasi Khusus untuk Klarifikasi --}}
+                                    @if ($jadwal->jenis_jadwal === 'klarifikasi')
+                                        <div class="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                                            <div class="flex items-center">
+                                                <svg class="h-6 w-6 text-blue-400 mr-3" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                </svg>
+                                                <div class="text-blue-800 text-sm">
+                                                    <strong>📋 Catatan Khusus Klarifikasi:</strong><br>
+                                                    Jika Anda tidak dapat hadir, proses klarifikasi tetap akan
+                                                    dilanjutkan dan mediator akan melanjutkan ke tahap mediasi setelah
+                                                    klarifikasi selesai.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
                                     <div class="space-y-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-3">

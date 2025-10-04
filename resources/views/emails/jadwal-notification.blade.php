@@ -319,6 +319,10 @@
                 Harap datang tepat waktu sesuai jadwal yang telah ditentukan.
                 @if ($jadwal->jenis_jadwal === 'klarifikasi')
                     Bawa dokumen-dokumen yang diperlukan untuk proses klarifikasi.
+                    <br><br>
+                    <strong>📋 Informasi Khusus Klarifikasi:</strong><br>
+                    Jika Anda tidak dapat hadir, proses klarifikasi tetap akan dilanjutkan dan mediator akan melanjutkan
+                    ke tahap mediasi setelah klarifikasi selesai.
                 @elseif ($jadwal->jenis_jadwal === 'mediasi')
                     Bawa dokumen-dokumen yang diperlukan untuk proses mediasi.
                 @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')

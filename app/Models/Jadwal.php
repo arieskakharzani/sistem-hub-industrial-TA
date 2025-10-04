@@ -299,4 +299,31 @@ class Jadwal extends Model
             'tidak_hadir' => 'Tidak Dapat Hadir'
         ];
     }
+
+    /**
+     * Cek apakah jadwal klarifikasi dapat dilanjutkan tanpa konfirmasi penuh
+     */
+    public function canProceedWithoutFullConfirmation(): bool
+    {
+        return $this->jenis_jadwal === 'klarifikasi';
+    }
+
+    /**
+     * Cek apakah jadwal klarifikasi akan dilanjutkan meski ada yang tidak hadir
+     */
+    public function isKlarifikasiProceedWithoutConfirmation(): bool
+    {
+        return $this->jenis_jadwal === 'klarifikasi' &&
+            $this->adaYangTidakHadir() &&
+            $this->status_jadwal === 'dijadwalkan';
+    }
+
+    /**
+     * Cek apakah jadwal dapat dilanjutkan meski ada yang tidak hadir
+     * (Khusus untuk klarifikasi)
+     */
+    public function canProceedWithAbsentParty(): bool
+    {
+        return $this->jenis_jadwal === 'klarifikasi';
+    }
 }

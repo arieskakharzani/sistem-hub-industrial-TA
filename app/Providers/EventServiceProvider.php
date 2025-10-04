@@ -34,6 +34,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\JadwalRescheduleNeeded' => [
             'App\Listeners\HandleRescheduleNotification',
         ],
+        'App\Events\KlarifikasiProceedWithoutConfirmation' => [
+            'App\Listeners\HandleKlarifikasiProceedNotification',
+        ],
     ];
 
     /**

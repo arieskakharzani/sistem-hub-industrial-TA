@@ -56,6 +56,13 @@
                                 yang telah ditetapkan oleh
                                 mediator. Silakan klik tombol <span class="font-semibold">Konfirmasi Kehadiran</span>
                                 untuk melanjutkan.
+
+                                @if ($pendingJadwal->jenis_jadwal === 'klarifikasi')
+                                    <br><br>
+                                    <strong>📋 Catatan Khusus Klarifikasi:</strong><br>
+                                    Jika Anda tidak dapat hadir, proses klarifikasi tetap akan dilanjutkan dan mediator
+                                    akan melanjutkan ke tahap mediasi setelah klarifikasi selesai.
+                                @endif
                             @else
                                 Halaman ini digunakan oleh <span class="font-semibold">pelapor</span> dan <span
                                     class="font-semibold">terlapor</span> untuk <span
@@ -212,10 +219,12 @@
 
                 {{-- Jadwal yang Perlu Dikonfirmasi Section --}}
                 @php
-                    $jadwalPending = $jadwal->where(
-                        $user->active_role === 'pelapor' ? 'konfirmasi_pelapor' : 'konfirmasi_terlapor',
-                        'pending',
-                    );
+                    // Jadwal yang perlu dikonfirmasi: status dijadwalkan dan konfirmasi masih pending
+                    $jadwalPending = $jadwal
+                        ->where('status_jadwal', 'dijadwalkan')
+                        ->where(function ($item) use ($user) {
+                            return $item->konfirmasi_pelapor === 'pending' || $item->konfirmasi_terlapor === 'pending';
+                        });
                 @endphp
 
                 @if ($jadwalPending->count() > 0)
@@ -283,6 +292,26 @@
                             @endforeach
                         </div>
                     </div>
+                @else
+                    {{-- Tidak ada jadwal yang perlu dikonfirmasi --}}
+                    <div class="mt-8 bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-5 border-b border-green-200">
+                            <h3 class="text-lg font-semibold text-green-800">Tidak Ada Jadwal yang Perlu Dikonfirmasi
+                            </h3>
+                            <p class="text-green-700 text-sm mt-1">Semua jadwal Anda sudah selesai atau tidak
+                                memerlukan konfirmasi kehadiran</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="text-center py-8">
+                                <div class="text-4xl mb-4 opacity-50">✅</div>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-2">Semua Jadwal Sudah Selesai</h4>
+                                <p class="text-gray-600">Tidak ada jadwal yang memerlukan konfirmasi kehadiran saat
+                                    ini.</p>
+                                <p class="text-gray-500 text-sm mt-2">Jadwal baru akan muncul di sini setelah mediator
+                                    membuat jadwal untuk Anda.</p>
+                            </div>
+                        </div>
+                    </div>
                 @endif
 
                 {{-- Riwayat Jadwal Section --}}
@@ -293,9 +322,16 @@
                     </div>
                     <div class="p-6">
                         @php
-                            // Ambil semua jadwal yang sudah selesai atau dibatalkan
+                            // Ambil semua jadwal yang sudah selesai, dibatalkan, atau ditunda
+                            // Untuk klarifikasi, juga masukkan yang sudah lewat waktu meski status masih dijadwalkan
                             $riwayatJadwal = $jadwal
-                                ->whereIn('status_jadwal', ['selesai', 'dibatalkan'])
+                                ->filter(function ($item) {
+                                    return in_array($item->status_jadwal, ['selesai', 'dibatalkan', 'ditunda']) ||
+                                        // Untuk klarifikasi yang sudah lewat waktu, masukkan ke riwayat
+                                        ($item->jenis_jadwal === 'klarifikasi' &&
+                                            $item->status_jadwal === 'dijadwalkan' &&
+                                            $item->tanggal < now()->toDateString());
+                                })
                                 ->sortByDesc('tanggal');
                         @endphp
 
@@ -403,15 +439,28 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     @php
+                                                        // Tentukan status dan class untuk tampilan
+                                                        $displayStatus = $item->status_jadwal;
                                                         $statusClass = match ($item->status_jadwal) {
                                                             'selesai' => 'bg-green-100 text-green-800',
                                                             'dibatalkan' => 'bg-red-100 text-red-800',
+                                                            'ditunda' => 'bg-yellow-100 text-yellow-800',
                                                             default => 'bg-gray-100 text-gray-800',
                                                         };
+
+                                                        // Khusus untuk klarifikasi yang sudah lewat waktu meski status masih dijadwalkan
+                                                        if (
+                                                            $item->jenis_jadwal === 'klarifikasi' &&
+                                                            $item->status_jadwal === 'dijadwalkan' &&
+                                                            $item->tanggal < now()->toDateString()
+                                                        ) {
+                                                            $displayStatus = 'selesai';
+                                                            $statusClass = 'bg-green-100 text-green-800';
+                                                        }
                                                     @endphp
                                                     <span
                                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
-                                                        {{ ucfirst($item->status_jadwal) }}
+                                                        {{ ucfirst($displayStatus) }}
                                                     </span>
                                                 </td>
                                             </tr>
