@@ -326,7 +326,6 @@ class PengaduanController extends Controller
                 $lampiranPaths[] = $path;
             }
         }
-
         $pengaduan = new Pengaduan($validated);
         $pengaduan->pelapor_id = $pelapor->pelapor_id;
         $pengaduan->risalah_bipartit = $risalahBipartitPath;
@@ -347,7 +346,6 @@ class PengaduanController extends Controller
         event(new PengaduanCreated($pengaduan));
 
         \Log::info('PengaduanCreated event triggered successfully');
-
 
         return redirect()->route('dashboard')
             ->with('success', 'Pengaduan berhasil dibuat');

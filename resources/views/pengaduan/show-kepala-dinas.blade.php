@@ -133,7 +133,7 @@
                                     <div>
                                         <span class="text-sm font-medium text-gray-500">Telepon:</span>
                                         <span
-                                            class="text-sm text-gray-900">{{ $pengaduan->pelapor->telepon ?? 'N/A' }}</span>
+                                            class="text-sm text-gray-900">{{ $pengaduan->pelapor->no_hp ?? 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -153,7 +153,7 @@
                                     <div>
                                         <span class="text-sm font-medium text-gray-500">Telepon:</span>
                                         <span
-                                            class="text-sm text-gray-900">{{ $pengaduan->terlapor->telepon_terlapor ?? 'N/A' }}</span>
+                                            class="text-sm text-gray-900">{{ $pengaduan->terlapor->no_hp_terlapor ?? 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
