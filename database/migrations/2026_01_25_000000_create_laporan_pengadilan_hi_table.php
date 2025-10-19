@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('laporan_pengadilan_hi', function (Blueprint $table) {
             $table->uuid('laporan_phi_id')->primary();
             $table->uuid('pengaduan_id');
-            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduans')->onDelete('cascade');
+            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduan')->onDelete('cascade');
             $table->string('nomor_laporan')->unique();
             $table->date('tanggal_laporan');
             $table->string('nama_pelapor');

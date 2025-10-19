@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // Pastikan tabel tidak ada sebelum dibuat
-        Schema::dropIfExists('pengaduans');
+        Schema::dropIfExists('pengaduan');
 
-        Schema::create('pengaduans', function (Blueprint $table) {
+        Schema::create('pengaduan', function (Blueprint $table) {
             $table->uuid('pengaduan_id')->primary();
             $table->uuid('pelapor_id');
             $table->foreign('pelapor_id')->references('pelapor_id')->on('pelapor')->onDelete('cascade');
@@ -60,6 +60,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengaduans');
+        Schema::dropIfExists('pengaduan');
     }
 };

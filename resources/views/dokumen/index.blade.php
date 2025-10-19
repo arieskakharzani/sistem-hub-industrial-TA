@@ -103,20 +103,7 @@
                                                     $dokumen->jenis_dokumen == 'Risalah Penyelesaian')
                                                 {{ optional(optional($dokumen->jadwal)->pengaduan)->nomor_pengaduan ?? '-' }}
                                             @elseif($dokumen->jenis_dokumen == 'Perjanjian Bersama' || $dokumen->jenis_dokumen == 'Anjuran')
-                                                @php
-                                                    $pengaduan = null;
-                                                    if ($dokumen->dokumenHI && $dokumen->dokumenHI->risalah) {
-                                                        $risalah = $dokumen->dokumenHI->risalah->first();
-                                                        if (
-                                                            $risalah &&
-                                                            $risalah->jadwal &&
-                                                            $risalah->jadwal->pengaduan
-                                                        ) {
-                                                            $pengaduan = $risalah->jadwal->pengaduan;
-                                                        }
-                                                    }
-                                                @endphp
-                                                {{ $pengaduan ? $pengaduan->nomor_pengaduan : '-' }}
+                                                {{ $dokumen->nomor_pengaduan ?? '-' }}
                                             @else
                                                 -
                                             @endif
@@ -149,20 +136,7 @@
                                             {{ $dokumen->pihak_pekerja }}</td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             @if ($dokumen->jenis_dokumen == 'Perjanjian Bersama' || $dokumen->jenis_dokumen == 'Anjuran')
-                                                @php
-                                                    $mediator = null;
-                                                    if ($dokumen->dokumenHI && $dokumen->dokumenHI->risalah) {
-                                                        $risalah = $dokumen->dokumenHI->risalah->first();
-                                                        if (
-                                                            $risalah &&
-                                                            $risalah->jadwal &&
-                                                            $risalah->jadwal->mediator
-                                                        ) {
-                                                            $mediator = $risalah->jadwal->mediator;
-                                                        }
-                                                    }
-                                                @endphp
-                                                {{ $mediator ? $mediator->nama_mediator : '-' }}
+                                                {{ $dokumen->mediator_nama ?? '-' }}
                                             @elseif(
                                                 $dokumen->jenis_dokumen == 'Risalah Klarifikasi' ||
                                                     $dokumen->jenis_dokumen == 'Risalah Mediasi' ||

@@ -162,7 +162,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-gray-600 text-sm">Menunggu Konfirmasi</p>
+                                <p class="text-gray-600 text-sm">Pending</p>
                                 <p class="text-2xl font-bold text-gray-900">{{ $pendingKonfirmasi }}</p>
                             </div>
                         </div>
@@ -219,11 +219,25 @@
 
                 {{-- Jadwal yang Perlu Dikonfirmasi Section --}}
                 @php
-                    // Jadwal yang perlu dikonfirmasi: status dijadwalkan dan konfirmasi masih pending
+                    // Jadwal yang perlu dikonfirmasi: status dijadwalkan, konfirmasi user masih pending,
+                    // dan untuk mediasi tidak boleh jadwal yang sudah lewat hari H
                     $jadwalPending = $jadwal
                         ->where('status_jadwal', 'dijadwalkan')
-                        ->where(function ($item) use ($user) {
-                            return $item->konfirmasi_pelapor === 'pending' || $item->konfirmasi_terlapor === 'pending';
+                        ->filter(function ($item) use ($user) {
+                            $isUserPending =
+                                $user->active_role === 'pelapor'
+                                    ? $item->konfirmasi_pelapor === 'pending'
+                                    : $item->konfirmasi_terlapor === 'pending';
+
+                            if (!$isUserPending) {
+                                return false;
+                            }
+
+                            if ($item->jenis_jadwal === 'mediasi') {
+                                return $item->tanggal >= now()->toDateString();
+                            }
+
+                            return true;
                         });
                 @endphp
 
@@ -323,14 +337,22 @@
                     <div class="p-6">
                         @php
                             // Ambil semua jadwal yang sudah selesai, dibatalkan, atau ditunda
-                            // Untuk klarifikasi, juga masukkan yang sudah lewat waktu meski status masih dijadwalkan
+                            // Tambahkan ke riwayat untuk jadwal yang sudah lewat waktu meski status masih dijadwalkan
                             $riwayatJadwal = $jadwal
                                 ->filter(function ($item) {
-                                    return in_array($item->status_jadwal, ['selesai', 'dibatalkan', 'ditunda']) ||
-                                        // Untuk klarifikasi yang sudah lewat waktu, masukkan ke riwayat
-                                        ($item->jenis_jadwal === 'klarifikasi' &&
-                                            $item->status_jadwal === 'dijadwalkan' &&
-                                            $item->tanggal < now()->toDateString());
+                                    if (in_array($item->status_jadwal, ['selesai', 'dibatalkan', 'ditunda'])) {
+                                        return true;
+                                    }
+
+                                    // Klarifikasi atau mediasi yang sudah lewat hari H tetap tampil sebagai riwayat
+                                    if (
+                                        $item->status_jadwal === 'dijadwalkan' &&
+                                        $item->tanggal < now()->toDateString()
+                                    ) {
+                                        return in_array($item->jenis_jadwal, ['klarifikasi', 'mediasi']);
+                                    }
+
+                                    return false;
                                 })
                                 ->sortByDesc('tanggal');
                         @endphp
@@ -448,9 +470,9 @@
                                                             default => 'bg-gray-100 text-gray-800',
                                                         };
 
-                                                        // Khusus untuk klarifikasi yang sudah lewat waktu meski status masih dijadwalkan
+                                                        // Khusus untuk jadwal yang sudah lewat waktu meski status masih dijadwalkan
                                                         if (
-                                                            $item->jenis_jadwal === 'klarifikasi' &&
+                                                            in_array($item->jenis_jadwal, ['klarifikasi', 'mediasi']) &&
                                                             $item->status_jadwal === 'dijadwalkan' &&
                                                             $item->tanggal < now()->toDateString()
                                                         ) {

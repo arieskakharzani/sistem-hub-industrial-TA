@@ -37,6 +37,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\KlarifikasiProceedWithoutConfirmation' => [
             'App\Listeners\HandleKlarifikasiProceedNotification',
         ],
+        'App\Events\MediasiProceedWithoutConfirmation' => [
+            'App\Listeners\HandleMediasiProceedNotification',
+        ],
     ];
 
     /**

@@ -1,0 +1,235 @@
+@startuml Class Diagram - Proses Mediasi hingga Perjanjian Bersama/Anjuran (Structured)
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    BorderThickness 2
+}
+skinparam package {
+    BackgroundColor LightBlue
+    BorderColor Black
+    BorderThickness 2
+}
+
+package "Models" <<Rectangle>> {
+    class Pengaduan <<Model>> {
+        - pengaduan_id: string
+        - pelapor_id: string
+        - terlapor_id: string
+        - mediator_id: string
+        - status: enum
+        - narasi_kasus: text
+        --
+        + pelapor(): BelongsTo
+        + terlapor(): BelongsTo
+        + mediator(): BelongsTo
+        + jadwal(): HasMany
+        + dokumenHI(): HasMany
+        + hasReachedMaxMediasiSessions(): bool
+        + canCreateAnjuran(): bool
+    }
+
+    class Jadwal <<Model>> {
+        - jadwal_id: string
+        - pengaduan_id: string
+        - mediator_id: string
+        - jenis_jadwal: enum
+        - sidang_ke: integer
+        - status_jadwal: enum
+        --
+        + pengaduan(): BelongsTo
+        + mediator(): BelongsTo
+        + risalah(): HasMany
+        + detailMediasi(): HasManyThrough
+    }
+
+    class Risalah <<Model>> {
+        - risalah_id: string
+        - jadwal_id: string
+        - dokumen_hi_id: string
+        - jenis_risalah: enum
+        - pokok_masalah: text
+        - pendapat_pekerja: text
+        - pendapat_pengusaha: text
+        --
+        + jadwal(): BelongsTo
+        + dokumenHI(): BelongsTo
+        + detailMediasi(): HasOne
+        + detailPenyelesaian(): HasOne
+        + isMediasi(): bool
+        + isPenyelesaian(): bool
+    }
+
+    class DetailMediasi <<Model>> {
+        - detail_mediasi_id: string
+        - risalah_id: string
+        - sidang_ke: integer
+        - hasil_mediasi: enum
+        - kesepakatan: text
+        --
+        + risalah(): BelongsTo
+    }
+
+    class DetailPenyelesaian <<Model>> {
+        - detail_penyelesaian_id: string
+        - risalah_id: string
+        - jenis_penyelesaian: enum
+        - kesepakatan: text
+        --
+        + risalah(): BelongsTo
+    }
+
+    class DokumenHubunganIndustrial <<Model>> {
+        - dokumen_hi_id: string
+        - pengaduan_id: string
+        - jenis_dokumen: string
+        --
+        + pengaduan(): BelongsTo
+        + risalah(): HasMany
+        + perjanjianBersama(): HasMany
+        + anjuran(): HasMany
+        + laporanHasilMediasi(): HasMany
+        + bukuRegister(): HasMany
+    }
+
+    class PerjanjianBersama <<Model>> {
+        - perjanjian_bersama_id: string
+        - dokumen_hi_id: string
+        - nama_pengusaha: string
+        - nama_pekerja: string
+        - isi_kesepakatan: text
+        --
+        + dokumenHI(): BelongsTo
+        + anjuran(): Anjuran
+    }
+
+    class Anjuran <<Model>> {
+        - anjuran_id: string
+        - dokumen_hi_id: string
+        - nama_pengusaha: string
+        - nama_pekerja: string
+        - keterangan_pekerja: text
+        - keterangan_pengusaha: text
+        - pertimbangan_hukum: text
+        - isi_anjuran: text
+        - status_approval: enum
+        - response_pelapor: enum
+        - response_terlapor: enum
+        - overall_response_status: enum
+        --
+        + dokumenHI(): BelongsTo
+        + pengaduan(): HasOneThrough
+        + mediator(): Mediator
+        + isBothPartiesAgree(): bool
+        + canCreatePerjanjianBersama(): bool
+        + canFinalizeCase(): bool
+    }
+
+    class LaporanHasilMediasi <<Model>> {
+        - laporan_id: string
+        - dokumen_hi_id: string
+        - nama_pekerja: string
+        - nama_perusahaan: string
+        - permasalahan: string
+        - pendapat_pekerja: text
+        - pendapat_pengusaha: text
+        --
+        + dokumenHI(): BelongsTo
+    }
+
+    class BukuRegisterPerselisihan <<Model>> {
+        - buku_register_id: string
+        - dokumen_hi_id: string
+        - nomor_register: string
+        - nama_pekerja: string
+        - nama_perusahaan: string
+        - status_penyelesaian: enum
+        --
+        + dokumenHI(): BelongsTo
+    }
+}
+
+package "Controllers" <<Rectangle>> {
+    class RisalahController <<Controller>> {
+        + create(jadwalId, jenis_risalah): View
+        + store(request): RedirectResponse
+        + show(risalah): View
+        - handleKlarifikasiResult(jadwal, kesimpulan): RedirectResponse
+    }
+
+    class PerjanjianBersamaController <<Controller>> {
+        + create(dokumen_hi_id): View
+        + store(request): RedirectResponse
+        + show(id): View
+        + complete(id): RedirectResponse
+        - kirimDraftPerjanjianBersama(pengaduan): void
+    }
+
+    class AnjuranController <<Controller>> {
+        + create(dokumen_hi_id): View
+        + store(request): RedirectResponse
+        + show(id): View
+        + submit(anjuranId): RedirectResponse
+        + approve(request, anjuranId): RedirectResponse
+        + publish(anjuranId): RedirectResponse
+        + finalizeCase(id): RedirectResponse
+    }
+
+    class DokumenController <<Controller>> {
+        + index(): View
+        + show(dokumenHI): View
+        + createRisalah(dokumenHI): View
+        + createAnjuran(dokumenHI): View
+        + createPerjanjianBersama(dokumenHI): View
+    }
+}
+
+' Relationships berdasarkan kode Laravel
+Pengaduan ||--o{ Jadwal : hasMany
+Pengaduan ||--o{ DokumenHubunganIndustrial : hasMany
+
+Jadwal ||--|| Pengaduan : belongsTo
+Jadwal ||--o{ Risalah : hasMany
+
+Risalah ||--|| Jadwal : belongsTo
+Risalah ||--|| DokumenHubunganIndustrial : belongsTo
+Risalah ||--o| DetailMediasi : hasOne
+Risalah ||--o| DetailPenyelesaian : hasOne
+
+DetailMediasi ||--|| Risalah : belongsTo
+DetailPenyelesaian ||--|| Risalah : belongsTo
+
+DokumenHubunganIndustrial ||--|| Pengaduan : belongsTo
+DokumenHubunganIndustrial ||--o{ Risalah : hasMany
+DokumenHubunganIndustrial ||--o{ PerjanjianBersama : hasMany
+DokumenHubunganIndustrial ||--o{ Anjuran : hasMany
+DokumenHubunganIndustrial ||--o{ LaporanHasilMediasi : hasMany
+DokumenHubunganIndustrial ||--o{ BukuRegisterPerselisihan : hasMany
+
+PerjanjianBersama ||--|| DokumenHubunganIndustrial : belongsTo
+Anjuran ||--|| DokumenHubunganIndustrial : belongsTo
+LaporanHasilMediasi ||--|| DokumenHubunganIndustrial : belongsTo
+BukuRegisterPerselisihan ||--|| DokumenHubunganIndustrial : belongsTo
+
+' Controller dependencies
+RisalahController ..> Risalah : manages
+RisalahController ..> Jadwal : manages
+RisalahController ..> DetailMediasi : manages
+RisalahController ..> DetailPenyelesaian : manages
+
+PerjanjianBersamaController ..> PerjanjianBersama : manages
+PerjanjianBersamaController ..> DokumenHubunganIndustrial : manages
+PerjanjianBersamaController ..> LaporanHasilMediasi : manages
+PerjanjianBersamaController ..> BukuRegisterPerselisihan : manages
+
+AnjuranController ..> Anjuran : manages
+AnjuranController ..> DokumenHubunganIndustrial : manages
+AnjuranController ..> LaporanHasilMediasi : manages
+AnjuranController ..> BukuRegisterPerselisihan : manages
+
+DokumenController ..> DokumenHubunganIndustrial : manages
+
+@enduml

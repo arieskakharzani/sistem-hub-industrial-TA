@@ -1,0 +1,204 @@
+@startuml Class Diagram - Proses Pengaduan hingga Klarifikasi (Structured)
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    BorderThickness 2
+}
+skinparam package {
+    BackgroundColor LightBlue
+    BorderColor Black
+    BorderThickness 2
+}
+
+package "Models" <<Rectangle>> {
+    class Pengaduan <<Model>> {
+        - pengaduan_id: string
+        - pelapor_id: string
+        - terlapor_id: string
+        - mediator_id: string
+        - tanggal_laporan: date
+        - perihal: enum
+        - narasi_kasus: text
+        - status: enum
+        - nomor_pengaduan: string
+        --
+        + pelapor(): BelongsTo
+        + terlapor(): BelongsTo
+        + mediator(): BelongsTo
+        + jadwal(): HasMany
+        + dokumenHI(): HasMany
+        + isUnassigned(): bool
+        + getStatusTextAttribute(): string
+    }
+
+    class Pelapor <<Model>> {
+        - pelapor_id: string
+        - user_id: string
+        - nama_pelapor: string
+        - email: string
+        --
+        + user(): BelongsTo
+        + pengaduan(): HasMany
+    }
+
+    class Terlapor <<Model>> {
+        - terlapor_id: string
+        - user_id: string
+        - nama_terlapor: string
+        - email_terlapor: string
+        - has_account: boolean
+        --
+        + user(): BelongsTo
+        + pengaduans(): HasMany
+        + createAccount(userId, mediatorId): void
+    }
+
+    class Mediator <<Model>> {
+        - mediator_id: string
+        - user_id: string
+        - nama_mediator: string
+        - nip: string
+        --
+        + user(): BelongsTo
+        + jadwal(): HasMany
+        + pengaduans(): HasMany
+    }
+
+    class User <<Model>> {
+        - user_id: string
+        - name: string
+        - email: string
+        - active_role: string
+        --
+        + pelapor(): HasOne
+        + terlapor(): HasOne
+        + mediator(): HasOne
+    }
+
+    class Jadwal <<Model>> {
+        - jadwal_id: string
+        - pengaduan_id: string
+        - mediator_id: string
+        - jenis_jadwal: enum
+        - status_jadwal: enum
+        - tanggal: date
+        - waktu: datetime
+        - konfirmasi_pelapor: enum
+        - konfirmasi_terlapor: enum
+        --
+        + pengaduan(): BelongsTo
+        + mediator(): BelongsTo
+        + risalah(): HasMany
+        + sudahDikonfirmasiSemua(): bool
+        + adaYangTidakHadir(): bool
+    }
+
+    class Risalah <<Model>> {
+        - risalah_id: string
+        - jadwal_id: string
+        - dokumen_hi_id: string
+        - jenis_risalah: enum
+        - pokok_masalah: text
+        - pendapat_pekerja: text
+        - pendapat_pengusaha: text
+        --
+        + jadwal(): BelongsTo
+        + dokumenHI(): BelongsTo
+        + detailKlarifikasi(): HasOne
+        + isKlarifikasi(): bool
+    }
+
+    class DetailKlarifikasi <<Model>> {
+        - detail_klarifikasi_id: string
+        - risalah_id: string
+        - kesimpulan_klarifikasi: enum
+        - alasan_klarifikasi: text
+        --
+        + risalah(): BelongsTo
+    }
+
+    class DokumenHubunganIndustrial <<Model>> {
+        - dokumen_hi_id: string
+        - pengaduan_id: string
+        - jenis_dokumen: string
+        --
+        + pengaduan(): BelongsTo
+        + risalah(): HasMany
+    }
+}
+
+package "Controllers" <<Rectangle>> {
+    class PengaduanController <<Controller>> {
+        + index(): View
+        + store(request): RedirectResponse
+        + show(pengaduan): View
+        + assign(request, pengaduan): RedirectResponse
+        + updateStatus(request, pengaduan): RedirectResponse
+    }
+
+    class JadwalController <<Controller>> {
+        + create(request): View
+        + store(request): RedirectResponse
+        + show(jadwal): View
+        + proceedWithoutConfirmation(jadwal): RedirectResponse
+    }
+
+    class RisalahController <<Controller>> {
+        + create(jadwalId, jenis_risalah): View
+        + store(request): RedirectResponse
+        + show(risalah): View
+        - handleKlarifikasiResult(jadwal, kesimpulan): RedirectResponse
+    }
+}
+
+package "Services" <<Rectangle>> {
+    class TerlaporService <<Service>> {
+        + handlePengaduan(pengaduan): Terlapor
+        + createAccount(terlapor, mediatorId): User
+    }
+}
+
+' Relationships berdasarkan kode Laravel
+Pengaduan ||--|| Pelapor : belongsTo
+Pengaduan ||--o| Terlapor : belongsTo
+Pengaduan ||--o| Mediator : belongsTo
+Pengaduan ||--o{ Jadwal : hasMany
+Pengaduan ||--o{ DokumenHubunganIndustrial : hasMany
+
+Pelapor ||--|| User : belongsTo
+Terlapor ||--o| User : belongsTo
+Mediator ||--|| User : belongsTo
+
+Jadwal ||--|| Pengaduan : belongsTo
+Jadwal ||--|| Mediator : belongsTo
+Jadwal ||--o{ Risalah : hasMany
+
+Risalah ||--|| Jadwal : belongsTo
+Risalah ||--|| DokumenHubunganIndustrial : belongsTo
+Risalah ||--o| DetailKlarifikasi : hasOne
+
+DetailKlarifikasi ||--|| Risalah : belongsTo
+
+DokumenHubunganIndustrial ||--|| Pengaduan : belongsTo
+
+' Controller dependencies
+PengaduanController ..> Pengaduan : manages
+PengaduanController ..> Pelapor : manages
+PengaduanController ..> Terlapor : manages
+PengaduanController ..> Mediator : manages
+
+JadwalController ..> Jadwal : manages
+JadwalController ..> Pengaduan : manages
+
+RisalahController ..> Risalah : manages
+RisalahController ..> Jadwal : manages
+RisalahController ..> DetailKlarifikasi : manages
+
+TerlaporService ..> Terlapor : manages
+TerlaporService ..> Pengaduan : manages
+
+@enduml

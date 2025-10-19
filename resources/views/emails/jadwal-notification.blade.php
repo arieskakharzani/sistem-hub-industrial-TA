@@ -325,6 +325,10 @@
                     ke tahap mediasi setelah klarifikasi selesai.
                 @elseif ($jadwal->jenis_jadwal === 'mediasi')
                     Bawa dokumen-dokumen yang diperlukan untuk proses mediasi.
+                    <br><br>
+                    <strong>📋 Informasi Khusus Mediasi:</strong><br>
+                    Jika Anda tidak dapat hadir, proses mediasi tetap akan dilanjutkan dan mediator akan membuat risalah
+                    penyelesaian.
                 @elseif ($jadwal->jenis_jadwal === 'ttd_perjanjian_bersama')
                     Bawa dokumen-dokumen yang diperlukan untuk penandatanganan perjanjian bersama.
                 @endif

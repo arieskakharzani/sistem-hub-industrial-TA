@@ -55,9 +55,27 @@ class KonfirmasiController extends Controller
         $jadwal = Jadwal::with(['pengaduan.pelapor', 'pengaduan.terlapor', 'mediator'])
             ->findOrFail($jadwalId);
 
+        // Auto-correct: untuk mediasi, jika sebelumnya terset 'ditunda' padahal ada pihak tidak hadir/pending,
+        // kembalikan ke 'dijadwalkan' sesuai kebijakan baru
+        if (
+            $jadwal->jenis_jadwal === 'mediasi' &&
+            $jadwal->status_jadwal === 'ditunda' &&
+            (
+                $jadwal->konfirmasi_pelapor !== 'hadir' ||
+                $jadwal->konfirmasi_terlapor !== 'hadir'
+            )
+        ) {
+            $jadwal->update(['status_jadwal' => 'dijadwalkan']);
+        }
+
         // Pastikan jadwal masih dalam status yang bisa dikonfirmasi
         if ($jadwal->status_jadwal !== 'dijadwalkan') {
             abort(404, 'Jadwal ini sudah tidak memerlukan konfirmasi kehadiran');
+        }
+
+        // Block akses jika jadwal mediasi sudah lewat hari H (auto dianggap selesai via command)
+        if ($jadwal->jenis_jadwal === 'mediasi' && $jadwal->tanggal < now()->toDateString()) {
+            abort(404, 'Jadwal mediasi sudah lewat dan tidak lagi memerlukan konfirmasi');
         }
 
         // Pastikan user berhak mengakses jadwal ini
@@ -96,6 +114,11 @@ class KonfirmasiController extends Controller
         // Pastikan jadwal masih dalam status yang bisa dikonfirmasi
         if ($jadwal->status_jadwal !== 'dijadwalkan') {
             return redirect()->back()->with('error', 'Jadwal ini sudah tidak memerlukan konfirmasi kehadiran');
+        }
+
+        // Cegah konfirmasi jika jadwal mediasi sudah lewat hari H
+        if ($jadwal->jenis_jadwal === 'mediasi' && $jadwal->tanggal < now()->toDateString()) {
+            return redirect()->route('konfirmasi.index')->with('error', 'Jadwal mediasi sudah lewat dan otomatis ditandai selesai.');
         }
 
         // Pastikan user berhak mengakses jadwal ini
@@ -172,20 +195,32 @@ class KonfirmasiController extends Controller
                         'reason' => 'Klarifikasi dapat dilanjutkan tanpa kehadiran semua pihak'
                     ]);
                 } else {
-                    // Untuk mediasi & TTD: tetap logic lama (reschedule)
-                    $jadwal->update(['status_jadwal' => 'ditunda']);
+                    if ($jadwal->jenis_jadwal === 'mediasi') {
+                        // Untuk mediasi: tetap 'dijadwalkan' meskipun ada yang tidak hadir.
+                        $jadwal->update(['status_jadwal' => 'dijadwalkan']);
 
-                    // Trigger event konfirmasi kehadiran (for standard notification)
-                    event(new KonfirmasiKehadiran($jadwal, $user->active_role, $request->konfirmasi));
+                        event(new KonfirmasiKehadiran($jadwal, $user->active_role, $request->konfirmasi));
+                        // Opsional: trigger notifikasi proceed
+                        if (class_exists('App\\Events\\MediasiProceedWithoutConfirmation')) {
+                            event(new \App\Events\MediasiProceedWithoutConfirmation($jadwal, $absentParty, $request->catatan ?? ''));
+                        }
 
-                    // Trigger event reschedule needed (for special handling)
-                    event(new JadwalRescheduleNeeded($jadwal, $absentParty, $request->catatan ?? ''));
-
-                    Log::info('🚨 Reschedule needed - absent party detected', [
-                        'jadwal_id' => $jadwal->jadwal_id,
-                        'absent_party' => $absentParty,
-                        'status_updated_to' => 'ditunda'
-                    ]);
+                        Log::info('📋 Mediasi tetap dijadwalkan meski ada yang tidak hadir', [
+                            'jadwal_id' => $jadwal->jadwal_id,
+                            'absent_party' => $absentParty,
+                            'status_updated_to' => 'dijadwalkan'
+                        ]);
+                    } else {
+                        // Untuk TTD tetap ditunda
+                        $jadwal->update(['status_jadwal' => 'ditunda']);
+                        event(new KonfirmasiKehadiran($jadwal, $user->active_role, $request->konfirmasi));
+                        event(new JadwalRescheduleNeeded($jadwal, $absentParty, $request->catatan ?? ''));
+                        Log::info('🚨 Reschedule needed - absent party detected', [
+                            'jadwal_id' => $jadwal->jadwal_id,
+                            'absent_party' => $absentParty,
+                            'status_updated_to' => 'ditunda'
+                        ]);
+                    }
                 }
             } else {
                 // Normal confirmation - trigger standard event

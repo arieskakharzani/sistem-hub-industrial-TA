@@ -162,6 +162,20 @@ class JadwalController extends Controller
                 return back()->withErrors(['sidang_ke' => 'Sidang ke- harus dipilih untuk jadwal mediasi']);
             }
 
+            // Cek bentrok: mediator tidak boleh memiliki dua jadwal pada tanggal & waktu yang sama
+            $conflictExists = Jadwal::where('mediator_id', $mediator->mediator_id)
+                ->whereDate('tanggal', $request->tanggal)
+                ->where('waktu', $request->waktu)
+                ->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung'])
+                ->exists();
+
+            if ($conflictExists) {
+                return back()->withInput()->withErrors([
+                    'waktu' => 'Konflik jadwal: Anda sudah memiliki jadwal lain pada ' .
+                        \Carbon\Carbon::parse($request->tanggal)->format('d/m/Y') . ' pukul ' . $request->waktu . '. Silakan pilih waktu lain.'
+                ]);
+            }
+
             DB::beginTransaction();
             try {
                 // Log data pengaduan sebelum membuat jadwal
@@ -364,6 +378,24 @@ class JadwalController extends Controller
                 'catatan_jadwal' => 'nullable|string|max:1000',
                 'hasil' => 'nullable|string|max:2000'
             ]);
+
+            // Cek bentrok saat mengubah tanggal/waktu
+            $isChangingDateTime = ($jadwal->tanggal != $request->tanggal) || ($jadwal->waktu != $request->waktu);
+            if ($isChangingDateTime) {
+                $conflictExists = Jadwal::where('mediator_id', $mediator->mediator_id)
+                    ->whereDate('tanggal', $request->tanggal)
+                    ->where('waktu', $request->waktu)
+                    ->whereIn('status_jadwal', ['dijadwalkan', 'berlangsung'])
+                    ->where('jadwal_id', '!=', $jadwal->jadwal_id)
+                    ->exists();
+
+                if ($conflictExists) {
+                    return back()->withInput()->withErrors([
+                        'waktu' => 'Konflik jadwal: Anda sudah memiliki jadwal lain pada ' .
+                            \Carbon\Carbon::parse($request->tanggal)->format('d/m/Y') . ' pukul ' . $request->waktu . '. Silakan pilih waktu lain.'
+                    ]);
+                }
+            }
 
             // Simpan data lama untuk event
             $oldData = $jadwal->only([

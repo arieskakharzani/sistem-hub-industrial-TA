@@ -140,8 +140,13 @@
                                     Alamat
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="alamat_pekerja" value="{{ $risalah->alamat_pekerja }}"
-                                    readonly class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                                <input type="text" name="alamat_pekerja"
+                                    value="{{ old('alamat_pekerja', $risalah->alamat_pekerja) }}" required
+                                    placeholder="Masukkan alamat lengkap pekerja"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-4 focus:ring-primary focus:ring-opacity-10 transition-all duration-300">
+                                @error('alamat_pekerja')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                     </div>

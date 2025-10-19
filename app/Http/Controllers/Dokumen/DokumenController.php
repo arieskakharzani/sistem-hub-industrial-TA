@@ -43,16 +43,23 @@ class DokumenController extends Controller
             $item->id = $item->perjanjian_bersama_id;
             return $item;
         });
-        $anjuranList = Anjuran::with(['dokumenHI.risalah' => function ($query) {
-            $query->where('jenis_risalah', 'penyelesaian');
-        }])->orderBy('created_at', 'desc')->get()->map(function ($item) {
+        $anjuranList = Anjuran::with(['dokumenHI.pengaduan.pelapor', 'dokumenHI.pengaduan.terlapor', 'dokumenHI.pengaduan.mediator'])->orderBy('created_at', 'desc')->get()->map(function ($item) {
             $item->jenis_dokumen = 'Anjuran';
             $item->tanggal_dokumen = $item->created_at;
 
-            // Ambil dari risalah penyelesaian yang terkait
-            $risalahPenyelesaian = $item->dokumenHI->risalah->where('jenis_risalah', 'penyelesaian')->first();
-            $item->pihak_pengusaha = $risalahPenyelesaian->nama_perusahaan ?? '-';
-            $item->pihak_pekerja = $risalahPenyelesaian->nama_pekerja ?? '-';
+            // Ambil data langsung dari anjuran dan pengaduan yang terkait
+            if ($item->dokumenHI && $item->dokumenHI->pengaduan) {
+                $pengaduan = $item->dokumenHI->pengaduan;
+                $item->pihak_pengusaha = $item->perusahaan_pengusaha ?? ($pengaduan->terlapor->nama_terlapor ?? '-');
+                $item->pihak_pekerja = $item->perusahaan_pekerja ?? ($pengaduan->pelapor->nama_pelapor ?? '-');
+                $item->nomor_pengaduan = $pengaduan->nomor_pengaduan ?? '-';
+                $item->mediator_nama = $pengaduan->mediator->nama_mediator ?? '-';
+            } else {
+                $item->pihak_pengusaha = $item->perusahaan_pengusaha ?? '-';
+                $item->pihak_pekerja = $item->perusahaan_pekerja ?? '-';
+                $item->nomor_pengaduan = '-';
+                $item->mediator_nama = '-';
+            }
 
             $item->id = $item->anjuran_id;
             return $item;

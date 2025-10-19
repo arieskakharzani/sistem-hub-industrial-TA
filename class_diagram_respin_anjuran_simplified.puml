@@ -1,0 +1,219 @@
+@startuml Class Diagram - Proses Merespin Anjuran (Structured)
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    BorderThickness 2
+}
+skinparam package {
+    BackgroundColor LightBlue
+    BorderColor Black
+    BorderThickness 2
+}
+
+package "Models" <<Rectangle>> {
+    class Anjuran <<Model>> {
+        - anjuran_id: string
+        - dokumen_hi_id: string
+        - nama_pengusaha: string
+        - nama_pekerja: string
+        - keterangan_pekerja: text
+        - keterangan_pengusaha: text
+        - pertimbangan_hukum: text
+        - isi_anjuran: text
+        - status_approval: enum
+        - published_at: datetime
+        - deadline_response_at: datetime
+        - response_pelapor: enum
+        - response_terlapor: enum
+        - overall_response_status: enum
+        --
+        + dokumenHI(): BelongsTo
+        + pengaduan(): HasOneThrough
+        + mediator(): Mediator
+        + isPendingApproval(): bool
+        + isApproved(): bool
+        + isPublished(): bool
+        + hasPelaporResponded(): bool
+        + hasTerlaporResponded(): bool
+        + bothPartiesResponded(): bool
+        + isResponseDeadlinePassed(): bool
+        + updateOverallResponseStatus(): void
+        + isBothPartiesAgree(): bool
+        + canCreatePerjanjianBersama(): bool
+        + canFinalizeCase(): bool
+    }
+
+    class DokumenHubunganIndustrial <<Model>> {
+        - dokumen_hi_id: string
+        - pengaduan_id: string
+        - jenis_dokumen: string
+        --
+        + pengaduan(): BelongsTo
+        + anjuran(): HasMany
+        + perjanjianBersama(): HasMany
+        + laporanHasilMediasi(): HasMany
+        + bukuRegister(): HasMany
+    }
+
+    class Pengaduan <<Model>> {
+        - pengaduan_id: string
+        - pelapor_id: string
+        - terlapor_id: string
+        - mediator_id: string
+        - status: enum
+        --
+        + pelapor(): BelongsTo
+        + terlapor(): BelongsTo
+        + mediator(): BelongsTo
+        + dokumenHI(): HasMany
+    }
+
+    class Pelapor <<Model>> {
+        - pelapor_id: string
+        - user_id: string
+        - nama_pelapor: string
+        - email: string
+        --
+        + user(): BelongsTo
+        + pengaduan(): HasMany
+    }
+
+    class Terlapor <<Model>> {
+        - terlapor_id: string
+        - user_id: string
+        - nama_terlapor: string
+        - email_terlapor: string
+        --
+        + user(): BelongsTo
+        + pengaduans(): HasMany
+    }
+
+    class Mediator <<Model>> {
+        - mediator_id: string
+        - user_id: string
+        - nama_mediator: string
+        - nip: string
+        --
+        + user(): BelongsTo
+        + pengaduans(): HasMany
+    }
+
+    class KepalaDinas <<Model>> {
+        - kepala_dinas_id: string
+        - user_id: string
+        - nama_kepala_dinas: string
+        - nip: string
+        --
+        + user(): BelongsTo
+    }
+
+    class PerjanjianBersama <<Model>> {
+        - perjanjian_bersama_id: string
+        - dokumen_hi_id: string
+        - nama_pengusaha: string
+        - nama_pekerja: string
+        - isi_kesepakatan: text
+        --
+        + dokumenHI(): BelongsTo
+        + anjuran(): Anjuran
+    }
+
+    class LaporanHasilMediasi <<Model>> {
+        - laporan_id: string
+        - dokumen_hi_id: string
+        - nama_pekerja: string
+        - nama_perusahaan: string
+        - permasalahan: string
+        - pendapat_pekerja: text
+        - pendapat_pengusaha: text
+        --
+        + dokumenHI(): BelongsTo
+    }
+
+    class BukuRegisterPerselisihan <<Model>> {
+        - buku_register_id: string
+        - dokumen_hi_id: string
+        - nomor_register: string
+        - nama_pekerja: string
+        - nama_perusahaan: string
+        - status_penyelesaian: enum
+        --
+        + dokumenHI(): BelongsTo
+    }
+}
+
+package "Controllers" <<Rectangle>> {
+    class AnjuranController <<Controller>> {
+        + create(dokumen_hi_id): View
+        + store(request): RedirectResponse
+        + show(id): View
+        + submit(anjuranId): RedirectResponse
+        + approve(request, anjuranId): RedirectResponse
+        + reject(request, anjuranId): RedirectResponse
+        + publish(anjuranId): RedirectResponse
+        + finalizeCase(id): RedirectResponse
+    }
+
+    class AnjuranResponseController <<Controller>> {
+        + indexPelapor(): View
+        + indexTerlapor(): View
+        + show(id): View
+        + submitResponse(request, id): RedirectResponse
+        - notifyMediator(anjuran, userRole, response): void
+        - notifyMediatorBothPartiesResponded(anjuran): void
+    }
+
+    class KepalaDinasController <<Controller>> {
+        + index(): View
+        + showAnjuran(anjuranId): View
+        + approveAnjuran(request, anjuranId): RedirectResponse
+        + rejectAnjuran(request, anjuranId): RedirectResponse
+    }
+
+    class PerjanjianBersamaController <<Controller>> {
+        + create(dokumen_hi_id): View
+        + store(request): RedirectResponse
+        + show(id): View
+        + complete(id): RedirectResponse
+        - kirimDraftPerjanjianBersama(pengaduan): void
+    }
+}
+
+' Relationships berdasarkan kode Laravel
+Anjuran ||--|| DokumenHubunganIndustrial : belongsTo
+DokumenHubunganIndustrial ||--|| Pengaduan : belongsTo
+Pengaduan ||--|| Pelapor : belongsTo
+Pengaduan ||--o| Terlapor : belongsTo
+Pengaduan ||--o| Mediator : belongsTo
+
+PerjanjianBersama ||--|| DokumenHubunganIndustrial : belongsTo
+LaporanHasilMediasi ||--|| DokumenHubunganIndustrial : belongsTo
+BukuRegisterPerselisihan ||--|| DokumenHubunganIndustrial : belongsTo
+
+Pelapor ||--|| User : belongsTo
+Terlapor ||--o| User : belongsTo
+Mediator ||--|| User : belongsTo
+KepalaDinas ||--|| User : belongsTo
+
+' Controller dependencies
+AnjuranController ..> Anjuran : manages
+AnjuranController ..> DokumenHubunganIndustrial : manages
+AnjuranController ..> LaporanHasilMediasi : manages
+AnjuranController ..> BukuRegisterPerselisihan : manages
+
+AnjuranResponseController ..> Anjuran : manages
+AnjuranResponseController ..> Pelapor : manages
+AnjuranResponseController ..> Terlapor : manages
+
+KepalaDinasController ..> Anjuran : manages
+KepalaDinasController ..> KepalaDinas : manages
+KepalaDinasController ..> Pengaduan : manages
+
+PerjanjianBersamaController ..> PerjanjianBersama : manages
+PerjanjianBersamaController ..> DokumenHubunganIndustrial : manages
+
+@enduml

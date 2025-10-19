@@ -28,7 +28,7 @@ return new class extends Migration
             $table->timestamp('tanggal_dokumen')->nullable();
             $table->timestamps();
 
-            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduans');
+            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduan');
         });
     }
 

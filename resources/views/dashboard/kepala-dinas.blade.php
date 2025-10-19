@@ -117,7 +117,7 @@
                 {{-- Quick Actions --}}
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <h4 class="text-lg font-semibold mb-4">Aksi Cepat</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <a href="{{ route('pengaduan.index-kepala-dinas') }}"
                             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors">
                             <div class="p-2 bg-blue-100 rounded-lg mr-3">
@@ -146,6 +146,36 @@
                                 <p class="font-medium text-gray-900">Approval Anjuran</p>
                                 <p class="text-sm text-gray-600">{{ $stats['menunggu_approval'] }} anjuran menunggu</p>
                             </div>
+                        </a>
+
+                        <a href="{{ route('kepala-dinas.mediator.approval.index') }}"
+                            class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors {{ $stats['mediator_pending'] > 0 ? 'ring-2 ring-orange-200 bg-orange-50' : '' }}">
+                            <div class="p-2 bg-orange-100 rounded-lg mr-3">
+                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5.121 17.804A3 3 0 017 17h10a3 3 0 012.879 2.804M15 11a3 3 0 10-6 0 3 3 0 006 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Approval Mediator</p>
+                                <p class="text-sm text-gray-600">
+                                    @if ($stats['mediator_pending'] > 0)
+                                        <span class="text-orange-600 font-semibold">{{ $stats['mediator_pending'] }}
+                                            mediator menunggu</span>
+                                    @else
+                                        Tidak ada pending
+                                    @endif
+                                </p>
+                            </div>
+                            @if ($stats['mediator_pending'] > 0)
+                                <div class="ml-auto">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        {{ $stats['mediator_pending'] }}
+                                    </span>
+                                </div>
+                            @endif
                         </a>
 
                         <a href="{{ route('laporan.index') }}"

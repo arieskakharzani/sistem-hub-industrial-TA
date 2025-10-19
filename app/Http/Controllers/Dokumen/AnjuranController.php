@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dokumen;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\Anjuran;
 use App\Models\DokumenHubunganIndustrial;
 use App\Models\KepalaDinas;
@@ -20,20 +21,43 @@ use App\Mail\DraftPerjanjianBersamaMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class AnjuranController extends Controller
 {
     public function create($dokumen_hi_id)
     {
-        $dokumenHI = DokumenHubunganIndustrial::with(['risalah' => function ($query) {
+        $dokumenHI = DokumenHubunganIndustrial::with(['pengaduan', 'risalah' => function ($query) {
             $query->where('jenis_risalah', 'penyelesaian');
         }])->findOrFail($dokumen_hi_id);
 
         $risalah = $dokumenHI->risalah->first();
 
+        // Cek apakah pengaduan memenuhi syarat untuk membuat anjuran
+        $pengaduan = $dokumenHI->pengaduan;
+        if (!$pengaduan->canCreateAnjuran()) {
+            return redirect()->back()->with('error', 'Pengaduan ini belum memenuhi syarat untuk membuat anjuran.');
+        }
+
+        // Cek apakah anjuran sudah pernah dibuat
+        if ($pengaduan->hasAnjuran()) {
+            $anjuran = $pengaduan->getAnjuran();
+            return redirect()->route('dokumen.anjuran.show', $anjuran->anjuran_id)
+                ->with('info', 'Anjuran untuk pengaduan ini sudah pernah dibuat.');
+        }
+
+        // Jika tidak ada risalah penyelesaian, buat data default untuk mixed attendance failure
         if (!$risalah) {
-            return redirect()->back()->with('error', 'Data risalah penyelesaian tidak ditemukan.');
+            $risalah = (object) [
+                'risalah_id' => null,
+                'jenis_risalah' => 'penyelesaian',
+                'nama_perusahaan' => $pengaduan->terlapor->nama_terlapor ?? '',
+                'alamat_perusahaan' => $pengaduan->terlapor->alamat_kantor_cabang ?? '',
+                'nama_pekerja' => $pengaduan->pelapor->nama_pelapor ?? '',
+                'alamat_pekerja' => $pengaduan->pelapor->alamat_pelapor ?? '',
+                'pokok_masalah' => $pengaduan->narasi_kasus ?? '',
+                'tanggal_perundingan' => now(),
+                'tempat_perundingan' => 'Ruang Mediasi Dinas Tenaga Kerja',
+            ];
         }
 
         return view('dokumen.create-anjuran', compact('dokumen_hi_id', 'risalah'));
@@ -41,26 +65,71 @@ class AnjuranController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'dokumen_hi_id' => 'required|uuid',
-            'nama_pengusaha' => 'required|string',
-            'jabatan_pengusaha' => 'required|string',
-            'perusahaan_pengusaha' => 'required|string',
-            'alamat_pengusaha' => 'required|string',
-            'nama_pekerja' => 'required|string',
-            'jabatan_pekerja' => 'required|string',
-            'perusahaan_pekerja' => 'required|string',
-            'alamat_pekerja' => 'required|string',
-            'keterangan_pekerja' => 'required|string',
-            'keterangan_pengusaha' => 'required|string',
-            'pertimbangan_hukum' => 'required|string',
-            'isi_anjuran' => 'required|string',
-        ]);
+        try {
+            $data = $request->validate([
+                'dokumen_hi_id' => 'required|uuid',
+                'nama_pengusaha' => 'required|string',
+                'jabatan_pengusaha' => 'required|string',
+                'perusahaan_pengusaha' => 'required|string',
+                'alamat_pengusaha' => 'required|string',
+                'nama_pekerja' => 'required|string',
+                'jabatan_pekerja' => 'required|string',
+                'perusahaan_pekerja' => 'required|string',
+                'alamat_pekerja' => 'required|string',
+                'keterangan_pekerja' => 'required|string',
+                'keterangan_pengusaha' => 'required|string',
+                'pertimbangan_hukum' => 'required|string',
+                'isi_anjuran' => 'required|string',
+            ]);
 
-        $anjuran = Anjuran::create($data);
+            // Generate anjuran_id jika belum ada
+            if (empty($data['anjuran_id'])) {
+                $data['anjuran_id'] = (string) Str::uuid();
+            }
 
-        return redirect()->route('dokumen.anjuran.show', $anjuran)
-            ->with('success', 'Anjuran berhasil dibuat.');
+            // Generate nomor anjuran otomatis
+            $year = now()->year;
+            $last = Anjuran::whereYear('created_at', $year)
+                ->whereNotNull('nomor_anjuran')
+                ->orderByDesc('nomor_anjuran')
+                ->first();
+            $next = 1;
+            if ($last && preg_match('/ANJ-' . $year . '-(\\d{4})$/', $last->nomor_anjuran, $matches)) {
+                $next = intval($matches[1]) + 1;
+            }
+            $data['nomor_anjuran'] = sprintf('ANJ-%d-%04d', $year, $next);
+
+            // Set status default
+            $data['status_approval'] = 'draft';
+
+            $anjuran = Anjuran::create($data);
+
+            \Log::info('Anjuran created successfully', [
+                'anjuran_id' => $anjuran->anjuran_id,
+                'nomor_anjuran' => $anjuran->nomor_anjuran,
+                'dokumen_hi_id' => $anjuran->dokumen_hi_id
+            ]);
+
+            return redirect()->route('dokumen.anjuran.show', $anjuran)
+                ->with('success', 'Anjuran berhasil dibuat.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error in anjuran store', [
+                'errors' => $e->errors(),
+                'input' => $request->all()
+            ]);
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Error creating anjuran', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all()
+            ]);
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat menyimpan anjuran: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function show($id)

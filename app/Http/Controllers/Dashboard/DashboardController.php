@@ -237,6 +237,7 @@ class DashboardController extends Controller
                 ->whereMonth('updated_at', now()->month)
                 ->whereYear('updated_at', now()->year)
                 ->count(),
+            'mediator_pending' => \App\Models\Mediator::where('status', 'pending')->count(),
         ];
 
         return view('dashboard.kepala-dinas', compact('user', 'stats'));

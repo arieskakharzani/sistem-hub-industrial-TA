@@ -11,7 +11,7 @@ class Pengaduan extends Model
 {
     use HasFactory;
 
-    protected $table = 'pengaduans';
+    protected $table = 'pengaduan';
     protected $primaryKey = 'pengaduan_id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -284,5 +284,202 @@ class Pengaduan extends Model
     public function hasReachedMaxMediasiSessions()
     {
         return $this->getCompletedMediasiSessionsCount() >= 3;
+    }
+
+    /**
+     * Check if next mediasi schedule already exists for given sidang_ke
+     */
+    public function hasNextMediasiSchedule($currentSidangKe)
+    {
+        return $this->jadwal()
+            ->where('jenis_jadwal', 'mediasi')
+            ->where('sidang_ke', $currentSidangKe + 1)
+            ->exists();
+    }
+
+    /**
+     * Get next mediasi schedule if exists
+     */
+    public function getNextMediasiSchedule($currentSidangKe)
+    {
+        return $this->jadwal()
+            ->where('jenis_jadwal', 'mediasi')
+            ->where('sidang_ke', $currentSidangKe + 1)
+            ->first();
+    }
+
+    /**
+     * Get all mediasi sessions for this pengaduan
+     */
+    public function getMediasiSessions()
+    {
+        return $this->jadwal()
+            ->where('jenis_jadwal', 'mediasi')
+            ->orderBy('sidang_ke', 'asc')
+            ->get();
+    }
+
+    /**
+     * Check if pelapor is unresponsive (always absent or no confirmation in all mediasi sessions)
+     */
+    public function isPelaporUnresponsive()
+    {
+        $mediasiSessions = $this->getMediasiSessions();
+
+        if ($mediasiSessions->count() < 3) {
+            return false; // Belum mencapai 3 sesi
+        }
+
+        // Cek apakah pelapor selalu tidak hadir atau tidak konfirmasi di semua sesi
+        foreach ($mediasiSessions as $session) {
+            if ($session->konfirmasi_pelapor === 'hadir') {
+                return false; // Ada sesi dimana pelapor hadir
+            }
+        }
+
+        return true; // Pelapor tidak pernah hadir di semua sesi
+    }
+
+    /**
+     * Check if terlapor is unresponsive (always absent or no confirmation in all mediasi sessions)
+     */
+    public function isTerlaporUnresponsive()
+    {
+        $mediasiSessions = $this->getMediasiSessions();
+
+        if ($mediasiSessions->count() < 3) {
+            return false; // Belum mencapai 3 sesi
+        }
+
+        // Cek apakah terlapor selalu tidak hadir atau tidak konfirmasi di semua sesi
+        foreach ($mediasiSessions as $session) {
+            if ($session->konfirmasi_terlapor === 'hadir') {
+                return false; // Ada sesi dimana terlapor hadir
+            }
+        }
+
+        return true; // Terlapor tidak pernah hadir di semua sesi
+    }
+
+    /**
+     * Check if pengaduan should be auto-completed due to pelapor unresponsiveness
+     */
+    public function shouldAutoCompleteDueToPelaporUnresponsiveness()
+    {
+        return $this->hasReachedMaxMediasiSessions() && $this->isPelaporUnresponsive();
+    }
+
+    /**
+     * Check if mediator can create anjuran due to terlapor unresponsiveness
+     */
+    public function canCreateAnjuranDueToTerlaporUnresponsiveness()
+    {
+        return $this->hasReachedMaxMediasiSessions() && $this->isTerlaporUnresponsive();
+    }
+
+    /**
+     * Check if mediator can create anjuran due to mixed attendance failure
+     * (when both parties are not unresponsive but no mediasi risalah was created)
+     */
+    public function canCreateAnjuranDueToMixedAttendanceFailure()
+    {
+        return $this->hasReachedMaxMediasiSessions() &&
+            !$this->isPelaporUnresponsive() &&
+            !$this->isTerlaporUnresponsive() &&
+            !$this->hasAnyMediasiRisalah();
+    }
+
+    /**
+     * Check if this pengaduan has any mediasi risalah
+     */
+    public function hasAnyMediasiRisalah()
+    {
+        return $this->dokumenHI()
+            ->whereHas('risalah', function ($query) {
+                $query->where('jenis_risalah', 'mediasi');
+            })
+            ->exists();
+    }
+
+    /**
+     * Check if mediator can create anjuran (combined logic)
+     */
+    public function canCreateAnjuran()
+    {
+        return $this->canCreateAnjuranDueToTerlaporUnresponsiveness() ||
+            $this->canCreateAnjuranDueToMixedAttendanceFailure();
+    }
+
+    /**
+     * Check if anjuran already exists for this pengaduan
+     */
+    public function hasAnjuran()
+    {
+        return $this->dokumenHI()
+            ->whereHas('anjuran')
+            ->exists();
+    }
+
+    /**
+     * Get existing anjuran for this pengaduan
+     */
+    public function getAnjuran()
+    {
+        $dokumenHI = $this->dokumenHI()->first();
+        if (!$dokumenHI) {
+            return null;
+        }
+
+        return $dokumenHI->anjuran()->first();
+    }
+
+    /**
+     * Get responsiveness summary for both parties
+     */
+    public function getResponsivenessSummary()
+    {
+        $mediasiSessions = $this->getMediasiSessions();
+
+        $summary = [
+            'total_sessions' => $mediasiSessions->count(),
+            'pelapor' => [
+                'hadir' => 0,
+                'tidak_hadir' => 0,
+                'pending' => 0,
+                'unresponsive' => false
+            ],
+            'terlapor' => [
+                'hadir' => 0,
+                'tidak_hadir' => 0,
+                'pending' => 0,
+                'unresponsive' => false
+            ]
+        ];
+
+        foreach ($mediasiSessions as $session) {
+            // Count pelapor responses
+            if ($session->konfirmasi_pelapor === 'hadir') {
+                $summary['pelapor']['hadir']++;
+            } elseif ($session->konfirmasi_pelapor === 'tidak_hadir') {
+                $summary['pelapor']['tidak_hadir']++;
+            } else {
+                $summary['pelapor']['pending']++;
+            }
+
+            // Count terlapor responses
+            if ($session->konfirmasi_terlapor === 'hadir') {
+                $summary['terlapor']['hadir']++;
+            } elseif ($session->konfirmasi_terlapor === 'tidak_hadir') {
+                $summary['terlapor']['tidak_hadir']++;
+            } else {
+                $summary['terlapor']['pending']++;
+            }
+        }
+
+        // Check unresponsiveness
+        $summary['pelapor']['unresponsive'] = $this->isPelaporUnresponsive();
+        $summary['terlapor']['unresponsive'] = $this->isTerlaporUnresponsive();
+
+        return $summary;
     }
 }

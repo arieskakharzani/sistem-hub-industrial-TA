@@ -252,9 +252,24 @@ Route::middleware(['auth', 'verified', 'check.role:mediator'])->prefix('mediator
     });
 });
 
+// Public routes untuk registrasi mediator
+Route::get('/register/mediator', [\App\Http\Controllers\Akun\MediatorRegistrationController::class, 'showRegistrationForm'])->name('mediator.register');
+Route::post('/register/mediator', [\App\Http\Controllers\Akun\MediatorRegistrationController::class, 'register']);
+Route::get('/register/mediator/success', [\App\Http\Controllers\Akun\MediatorRegistrationController::class, 'success'])->name('mediator.register.success');
+
+// Routes untuk kepala dinas approval (protected)
+Route::middleware(['auth', 'verified', 'check.role:kepala_dinas'])->prefix('kepala-dinas')->name('kepala-dinas.')->group(function () {
+    Route::prefix('mediator')->name('mediator.')->group(function () {
+        Route::get('/pending-approval', [\App\Http\Controllers\Akun\MediatorApprovalController::class, 'index'])->name('approval.index');
+        Route::get('/{id}/preview', [\App\Http\Controllers\Akun\MediatorApprovalController::class, 'preview'])->name('preview');
+        Route::post('/{id}/approve', [\App\Http\Controllers\Akun\MediatorApprovalController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [\App\Http\Controllers\Akun\MediatorApprovalController::class, 'reject'])->name('reject');
+        Route::get('/{id}/download-sk', [\App\Http\Controllers\Akun\MediatorApprovalController::class, 'downloadSk'])->name('download-sk');
+    });
+});
+
 // Routes untuk notifikasi (semua role)
 Route::middleware(['auth', 'verified'])->prefix('notifications')->name('notifications.')->group(function () {
-    // Halaman index notifikasi
     Route::get('/', [NotificationController::class, 'index'])->name('index');
     Route::get('/{notification}', [NotificationController::class, 'show'])->name('show');
 

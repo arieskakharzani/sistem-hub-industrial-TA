@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('jadwal', function (Blueprint $table) {
             $table->uuid('jadwal_id')->primary();
             $table->uuid('pengaduan_id');
-            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduans')->onDelete('cascade');
+            $table->foreign('pengaduan_id')->references('pengaduan_id')->on('pengaduan')->onDelete('cascade');
             $table->uuid('mediator_id');
             $table->foreign('mediator_id')->references('mediator_id')->on('mediator')->onDelete('cascade');
             $table->date('tanggal');
